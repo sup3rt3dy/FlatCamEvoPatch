@@ -1,0 +1,61 @@
+--- a/appMain.py
++++ b/appMain.py
+@@ -131,6 +131,8 @@ import builtins
+ fcTranslate.apply_language('strings')
+ if '_' not in builtins.__dict__:
+     _ = gettext.gettext
++
++# Compile regex pattern at module level for performance
++_MESSAGE_PATTERN = re.compile(r"^\[(.*?)](.*)")
+ 
+ 
+ class App(QtCore.QObject):
+@@ -210,6 +212,7 @@ class App(QtCore.QObject):
+     # flag is True if saving action has been triggered
+     save_in_progress = False
+ 
++    # Compiled regex pattern for message parsing
++    _MESSAGE_PATTERN = re.compile(r"^\[(.*?)](.*)")
+ 
+     # ###############################################################################################################
+     # #######################################    APP Signals   ######################################################
+@@ -750,16 +753,37 @@ class App(QtCore.QObject):
+     def clear_pool(self):
+         """
+-        Clear the multiprocessing pool and calls garbage collector.
++        Clear the multiprocessing pool and calls garbage collector.
++        IMPROVED WITH BETTER ERROR HANDLING AND TIMEOUT
+ 
+         :return: None
+         """
+-        self.pool.close()
+-
+-        self.pool = Pool(processes=self.options["global_process_number"])
+-        self.pool_recreated.emit(self.pool)
+-
+-        gc.collect()
++        try:
++            # Safely terminate the pool
++            if self.pool is not None:
++                self.pool.terminate()
++                self.pool.join(timeout=5)  # Add timeout to prevent hanging
++        except Exception as e:
++            self.log.warning("Error terminating pool: %s" % str(e))
++        finally:
++            # Always create a new pool
++            try:
++                self.pool = Pool(processes=self.options["global_process_number"])
++                self.pool_recreated.emit(self.pool)
++                self.log.debug("Pool cleared and recreated")
++            except Exception as e:
++                self.log.error("Failed to create new pool: %s" % str(e))
++                self.pool = None
++            
++            try:
++                gc.collect()
++                self.log.debug("Garbage collection completed")
++            except Exception as e:
++                self.log.error("Error during garbage collection: %s" % str(e))
+ 
+     def install_tools(self, init_tcl=False):
+         """
