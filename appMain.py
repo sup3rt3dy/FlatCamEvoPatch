@@ -3985,7 +3985,13 @@ class App(QtCore.QObject):
                     self.log.error('App.__init__() -->%s' % str(e))
                     return
         except FileNotFoundError:
-            pass
+            self.log.warning('Configuration file not found at: %s' % config_file)
+            return
+
+        # CRITICAL FIX: Check if data is None before processing
+        if data is None:
+            self.log.error('App.on_portable_checked() --> Configuration data is None')
+            return
 
         for line in data:
             line = line.strip('\n')
