@@ -3839,11 +3839,23 @@ class App(QtCore.QObject):
         self.ui.hide()
 
         if sys.platform == 'win32':
-            self.new_launch.stop.emit()     # noqa
-            # https://forum.qt.io/topic/108777/stop-a-loop-in-object-that-has-been-moved-to-a-qthread/7
-            if self.listen_th.isRunning():
-                self.listen_th.requestInterruption()
-                self.log.debug("ArgThread QThread requested an interruption.")
+            # CRITICAL FIX: Check if new_launch exists before calling stop
+            try:
+                if hasattr(self, 'new_launch') and self.new_launch is not None:
+                    self.new_launch.stop.emit()     # noqa
+            except Exception as e:
+                if silent is False:
+                    self.log.error("App.quit_application() --> Error stopping new_launch: %s" % str(e))
+
+            # Check if listen_th exists and is running before requesting interruption
+            try:
+                if hasattr(self, 'listen_th') and self.listen_th is not None and self.listen_th.isRunning():
+                    self.listen_th.requestInterruption()
+                    if silent is False:
+                        self.log.debug("ArgThread QThread requested an interruption.")
+            except Exception as e:
+                if silent is False:
+                    self.log.error("App.quit_application() --> Error interrupting listen_th: %s" % str(e))
 
         # close editors before quiting the app, if they are open
         if self.call_source == 'geo_editor':
@@ -3923,8 +3935,9 @@ class App(QtCore.QObject):
         try:
             # del self.new_launch
             if sys.platform == 'win32':
-                self.listen_th.quit()
-                self.listen_th.wait(1000)
+                if hasattr(self, 'listen_th') and self.listen_th is not None:
+                    self.listen_th.quit()
+                    self.listen_th.wait(1000)
         except Exception as e:
             if silent is False:
                 self.log.error("App.quit_application() --> %s" % str(e))
@@ -3941,7 +3954,8 @@ class App(QtCore.QObject):
         QtWidgets.QApplication.quit()
         if sys.platform == 'win32':
             try:
-                self.new_launch.close_command()
+                if hasattr(self, 'new_launch') and self.new_launch is not None:
+                    self.new_launch.close_command()
             except Exception:
                 pass
 
