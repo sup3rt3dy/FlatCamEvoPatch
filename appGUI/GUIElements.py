@@ -952,7 +952,16 @@ class EvalEntry(FCLineEdit):
         return evaled
 
     def set_value(self, val):
-        self.setText(str(val))
+        try:
+            self.setText(str(val))
+        except RuntimeError as e:
+            # Widget has been deleted in parent thread
+            if "wrapped C/C++ object" in str(e):
+                return
+            raise
+        except Exception:
+            # Any other exception - silently return
+            return
 
     def sizeHint(self):
         default_hint_size = super(EvalEntry, self).sizeHint()

@@ -393,16 +393,42 @@ class GerberObject(FlatCAMObj, Gerber):
         self.ui.mark_all_cb.clicked.connect(self.on_mark_all_click)
 
     def ui_disconnect(self):
-        for row in range(self.ui.apertures_table.rowCount()):
+        try:
+            # Check if UI exists before accessing widgets
+            if not hasattr(self, 'ui') or self.ui is None:
+                return
+            
+            # Safely access apertures_table
             try:
-                self.ui.apertures_table.cellWidget(row, 5).clicked.disconnect()
+                table = self.ui.apertures_table
+                if table is not None:
+                    for row in range(table.rowCount()):
+                        try:
+                            widget = table.cellWidget(row, 5)
+                            if widget is not None:
+                                widget.clicked.disconnect()
+                        except (TypeError, AttributeError, RuntimeError):
+                            pass
+            except RuntimeError as e:
+                # Widget has been deleted
+                if "wrapped C/C++ object" in str(e):
+                    pass
+                else:
+                    raise
             except (TypeError, AttributeError):
                 pass
 
-        try:
-            self.ui.mark_all_cb.clicked.disconnect(self.on_mark_all_click)
-        except (TypeError, AttributeError):
-            pass
+            # Safely disconnect mark_all_cb signal
+            try:
+                if hasattr(self.ui, 'mark_all_cb') and self.ui.mark_all_cb is not None:
+                    self.ui.mark_all_cb.clicked.disconnect(self.on_mark_all_click)
+            except (TypeError, AttributeError, RuntimeError):
+                pass
+        except Exception as e:
+            # Log but don't crash on UI disconnect failures
+            import logging
+            logger = logging.getLogger('base')
+            logger.debug(f"Error in ui_disconnect: {str(e)}")
 
     def on_properties(self, state):
         if state:
