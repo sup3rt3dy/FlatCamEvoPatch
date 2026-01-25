@@ -7514,19 +7514,26 @@ class App(QtCore.QObject):
                 obj.obj_options.set_change_callback(lambda x: None)
                 try:
                     obj.obj_options['plot'] = False
-                    obj.ui.plot_cb.stateChanged.disconnect(obj.on_plot_cb_click)
+                    try:
+                        # Safely disconnect signal from widget that may have been deleted
+                        obj.ui.plot_cb.stateChanged.disconnect(obj.on_plot_cb_click)
+                    except RuntimeError as e:
+                        # Widget already deleted, skip disconnect
+                        if "wrapped C/C++ object" not in str(e):
+                            raise
                     obj.ui.plot_cb.setDisabled(True)
-                except (AttributeError, TypeError):
+                except (AttributeError, TypeError, RuntimeError):
                     # try to build the ui
                     obj.build_ui()
                     # and try again
                     self.disable_plots(objects)
+                    return
 
                 obj.set_form_item("plot")
                 try:
                     obj.ui.plot_cb.stateChanged.connect(obj.on_plot_cb_click)
                     obj.ui.plot_cb.setDisabled(False)
-                except (AttributeError, TypeError):
+                except (AttributeError, TypeError, RuntimeError):
                     # try to build the ui
                     obj.build_ui()
                     # and try again
