@@ -1,3 +1,37 @@
+**This repository is not the original FlatCAM project.**
+
+Original project & authorship: FlatCAM is developed by its original author(s).
+This fork/branch exists solely to apply, test, and validate patches on top of an existing FlatCAM Beta codebase.
+
+**What this repo contains**
+
+Minor compatibility and stability patches
+Adjustments required for Qt6 / modern Python environments
+Small fixes identified during local testing
+What this repo does not claim
+No claim of original authorship
+No claim of ownership over the FlatCAM project
+No attempt to replace or compete with the upstream project
+
+**About AI assistance**
+
+Some patches and code suggestions were generated with the assistance of GitHub Copilot and then:
+
+-reviewed
+-adapted
+-tested locally
+
+All responsibility for what is committed here remains with the human maintainer of this repository.
+
+If you are looking for the official FlatCAM project, please refer to the original upstream repository.
+
+⚠️ Disclaimer
+
+This repository is provided as-is, primarily for experimentation and collaboration.
+Use at your own risk.
+
+# Original README:
+
 FlatCAM Evo (c) 2019 - by Marius Stanciu
 
 Based on FlatCAM: 
