@@ -854,13 +854,22 @@ class FCEntry(FCLineEdit):
         return str(self.text())
 
     def set_value(self, val, decimals=None):
-        decimal_digits = decimals if decimals is not None else self.decimals
-        if type(val) is float:
-            self.setText('%.*f' % (decimal_digits, val))
-        elif val is None:
-            self.setText('')
-        else:
-            self.setText(str(val))
+        try:
+            decimal_digits = decimals if decimals is not None else self.decimals
+            if type(val) is float:
+                self.setText('%.*f' % (decimal_digits, val))
+            elif val is None:
+                self.setText('')
+            else:
+                self.setText(str(val))
+        except RuntimeError as e:
+            # Widget has been deleted in parent thread during serialization
+            if "wrapped C/C++ object" in str(e):
+                return
+            raise
+        except Exception:
+            # Any other exception during serialization - silently ignore
+            return
 
     def sizeHint(self):
         default_hint_size = super(FCEntry, self).sizeHint()
