@@ -1876,7 +1876,16 @@ class FCCheckBox(QtWidgets.QCheckBox):
         super(FCCheckBox, self).__init__(str(label), parent)
 
     def get_value(self):
-        return self.isChecked()
+        try:
+            return self.isChecked()
+        except RuntimeError as e:
+            # Widget has been deleted in parent thread
+            if "wrapped C/C++ object" in str(e):
+                return False
+            raise
+        except Exception:
+            # Any other unexpected exception - return False instead of crashing
+            return False
 
     def set_value(self, val):
         self.setChecked(True if val else False)
@@ -3248,7 +3257,16 @@ class FCButton(QtWidgets.QPushButton):
         self.set_stylesheet()
 
     def get_value(self):
-        return self.isChecked()
+        try:
+            return self.isChecked()
+        except RuntimeError as e:
+            # Widget has been deleted in parent thread
+            if "wrapped C/C++ object" in str(e):
+                return False
+            raise
+        except Exception:
+            # Any other unexpected exception - return False instead of crashing
+            return False
 
     def set_value(self, val):
         self.setText(str(val))
