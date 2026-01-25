@@ -1403,7 +1403,14 @@ class FCSpinner(QtWidgets.QSpinBox):
         except Exception as e:
             log.error(str(e))
             return
-        self.setValue(k)
+        try:
+            self.setValue(k)
+        except RuntimeError as e:
+            if "wrapped C/C++ object" in str(e):
+                return
+            raise
+        except Exception:
+            return
 
     def validate(self, p_str, p_int):
         text = p_str
@@ -1664,7 +1671,14 @@ class FCDoubleSpinner(QtWidgets.QDoubleSpinBox):
         except Exception as e:
             log.error(str(e))
             return
-        self.setValue(k)
+        try:
+            self.setValue(k)
+        except RuntimeError as e:
+            if "wrapped C/C++ object" in str(e):
+                return
+            raise
+        except Exception:
+            return
 
     def set_precision(self, val):
         self.setDecimals(val)
@@ -1897,7 +1911,14 @@ class FCCheckBox(QtWidgets.QCheckBox):
             return False
 
     def set_value(self, val):
-        self.setChecked(True if val else False)
+        try:
+            self.setChecked(True if val else False)
+        except RuntimeError as e:
+            if "wrapped C/C++ object" in str(e):
+                return
+            raise
+        except Exception:
+            return
 
     def toggle(self):
         self.set_value(not self.get_value())
