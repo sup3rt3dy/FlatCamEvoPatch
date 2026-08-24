@@ -31,6 +31,7 @@ import logging
 import gettext
 import appTranslation as fcTranslate
 import builtins
+from appGUI.GUIElements import safe_widget_call
 
 fcTranslate.apply_language('strings')
 if '_' not in builtins.__dict__:
@@ -557,6 +558,7 @@ class ExclusionAreas(QtCore.QObject):
         self.app.call_source = "app"
         self.app.inform.emit("[WARNING_NOTCL] %s" % _("Cancelled. Area exclusion drawing was interrupted."))
 
+    @safe_widget_call
     def on_mouse_move(self, event):
         """
         Called on mouse move

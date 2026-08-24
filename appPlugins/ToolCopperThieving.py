@@ -27,6 +27,7 @@ from shapely.affinity import translate
 import gettext
 import appTranslation as fcTranslate
 import builtins
+from appGUI.GUIElements import safe_widget_call
 
 fcTranslate.apply_language('strings')
 if '_' not in builtins.__dict__:
@@ -88,6 +89,7 @@ class ToolCopperThieving(AppTool):
 
         self.rb_thickness = None
 
+    @safe_widget_call
     def run(self, toggle=True):
         self.app.defaults.report_usage("ToolCopperThieving()")
 
@@ -160,6 +162,7 @@ class ToolCopperThieving(AppTool):
 
         self.work_finished.connect(self.on_new_pattern_plating_object)
 
+    @safe_widget_call
     def set_tool_ui(self):
         self.units = self.app.app_units
         self.geo_steps_per_circle = int(self.app.options["tools_copper_thieving_circle_steps"])
@@ -204,6 +207,7 @@ class ToolCopperThieving(AppTool):
         if obj is None:
             self.ui.grb_object_combo.setCurrentIndex(0)
 
+    @safe_widget_call
     def on_ref_combo_type_change(self):
         obj_type = self.ui.ref_combo_type.currentIndex()
         self.ui.ref_combo.setRootModelIndex(self.app.collection.index(obj_type, 0, QtCore.QModelIndex()))
@@ -212,6 +216,7 @@ class ToolCopperThieving(AppTool):
             _("Gerber"): "Gerber", _("Excellon"): "Excellon", _("Geometry"): "Geometry"
         }[self.ui.ref_combo_type.get_value()]
 
+    @safe_widget_call
     def on_toggle_reference(self):
         ref_val = self.ui.reference_combo.get_value()
         # if in ["itself", "area"]
@@ -236,6 +241,7 @@ class ToolCopperThieving(AppTool):
             self.ui.bbox_type_label.hide()
             self.ui.bbox_type_radio.hide()
 
+    @safe_widget_call
     def on_thieving_type(self, new_index):
         if new_index == 0:     # "solid"
             self.ui.dots_frame.hide()
@@ -262,6 +268,7 @@ class ToolCopperThieving(AppTool):
             self.ui.squares_frame.hide()
             self.ui.lines_frame.show()
 
+    @safe_widget_call
     def on_add_robber_bar_click(self):
         rb_margin = self.ui.rb_margin_entry.get_value()
         self.rb_thickness = self.ui.rb_thickness_entry.get_value()
@@ -357,6 +364,7 @@ class ToolCopperThieving(AppTool):
         self.on_exit()
         self.app.inform.emit('[success] %s' % _("Copper Thieving Tool done."))
 
+    @safe_widget_call
     def on_add_copper_thieving_click(self):
         self.app.call_source = "copper_thieving_tool"
 
@@ -481,6 +489,7 @@ class ToolCopperThieving(AppTool):
             )
 
     # called on mouse move
+    @safe_widget_call
     def on_mouse_move(self, event):
         if self.app.use_3d_engine:
             event_pos = event.pos
@@ -950,6 +959,7 @@ class ToolCopperThieving(AppTool):
         else:
             self.on_new_pattern_plating_object()
 
+    @safe_widget_call
     def on_new_pattern_plating_object(self):
         ppm_clearance = self.ui.clearance_ppm_entry.get_value()
         geo_choice = self.ui.ppm_choice_combo.get_value()

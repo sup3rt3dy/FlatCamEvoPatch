@@ -32,6 +32,7 @@ from functools import reduce
 import gettext
 import appTranslation as fcTranslate
 import builtins
+from appGUI.GUIElements import safe_widget_call
 
 fcTranslate.apply_language('strings')
 if '_' not in builtins.__dict__:
@@ -166,6 +167,7 @@ class GeometryObject(FlatCAMObj, Geometry):
         # from predecessors.
         self.ser_attrs += ['obj_options', 'kind', 'multigeo', 'fill_color', 'outline_color', 'alpha_level']
 
+    @safe_widget_call
     def build_ui(self):
         try:
             self.ui_disconnect()
@@ -418,6 +420,7 @@ class GeometryObject(FlatCAMObj, Geometry):
     def on_row_changed(self):
         pass
 
+    @safe_widget_call
     def table_toggle_all(self):
         """
         Will toggle the selection of all rows in the table
@@ -459,6 +462,7 @@ class GeometryObject(FlatCAMObj, Geometry):
             self.ui.level.setChecked(False)
         self.on_level_changed(self.ui.level.isChecked())
 
+    @safe_widget_call
     def on_level_changed(self, checked):
         if not checked:
             self.ui.level.setText('%s' % _('Beginner'))
@@ -478,6 +482,7 @@ class GeometryObject(FlatCAMObj, Geometry):
                                                 }
                                                 """)
 
+    @safe_widget_call
     def on_properties(self, state):
         if state:
             self.ui.info_frame.show()
@@ -492,6 +497,7 @@ class GeometryObject(FlatCAMObj, Geometry):
         # make sure that the FCTree widget columns are resized to content
         self.ui.treeWidget.resize_sig.emit()
 
+    @safe_widget_call
     def on_properties_expanded(self):
         for col in range(self.treeWidget.columnCount()):
             self.ui.treeWidget.resizeColumnToContents(col)
@@ -499,6 +505,7 @@ class GeometryObject(FlatCAMObj, Geometry):
     def on_milling_button_clicked(self):
         self.app.milling_tool.run(toggle=True)
 
+    @safe_widget_call
     def on_calculate_vertex_points(self):
         self.app.log.debug("GeometryObject.on_calculate_vertex_points()")
 
@@ -518,6 +525,7 @@ class GeometryObject(FlatCAMObj, Geometry):
         self.ui.vertex_points_entry.set_value(vertex_points)
         self.app.inform.emit('[success] %s' % _("Vertex points calculated."))
 
+    @safe_widget_call
     def on_simplify_geometry(self):
         self.app.log.debug("GeometryObject.on_simplify_geometry()")
 
@@ -1507,6 +1515,7 @@ class GeometryObject(FlatCAMObj, Geometry):
         except (ObjectDeleted, AttributeError):
             self.shapes.clear(update=True)
 
+    @safe_widget_call
     def on_plot_cb_click(self):
         if self.muted_ui:
             return
@@ -1524,6 +1533,7 @@ class GeometryObject(FlatCAMObj, Geometry):
                 table_cb.setChecked(False)
         self.ui_connect()
 
+    @safe_widget_call
     def on_plot_cb_click_table(self):
         # self.ui.cnc_tools_table.cellWidget(row, 2).widget().setCheckState(QtCore.Qt.Unchecked)
         self.ui_disconnect()

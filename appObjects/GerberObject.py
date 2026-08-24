@@ -27,6 +27,7 @@ from copy import deepcopy
 import gettext
 import appTranslation as fcTranslate
 import builtins
+from appGUI.GUIElements import safe_widget_call
 
 fcTranslate.apply_language('strings')
 if '_' not in builtins.__dict__:
@@ -226,6 +227,7 @@ class GerberObject(FlatCAMObj, Gerber):
             self.ui.level.setChecked(False)
         self.on_level_changed(self.ui.level.isChecked())
 
+    @safe_widget_call
     def on_level_changed(self, checked):
         if not checked:
             self.ui.level.setText('%s' % _('Beginner'))
@@ -257,6 +259,7 @@ class GerberObject(FlatCAMObj, Gerber):
 
             self.ui.follow_cb.show()
 
+    @safe_widget_call
     def build_ui(self):
         FlatCAMObj.build_ui(self)
 
@@ -430,6 +433,7 @@ class GerberObject(FlatCAMObj, Gerber):
             logger = logging.getLogger('base')
             logger.debug(f"Error in ui_disconnect: {str(e)}")
 
+    @safe_widget_call
     def on_properties(self, state):
         if state:
             self.ui.info_frame.show()
@@ -443,6 +447,7 @@ class GerberObject(FlatCAMObj, Gerber):
         # make sure that the FCTree widget columns are resized to content
         self.ui.treeWidget.resize_sig.emit()
 
+    @safe_widget_call
     def on_properties_expanded(self):
         for col in range(self.treeWidget.columnCount()):
             self.ui.treeWidget.resizeColumnToContents(col)
@@ -870,6 +875,7 @@ class GerberObject(FlatCAMObj, Gerber):
             return
         self.plot()
 
+    @safe_widget_call
     def on_aperture_table_visibility_change(self):
         if self.ui.aperture_table_visibility_cb.isChecked():
             # add the shapes storage for marking apertures
@@ -1103,6 +1109,7 @@ class GerberObject(FlatCAMObj, Gerber):
         self.ui.mark_all_cb.set_value(False)
         self.marked_rows[:] = []
 
+    @safe_widget_call
     def on_mark_cb_click_table(self):
         """
         Will mark aperture geometries on canvas or delete the markings depending on the checkbox state
@@ -1152,6 +1159,7 @@ class GerberObject(FlatCAMObj, Gerber):
             self.ui.mark_all_cb.setChecked(True)
         self.ui_connect()
 
+    @safe_widget_call
     def on_mark_all_click(self):
         self.ui_disconnect()
         mark_all = self.ui.mark_all_cb.isChecked()

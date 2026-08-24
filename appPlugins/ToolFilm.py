@@ -35,6 +35,7 @@ from svglib.svglib import svg2rlg
 from xml.dom.minidom import parseString as parse_xml_string
 from lxml import etree as ET
 from io import StringIO
+from appGUI.GUIElements import safe_widget_call
 
 fcTranslate.apply_language('strings')
 if '_' not in builtins.__dict__:
@@ -65,6 +66,7 @@ class Film(AppTool):
 
         self.screen_dpi = 96
 
+    @safe_widget_call
     def on_type_obj_index_changed(self, val):
         obj_type = 2 if val == 'geo' else 0
         self.ui.tf_object_combo.setRootModelIndex(self.app.collection.index(obj_type, 0, QtCore.QModelIndex()))
@@ -73,6 +75,7 @@ class Film(AppTool):
             "grb": "gerber", "geo": "geometry"
         }[self.ui.tf_type_obj_combo.get_value()]
 
+    @safe_widget_call
     def on_type_box_index_changed(self, val):
         obj_type = 2 if val == 'geo' else 0
         self.ui.tf_box_combo.setRootModelIndex(self.app.collection.index(obj_type, 0, QtCore.QModelIndex()))
@@ -81,6 +84,7 @@ class Film(AppTool):
             "grb": "gerber", "geo": "geometry"
         }[self.ui.tf_type_obj_combo.get_value()]
 
+    @safe_widget_call
     def on_object_selection_changed(self, current, previous):
         found_idx = None
         for tab_idx in range(self.app.ui.notebook.count()):
@@ -103,6 +107,7 @@ class Film(AppTool):
             except Exception:
                 pass
 
+    @safe_widget_call
     def run(self, toggle=True):
         self.app.defaults.report_usage("ToolFilm()")
 
@@ -180,6 +185,7 @@ class Film(AppTool):
 
         self.ui.reset_button.clicked.connect(self.set_tool_ui)
 
+    @safe_widget_call
     def set_tool_ui(self):
 
         self.clear_ui(self.layout)
@@ -272,6 +278,7 @@ class Film(AppTool):
             self.ui.level.setChecked(False)
         self.on_level_changed(self.ui.level.isChecked())
 
+    @safe_widget_call
     def on_level_changed(self, checked):
         if not checked:
             self.ui.level.setText('%s' % _('Beginner'))
@@ -310,6 +317,7 @@ class Film(AppTool):
                 self.app.options["tools_film_scale_stroke"] else 0.0
             self.ui.film_scale_stroke_entry.set_value(float(scale_stroke_width))
 
+    @safe_widget_call
     def on_film_creation(self):
         self.app.log.debug("ToolFilm.Film.on_film_creation() started ...")
 

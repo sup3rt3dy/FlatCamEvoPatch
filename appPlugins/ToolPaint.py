@@ -34,6 +34,7 @@ import builtins
 
 from appParsers.ParseGerber import Gerber
 from camlib import Geometry, AppRTreeStorage, grace, flatten_shapely_geometry, is_mpl_key_event
+from appGUI.GUIElements import safe_widget_call
 
 fcTranslate.apply_language('strings')
 if '_' not in builtins.__dict__:
@@ -135,6 +136,7 @@ class ToolPaint(Gerber, AppTool):
         # #############################################################################
         self.init_context_menu()
 
+    @safe_widget_call
     def on_type_obj_changed(self, val):
         obj_type = 0 if val == 'gerber' else 2
         self.ui.obj_combo.setRootModelIndex(self.app.collection.index(obj_type, 0, QtCore.QModelIndex()))
@@ -149,6 +151,7 @@ class ToolPaint(Gerber, AppTool):
             if self.ui.paintmethod_combo.get_value() == idx:    # if its Laser Lines
                 self.ui.paintmethod_combo.set_value(idx+1)
 
+    @safe_widget_call
     def on_reference_combo_changed(self):
         obj_type = self.ui.reference_type_combo.currentIndex()
         self.ui.reference_combo.setRootModelIndex(self.app.collection.index(obj_type, 0, QtCore.QModelIndex()))
@@ -158,6 +161,7 @@ class ToolPaint(Gerber, AppTool):
     def install(self, icon=None, separator=None, **kwargs):
         AppTool.install(self, icon, separator, shortcut='Alt+P', **kwargs)
 
+    @safe_widget_call
     def run(self, toggle=True):
         self.app.defaults.report_usage("ToolPaint()")
 
@@ -263,6 +267,7 @@ class ToolPaint(Gerber, AppTool):
         # Cleanup on Graceful exit (CTRL+ALT+X combo key)
         self.app.cleanup.connect(self.set_tool_ui)
 
+    @safe_widget_call
     def set_tool_ui(self):
         self.clear_ui(self.layout)
         self.ui = PaintUI(layout=self.layout, app=self.app)
@@ -443,6 +448,7 @@ class ToolPaint(Gerber, AppTool):
             self.ui.level.setChecked(False)
         self.on_level_changed(self.ui.level.isChecked())
 
+    @safe_widget_call
     def on_level_changed(self, checked):
         if not checked:
             self.ui.level.setText('%s' % _('Beginner'))
@@ -497,6 +503,7 @@ class ToolPaint(Gerber, AppTool):
             # Context Menu section
             self.ui.tools_table.setupContextMenu()
 
+    @safe_widget_call
     def on_toggle_all_rows(self):
         """
         will toggle the selection of all rows in Tools table
@@ -522,6 +529,7 @@ class ToolPaint(Gerber, AppTool):
                 "<b>%s: <font color='#0000FF'>%s</font></b>" % (_('Parameters for'), _("Multiple Tools"))
             )
 
+    @safe_widget_call
     def on_row_selection_change(self):
         sel_model = self.ui.tools_table.selectionModel()
         sel_indexes = sel_model.selectedIndexes()
@@ -536,6 +544,7 @@ class ToolPaint(Gerber, AppTool):
         if len(sel_rows) == 1:
             self.update_ui()
 
+    @safe_widget_call
     def on_object_selection_changed(self, current, previous):
         found_idx = None
         for tab_idx in range(self.app.ui.notebook.count()):
@@ -555,6 +564,7 @@ class ToolPaint(Gerber, AppTool):
             except Exception:
                 pass
 
+    @safe_widget_call
     def update_ui(self):
         self.blockSignals(True)
 
@@ -614,6 +624,7 @@ class ToolPaint(Gerber, AppTool):
             except Exception as err:
                 self.app.log.error("ToolPaint.storage.form() --> %s" % str(err))
 
+    @safe_widget_call
     def form_to_storage(self):
         if self.ui.tools_table.rowCount() == 0:
             # there is no tool in tool table, so we can't save the GUI elements values to storage
@@ -642,6 +653,7 @@ class ToolPaint(Gerber, AppTool):
 
         self.blockSignals(False)
 
+    @safe_widget_call
     def on_apply_param_to_all_clicked(self):
         if self.ui.tools_table.rowCount() == 0:
             # there is no tool in tool table, so we can't save the GUI elements values to storage
@@ -671,6 +683,7 @@ class ToolPaint(Gerber, AppTool):
 
         self.blockSignals(False)
 
+    @safe_widget_call
     def on_add_tool_by_key(self):
         tool_add_popup = FCInputDoubleSpinner(title='%s...' % _("New Tool"),
                                               text='%s:' % _('Enter a Tool Diameter'),
@@ -688,6 +701,7 @@ class ToolPaint(Gerber, AppTool):
         else:
             self.app.inform.emit('[WARNING_NOTCL] %s...' % _("Adding Tool cancelled"))
 
+    @safe_widget_call
     def on_tooltable_cellwidget_change(self):
         cw = self.sender()
 
@@ -714,6 +728,7 @@ class ToolPaint(Gerber, AppTool):
         if order != 0:  # Default order
             self.build_ui()
 
+    @safe_widget_call
     def rebuild_ui(self):
         # read the table tools uid
         current_uid_list = []
@@ -733,6 +748,7 @@ class ToolPaint(Gerber, AppTool):
         # the tools table changed therefore we need to rebuild it
         QtCore.QTimer.singleShot(20, self.build_ui)
 
+    @safe_widget_call
     def build_ui(self):
         self.ui_disconnect()
 
@@ -822,6 +838,7 @@ class ToolPaint(Gerber, AppTool):
                 "<b>%s: <font color='#0000FF'>%s</font></b>" % (_('Parameters for'), _("Multiple Tools"))
             )
 
+    @safe_widget_call
     def on_tool_add(self, custom_dia=None):
         self.blockSignals(True)
 
@@ -972,6 +989,7 @@ class ToolPaint(Gerber, AppTool):
 
         self.app.inform.emit('[success] %s' % _("New tool added to Tool Table from Tools Database."))
 
+    @safe_widget_call
     def on_tool_default_add(self, dia=None, muted=None):
         self.blockSignals(True)
         self.units = self.app.app_units.upper()
@@ -1031,6 +1049,7 @@ class ToolPaint(Gerber, AppTool):
         if muted is None:
             self.app.inform.emit('[success] %s' % _("Default tool added to Tool Table."))
 
+    @safe_widget_call
     def on_tool_edit(self, item):
         self.blockSignals(True)
 
@@ -1071,6 +1090,7 @@ class ToolPaint(Gerber, AppTool):
         self.blockSignals(False)
         self.build_ui()
 
+    @safe_widget_call
     def on_tool_delete(self, rows_to_delete=None, all_tools=None):
         """
         Will delete a tool in the tool table
@@ -1127,6 +1147,7 @@ class ToolPaint(Gerber, AppTool):
         self.blockSignals(False)
         self.build_ui()
 
+    @safe_widget_call
     def on_paint_button_click(self):
         """
         Slot for clicking signal
@@ -1251,6 +1272,7 @@ class ToolPaint(Gerber, AppTool):
                                 outname=self.o_name)
 
     # To be called after clicking on the plot.
+    @safe_widget_call
     def on_single_poly_mouse_release(self, event):
         if self.app.use_3d_engine:
             event_pos = event.pos
@@ -1344,6 +1366,7 @@ class ToolPaint(Gerber, AppTool):
                 self.app.inform.emit('[ERROR_NOTCL] %s' % _("List of single polygons is empty. Aborting."))
 
     # To be called after clicking on the plot.
+    @safe_widget_call
     def on_mouse_release(self, event):
         if self.app.use_3d_engine:
             event_pos = event.pos
@@ -1468,6 +1491,7 @@ class ToolPaint(Gerber, AppTool):
                                  outname=self.o_name)
 
     # called on mouse move
+    @safe_widget_call
     def on_mouse_move(self, event):
         shape_type = self.ui.area_shape_radio.get_value()
 
@@ -1533,6 +1557,7 @@ class ToolPaint(Gerber, AppTool):
             self.delete_moving_selection_shape()
             self.draw_moving_selection_shape_poly(points=self.points, data=(curr_pos[0], curr_pos[1]))
 
+    @safe_widget_call
     def on_key_press(self, event):
         # modifiers = QtWidgets.QApplication.keyboardModifiers()
         # matplotlib_key_flag = False
@@ -2767,6 +2792,7 @@ class ToolPaint(Gerber, AppTool):
 
         return bounds_rec(geometry)
 
+    @safe_widget_call
     def on_paint_tool_add_from_db_executed(self, tool):
         """
         Here add the tool from DB  in the selected geometry object
@@ -2802,6 +2828,7 @@ class ToolPaint(Gerber, AppTool):
                 self.ui.tools_table.selectRow(row)
         self.on_row_selection_change()
 
+    @safe_widget_call
     def on_paint_tool_from_db_inserted(self, tool):
         """
         Called from the Tools DB object through an App method when adding a tool from Tools Database
@@ -2862,6 +2889,7 @@ class ToolPaint(Gerber, AppTool):
 
         return tooluid
 
+    @safe_widget_call
     def on_paint_tool_add_from_db_clicked(self):
         """
         Called when the user wants to add a new tool from Tools Database. It will create the Tools Database object

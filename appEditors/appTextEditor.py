@@ -18,6 +18,7 @@ from reportlab.lib.units import inch, mm
 import gettext
 import appTranslation as fcTranslate
 import builtins
+from appGUI.GUIElements import safe_widget_call
 
 fcTranslate.apply_language('strings')
 if '_' not in builtins.__dict__:
@@ -347,6 +348,7 @@ class AppTextEditor(QtWidgets.QWidget):
         if callback is not None:
             callback()
 
+    @safe_widget_call
     def handleFindGCode(self):
 
         flags = QtGui.QTextDocument.FindFlag.FindCaseSensitively

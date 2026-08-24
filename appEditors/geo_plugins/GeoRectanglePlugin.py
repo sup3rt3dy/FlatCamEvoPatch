@@ -10,6 +10,7 @@ from shapely.geometry import base
 import gettext
 import appTranslation as fcTranslate
 import builtins
+from appGUI.GUIElements import safe_widget_call
 
 fcTranslate.apply_language('strings')
 if '_' not in builtins.__dict__:
@@ -38,6 +39,7 @@ class RectangleEditorTool(AppToolEditor):
         # Signals
         self.ui.add_button.clicked.connect(self.on_execute)
 
+    @safe_widget_call
     def run(self):
         self.app.defaults.report_usage("Geo Editor RectangleTool()")
         super().run()
@@ -73,6 +75,7 @@ class RectangleEditorTool(AppToolEditor):
 
         self.app.ui.notebook.setTabText(2, self.ui.pluginName)
 
+    @safe_widget_call
     def set_tool_ui(self):
         # Init appGUI
         self.ui.anchor_radio.set_value('c')
@@ -85,6 +88,7 @@ class RectangleEditorTool(AppToolEditor):
 
         self.ui.on_corner_changed(val=self.ui.corner_radio.get_value())
 
+    @safe_widget_call
     def on_tab_close(self):
         self.draw_app.select_tool("select")
         self.app.ui.notebook.callback_on_close = lambda: None
@@ -99,6 +103,7 @@ class RectangleEditorTool(AppToolEditor):
             self.on_add()
             self.draw_app.app.inform.emit(_("Click on 1st corner ..."))
 
+    @safe_widget_call
     def on_add(self):
         origin = self.ui.anchor_radio.get_value()
         origin_x = self.ui.x_entry.get_value()

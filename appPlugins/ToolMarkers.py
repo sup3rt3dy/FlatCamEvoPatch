@@ -22,6 +22,7 @@ import builtins
 
 from appCommon.Common import LoudDict
 from camlib import flatten_shapely_geometry
+from appGUI.GUIElements import safe_widget_call
 
 fcTranslate.apply_language('strings')
 if '_' not in builtins.__dict__:
@@ -73,6 +74,7 @@ class ToolMarkers(AppTool):
         # storage for temporary shapes when adding manual markers
         self.temp_shapes = self.app.sel_shapes
 
+    @safe_widget_call
     def on_insert_type_changed(self, val):
         obj_type = 2 if val == 'geo' else 0
         self.ui.obj_insert_combo.setRootModelIndex(self.app.collection.index(obj_type, 0, QtCore.QModelIndex()))
@@ -81,6 +83,7 @@ class ToolMarkers(AppTool):
             "grb": "gerber", "geo": "geometry"
         }[self.ui.insert_type_radio.get_value()]
 
+    @safe_widget_call
     def on_object_selection_changed(self, current, previous):
         found_idx = None
         for tab_idx in range(self.app.ui.notebook.count()):
@@ -100,6 +103,7 @@ class ToolMarkers(AppTool):
             except Exception:
                 pass
 
+    @safe_widget_call
     def run(self, toggle=True):
         self.app.defaults.report_usage("ToolMarkers()")
 
@@ -176,6 +180,7 @@ class ToolMarkers(AppTool):
         self.ui.big_cursor_cb.stateChanged.connect(self.on_cursor_change)
         self.ui.insert_markers_button.clicked.connect(self.on_insert_markers_in_external_objects)
 
+    @safe_widget_call
     def set_tool_ui(self):
         self.units = self.app.app_units
 
@@ -235,6 +240,7 @@ class ToolMarkers(AppTool):
             self.ui.level.setChecked(False)
         self.on_level_changed(self.ui.level.isChecked())
 
+    @safe_widget_call
     def on_level_changed(self, checked):
         if not checked:
             self.ui.level.setText('%s' % _('Beginner'))
@@ -273,12 +279,14 @@ class ToolMarkers(AppTool):
             self.ui.insert_frame.show()
             self.ui.insert_markers_button.show()
 
+    @safe_widget_call
     def on_toggle_all(self, val):
         self.ui.bl_cb.set_value(val)
         self.ui.br_cb.set_value(val)
         self.ui.tl_cb.set_value(val)
         self.ui.tr_cb.set_value(val)
 
+    @safe_widget_call
     def on_selection_changed(self, val):
         if val == 0:    # 'auto'
             self.ui.locs_label.setDisabled(False)
@@ -320,6 +328,7 @@ class ToolMarkers(AppTool):
         else:
             self.app.options['tools_markers_big_cursor'] = False
 
+    @safe_widget_call
     def add_markers(self):
         self.app.call_source = "markers_tool"
 
@@ -807,6 +816,7 @@ class ToolMarkers(AppTool):
 
         return ret
 
+    @safe_widget_call
     def on_create_drill_object(self):
         self.app.call_source = "markers_tool"
 
@@ -916,6 +926,7 @@ class ToolMarkers(AppTool):
         else:
             self.app.inform.emit('[success] %s' % _("Excellon object with corner drills created."))
 
+    @safe_widget_call
     def on_create_check_object(self):
         self.app.call_source = "markers_tool"
 
@@ -1032,6 +1043,7 @@ class ToolMarkers(AppTool):
         else:
             self.app.inform.emit('[success] %s' % _("Excellon object with corner drills created."))
 
+    @safe_widget_call
     def on_insert_markers_in_external_objects(self):
         obj_type = self.ui.insert_type_radio.get_value()    # values in ["grb", "geo"]
 
@@ -1078,6 +1090,7 @@ class ToolMarkers(AppTool):
         else:
             self.app.inform.emit('[success] %s' % _("Done."))
 
+    @safe_widget_call
     def on_points_changed(self, val=None):
         if self.points:
             self.ui.insert_frame.setDisabled(False)
@@ -1097,6 +1110,7 @@ class ToolMarkers(AppTool):
         else:
             worker_task()
 
+    @safe_widget_call
     def on_exit(self, corner_gerber_obj=None, cancelled=None, ok=True):
         self.clear_utility_geometry()
 
@@ -1167,6 +1181,7 @@ class ToolMarkers(AppTool):
     def on_mouse_move(self, event):
         pass
 
+    @safe_widget_call
     def on_mouse_release(self, event):
         if self.app.use_3d_engine:
             event_pos = event.pos

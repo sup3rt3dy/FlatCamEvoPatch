@@ -23,6 +23,7 @@ import builtins
 
 from appParsers.ParseGerber import Gerber
 from camlib import flatten_shapely_geometry, is_mpl_key_event
+from appGUI.GUIElements import safe_widget_call
 
 fcTranslate.apply_language('strings')
 if '_' not in builtins.__dict__:
@@ -72,6 +73,7 @@ class ToolFollow(Gerber, AppTool):
     def install(self, icon=None, separator=None, **kwargs):
         AppTool.install(self, icon, separator, shortcut='', **kwargs)
 
+    @safe_widget_call
     def run(self, toggle=True):
         self.app.defaults.report_usage("ToolFollow()")
 
@@ -132,6 +134,7 @@ class ToolFollow(Gerber, AppTool):
         self.ui.select_method_radio.activated_custom.connect(self.ui.on_selection)
         self.ui.generate_geometry_button.clicked.connect(self.on_generate_geometry_click)
 
+    @safe_widget_call
     def set_tool_ui(self):
         self.units = self.app.app_units.upper()
 
@@ -191,6 +194,7 @@ class ToolFollow(Gerber, AppTool):
             self.ui.level.setChecked(False)
         self.on_level_changed(self.ui.level.isChecked())
 
+    @safe_widget_call
     def on_level_changed(self, checked):
         if not checked:
             self.ui.level.setText('%s' % _('Beginner'))
@@ -217,6 +221,7 @@ class ToolFollow(Gerber, AppTool):
             self.ui.gp_frame.show()
             self.ui.param_label.show()
 
+    @safe_widget_call
     def on_generate_geometry_click(self):
         obj_name = self.ui.object_combo.currentText()
 
@@ -459,6 +464,7 @@ class ToolFollow(Gerber, AppTool):
             self.app.inform.emit("[success] %s" % _("Done."))
 
     # To be called after clicking on the plot.
+    @safe_widget_call
     def on_mouse_release(self, event):
         if self.app.use_3d_engine:
             event_pos = event.pos
@@ -580,6 +586,7 @@ class ToolFollow(Gerber, AppTool):
             self.follow_area()
 
     # called on mouse move
+    @safe_widget_call
     def on_mouse_move(self, event):
         shape_type = self.ui.area_shape_radio.get_value()
 
@@ -645,6 +652,7 @@ class ToolFollow(Gerber, AppTool):
             self.delete_moving_selection_shape()
             self.draw_moving_selection_shape_poly(points=self.points, data=(curr_pos[0], curr_pos[1]))
 
+    @safe_widget_call
     def on_key_press(self, event):
         # modifiers = QtWidgets.QApplication.keyboardModifiers()
         # matplotlib_key_flag = False

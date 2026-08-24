@@ -36,6 +36,7 @@ import serial
 import glob
 import random
 from io import StringIO
+from appGUI.GUIElements import safe_widget_call
 
 
 # try:
@@ -134,6 +135,7 @@ class ToolLevelling(CNCjob, AppTool):
     def install(self, icon=None, separator=None, **kwargs):
         AppTool.install(self, icon, separator, shortcut='', **kwargs)
 
+    @safe_widget_call
     def run(self, toggle=True):
         self.app.defaults.report_usage("ToolLevelling()")
 
@@ -243,6 +245,7 @@ class ToolLevelling(CNCjob, AppTool):
         # Cleanup on Graceful exit (CTRL+ALT+X combo key)
         self.app.cleanup.connect(self.set_tool_ui)
 
+    @safe_widget_call
     def set_tool_ui(self):
         self.units = self.app.app_units.upper()
 
@@ -346,6 +349,7 @@ class ToolLevelling(CNCjob, AppTool):
 
         self.on_avoid_exc_holes(self.app.options["tools_al_avoid_exc_holes"])
 
+    @safe_widget_call
     def on_object_changed(self):
 
         # load the object
@@ -372,6 +376,7 @@ class ToolLevelling(CNCjob, AppTool):
         else:
             self.ui.al_frame.setDisabled(True)
 
+    @safe_widget_call
     def on_object_selection_changed(self, current, previous):
         found_idx = None
         for tab_idx in range(self.app.ui.notebook.count()):
@@ -404,6 +409,7 @@ class ToolLevelling(CNCjob, AppTool):
             self.ui.level.setChecked(False)
         self.on_level_changed(self.ui.level.isChecked())
 
+    @safe_widget_call
     def on_level_changed(self, checked):
 
         target_obj = self.app.collection.get_by_name(self.ui.object_combo.get_value())
@@ -452,6 +458,7 @@ class ToolLevelling(CNCjob, AppTool):
 
         self.ui_connect()
 
+    @safe_widget_call
     def build_al_table(self):
         tool_idx = 0
 
@@ -517,6 +524,7 @@ class ToolLevelling(CNCjob, AppTool):
                             # it may fail for form fields found in the tools tables if there are no rows
                             pass
 
+    @safe_widget_call
     def on_add_al_probepoints(self):
         # create the solid_geo
 
@@ -554,6 +562,7 @@ class ToolLevelling(CNCjob, AppTool):
         ]
         return unary_union(fused_geometries)
 
+    @safe_widget_call
     def on_add_grid_points(self):
         check_overlap = self.ui.avoid_exc_holes_cb.get_value()
         avoid_step = self.ui.avoid_exc_holes_size_entry.get_value()
@@ -662,6 +671,7 @@ class ToolLevelling(CNCjob, AppTool):
             # clear probe shapes
             self.plot_probing_geo(None, False)
 
+    @safe_widget_call
     def on_add_manual_points(self):
         xmin, ymin, xmax, ymax = self.solid_geo.bounds
         f_probe_pt = Point([xmin, xmin])
@@ -704,6 +714,7 @@ class ToolLevelling(CNCjob, AppTool):
 
         self.plot_probing_geo(geometry=fprobe_pt_buff, visibility=True, custom_color="#0000FFFA")
 
+    @safe_widget_call
     def show_probing_geo(self, state, reset=False):
         self.app.log.debug("ToolLevelling.show_probing_geo() -> %s" % ('cleared' if state is False else 'displayed'))
         if reset:
@@ -894,6 +905,7 @@ class ToolLevelling(CNCjob, AppTool):
     def generate_bilinear_geometry(self, pts):
         self.al_bilinear_geo_storage = pts
 
+    @safe_widget_call
     def on_mouse_move(self, event):
         """
         Callback for the mouse motion event over the plot.
@@ -913,6 +925,7 @@ class ToolLevelling(CNCjob, AppTool):
                 self.app.plotcanvas.native.setFocus()
 
     # To be called after clicking on the plot.
+    @safe_widget_call
     def on_mouse_click_release(self, event):
         if self.app.use_3d_engine:
             event_pos = event.pos
@@ -1025,6 +1038,7 @@ class ToolLevelling(CNCjob, AppTool):
                 # clear probe shapes
                 self.plot_probing_geo(None, False)
 
+    @safe_widget_call
     def on_key_press(self, event):
         # events out of the self.app.collection view (it's about Project Tab) are of type int
         if isinstance(event, int):
@@ -1103,9 +1117,11 @@ class ToolLevelling(CNCjob, AppTool):
     def autolevell_voronoi(self, gcode_line, coords):
         pass
 
+    @safe_widget_call
     def on_show_al_table(self, state):
         self.ui.al_probe_points_table.show() if state else self.ui.al_probe_points_table.hide()
 
+    @safe_widget_call
     def on_mode_radio(self, val):
         # reset al table
         self.ui.al_probe_points_table.setRowCount(0)
@@ -1138,10 +1154,12 @@ class ToolLevelling(CNCjob, AppTool):
             self.ui.al_method_radio.set_value(self.app.options['tools_al_method'])
             # self.ui.avoid_exc_holes_cb.setDisabled(True)
 
+    @safe_widget_call
     def on_avoid_exc_holes(self, state):
         self.ui.avoid_exc_holes_size_label.show() if state else self.ui.avoid_exc_holes_size_label.hide()
         self.ui.avoid_exc_holes_size_entry.show() if state else self.ui.avoid_exc_holes_size_entry.hide()
 
+    @safe_widget_call
     def on_method_radio(self, val):
         if val == 'b':
             self.ui.al_columns_entry.setMinimum(2)
@@ -1150,6 +1168,7 @@ class ToolLevelling(CNCjob, AppTool):
             self.ui.al_columns_entry.setMinimum(1)
             self.ui.al_rows_entry.setMinimum(1)
 
+    @safe_widget_call
     def on_controller_change(self):
         self.on_controller_change_alter_ui()
 
@@ -1162,6 +1181,7 @@ class ToolLevelling(CNCjob, AppTool):
             storage = self.al_voronoi_geo_storage if al_method == 'v' else self.al_bilinear_geo_storage
             self.probing_gcode_text = self.probing_gcode(storage=storage)
 
+    @safe_widget_call
     def on_controller_change_alter_ui(self):
         if self.ui.al_controller_combo.get_value() == 'GRBL':
             self.ui.h_gcode_button.hide()
@@ -1213,6 +1233,7 @@ class ToolLevelling(CNCjob, AppTool):
 
         return result
 
+    @safe_widget_call
     def on_grbl_search_ports(self, muted=None):
         port_list = self.on_grbl_list_serial_ports()
         self.ui.com_list_combo.clear()
@@ -1220,6 +1241,7 @@ class ToolLevelling(CNCjob, AppTool):
         if muted is not True:
             self.app.inform.emit('[WARNING_NOTCL] %s' % _("COM list updated ..."))
 
+    @safe_widget_call
     def on_grbl_connect(self):
         port_name = self.ui.com_list_combo.currentText()
         if " (" in port_name:
@@ -1290,12 +1312,14 @@ class ToolLevelling(CNCjob, AppTool):
         except Exception:
             self.app.inform.emit("[ERROR_NOTCL] %s: %s" % (_("Could not connect to port"), port_name))
 
+    @safe_widget_call
     def on_grbl_add_baudrate(self):
         new_bd = str(self.ui.new_baudrate_entry.get_value())
         if int(new_bd) >= 40 and new_bd not in self.ui.baudrates_list_combo.model().stringList():
             self.ui.baudrates_list_combo.addItem(new_bd)
             self.ui.baudrates_list_combo.setCurrentText(new_bd)
 
+    @safe_widget_call
     def on_grbl_delete_baudrate_grbl(self):
         current_idx = self.ui.baudrates_list_combo.currentIndex()
         self.ui.baudrates_list_combo.removeItem(current_idx)
@@ -1311,6 +1335,7 @@ class ToolLevelling(CNCjob, AppTool):
 
         return grbl_out
 
+    @safe_widget_call
     def on_grbl_send_command(self):
         cmd = self.ui.grbl_command_entry.get_value()
 
@@ -1390,6 +1415,7 @@ class ToolLevelling(CNCjob, AppTool):
                 self.app.shell_message("GRBL Parameter: %s = %s" % (str(param), str(result)), show=True)
                 return result
 
+    @safe_widget_call
     def on_grbl_jog(self, direction=None):
         if direction is None:
             return
@@ -1634,6 +1660,7 @@ class ToolLevelling(CNCjob, AppTool):
                 )
                 return 'fail'
 
+    @safe_widget_call
     def on_edit_probing_gcode(self):
         self.app.proc_container.view.set_busy('%s...' % _("Loading"))
 
@@ -1747,6 +1774,7 @@ class ToolLevelling(CNCjob, AppTool):
 
             self.build_al_table_sig.emit()
 
+    @safe_widget_call
     def on_grbl_autolevel(self):
         # show the Shell Dock
         self.app.ui.shell_dock.show()

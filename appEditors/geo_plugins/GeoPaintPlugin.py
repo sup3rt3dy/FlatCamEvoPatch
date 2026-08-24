@@ -11,6 +11,7 @@ from shapely.ops import unary_union
 import gettext
 import appTranslation as fcTranslate
 import builtins
+from appGUI.GUIElements import safe_widget_call
 
 fcTranslate.apply_language('strings')
 if '_' not in builtins.__dict__:
@@ -34,6 +35,7 @@ class PaintOptionsTool(AppToolEditor):
         self.connect_signals_at_init()
         self.set_tool_ui()
 
+    @safe_widget_call
     def run(self):
         self.app.defaults.report_usage("Geo Editor ToolPaint()")
         AppToolEditor.run(self)
@@ -72,10 +74,12 @@ class PaintOptionsTool(AppToolEditor):
         # Signals
         self.ui.paint_button.clicked.connect(self.on_paint)
 
+    @safe_widget_call
     def on_tab_close(self):
         self.fcdraw.select_tool("select")
         self.app.ui.notebook.callback_on_close = lambda: None
 
+    @safe_widget_call
     def set_tool_ui(self):
         # Init appGUI
         if self.app.options["tools_paint_tooldia"]:
@@ -108,6 +112,7 @@ class PaintOptionsTool(AppToolEditor):
         else:
             self.ui.paintcontour_cb.set_value(False)
 
+    @safe_widget_call
     def on_paint(self):
         if not self.fcdraw.selected:
             self.app.inform.emit('[WARNING_NOTCL] %s %s' % (_("Cancelled."), _("No shape selected.")))

@@ -18,6 +18,7 @@ from datetime import datetime as dt
 import gettext
 import appTranslation as fcTranslate
 import builtins
+from appGUI.GUIElements import safe_widget_call
 
 fcTranslate.apply_language('strings')
 if '_' not in builtins.__dict__:
@@ -59,6 +60,7 @@ class PcbWizard(AppTool):
         self.exc_file_content = None
         self.tools_from_inf = {}
 
+    @safe_widget_call
     def run(self, toggle=False):
         self.app.defaults.report_usage("PcbWizard Tool()")
 
@@ -127,6 +129,7 @@ class PcbWizard(AppTool):
         self.file_loaded.connect(self.on_file_loaded)
         self.ui.units_radio.activated_custom.connect(self.ui.on_units_change)
 
+    @safe_widget_call
     def set_tool_ui(self):
         self.units = 'INCH'
         self.zeros = 'LZ'
@@ -156,6 +159,7 @@ class PcbWizard(AppTool):
 
         self.build_ui()
 
+    @safe_widget_call
     def build_ui(self):
         sorted_tools = []
 
@@ -301,6 +305,7 @@ class PcbWizard(AppTool):
 
         self.file_loaded.emit("excellon", filename)
 
+    @safe_widget_call
     def on_file_loaded(self, signal, filename):
         self.build_ui()
         time_str = "{:%A, %d %B %Y at %H:%M}".format(dt.now())
@@ -335,6 +340,7 @@ class PcbWizard(AppTool):
         # Register recent file
         self.app.options["global_last_folder"] = os.path.split(str(filename))[0]
 
+    @safe_widget_call
     def on_import_excellon(self, excellon_fileobj=None):
         self.app.log.debug("import_2files_excellon()")
 

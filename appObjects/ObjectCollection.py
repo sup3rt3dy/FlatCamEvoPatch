@@ -37,6 +37,7 @@ except ImportError:
 import gettext
 import appTranslation as fcTranslate
 import builtins
+from appGUI.GUIElements import safe_widget_call
 
 fcTranslate.apply_language('strings')
 if '_' not in builtins.__dict__:
@@ -400,6 +401,7 @@ class ObjectCollection(QtCore.QAbstractItemModel):
         # self.app.log.debug("Mouse button pressed on list")
         pass
 
+    @safe_widget_call
     def on_menu_request(self, pos):
 
         sel = len(self.view.selectedIndexes()) > 0
@@ -972,6 +974,7 @@ class ObjectCollection(QtCore.QAbstractItemModel):
         for name in self.get_names():
             self.set_inactive(name)
 
+    @safe_widget_call
     def on_list_selection_change(self, current, previous):
         """
 
@@ -1088,12 +1091,14 @@ class ObjectCollection(QtCore.QAbstractItemModel):
     def update_view(self):
         self.dataChanged.emit(QtCore.QModelIndex(), QtCore.QModelIndex())   # noqa
 
+    @safe_widget_call
     def on_row_activated(self, index):
         if index.isValid():
             if index.internalPointer().parent_item != self.root_item:
                 self.app.ui.notebook.setCurrentWidget(self.app.ui.properties_tab)
         self.on_item_activated(index)
 
+    @safe_widget_call
     def on_row_selected(self, obj_name):
         """
         This is a special string; when received it will make all Menu -> Objects entries unchecked
@@ -1118,6 +1123,7 @@ class ObjectCollection(QtCore.QAbstractItemModel):
             if act.text() in name_list:
                 act.setChecked(True)
 
+    @safe_widget_call
     def on_collection_updated(self, obj, state, old_name):
         """
         Create a menu from the object loaded in the collection.
@@ -1259,6 +1265,7 @@ class ObjectCollection(QtCore.QAbstractItemModel):
             self.app.ui.menuobjects_selall.triggered.connect(lambda: self.on_objects_selection(True))
             self.app.ui.menuobjects_unselall.triggered.connect(lambda: self.on_objects_selection(False))
 
+    @safe_widget_call
     def on_objects_selection(self, on_off):
         obj_list = self.get_names()
 

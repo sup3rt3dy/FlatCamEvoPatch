@@ -50,6 +50,7 @@ import appTranslation as fcTranslate
 import builtins
 
 import typing
+from appGUI.GUIElements import safe_widget_call
 
 if typing.TYPE_CHECKING:
     import appMain
@@ -293,6 +294,7 @@ class appIO(QtCore.QObject):
         else:
             self.open_config_file(filename)
 
+    @safe_widget_call
     def on_file_export_svg(self):
         """
         Callback for menu item File->Export SVG.
@@ -647,6 +649,7 @@ class appIO(QtCore.QObject):
                 self.app.file_opened.emit("Gerber", filename)
             self.app.file_saved.emit("Gerber", filename)
 
+    @safe_widget_call
     def on_file_export_dxf(self):
         """
                 Callback for menu item File->Export DXF.
@@ -762,6 +765,7 @@ class appIO(QtCore.QObject):
                 if filename != '':
                     self.worker_task.emit({'fcn': self.import_dxf, 'params': [filename, type_of_obj]})
 
+    @safe_widget_call
     def on_file_new_click(self):
         """
         Callback for menu item File -> New.
@@ -800,6 +804,7 @@ class appIO(QtCore.QObject):
         else:
             self.on_file_new_project(use_thread=True)
 
+    @safe_widget_call
     def on_file_new_project(self, cli=None, reset_tcl=True, use_thread=None, keep_scripts=True):
         """
         Returns the application to its startup state. This method is thread-safe.
@@ -952,6 +957,7 @@ class appIO(QtCore.QObject):
         self.app.init_tools(init_tcl=True)
         self.log.debug('%s: %s %s.' % ("Initiated the MP pool and plugins in: ", str(time.time() - t0), _("seconds")))
 
+    @safe_widget_call
     def on_file_new_script(self, silent=False):
         """
         Will create a new script file and open it in the Code Editor
@@ -1038,6 +1044,7 @@ class appIO(QtCore.QObject):
                 if filename != '':
                     self.worker_task.emit({'fcn': self.open_script, 'params': [filename]})
 
+    @safe_widget_call
     def on_file_run_cript(self, name=None, silent=False):
         """
         File menu callback for loading and running a TCL script.
@@ -1095,6 +1102,7 @@ class appIO(QtCore.QObject):
                 self.app.error("App.on_file_run_cript() -> %s" % str(e))
                 sys.exit(2)
 
+    @safe_widget_call
     def on_file_save_project(self, silent=False):
         """
         Callback for menu item File->Save Project. Saves the project to
@@ -1118,6 +1126,7 @@ class appIO(QtCore.QObject):
 
         self.app.should_we_save = False
 
+    @safe_widget_call
     def on_file_save_project_as(self, make_copy=False, use_thread=True, quit_action=False):
         """
         Save the project to a given file by opening a file chooser via self.save_project().
@@ -2583,6 +2592,7 @@ class appIO(QtCore.QObject):
 
         self.app.worker_task.emit({'fcn': parse_worker, 'params': [project_filename]})
 
+    @safe_widget_call
     def restore_project_handler(self, proj_dict, filename, run_from_arg, from_tcl, cli, plot):
         # Clear the current project
         # # NOT THREAD SAFE # ##
@@ -2630,6 +2640,7 @@ class appIO(QtCore.QObject):
 
         self.app.restore_project_objects_sig.emit(proj_dict, filename, cli, plot)
 
+    @safe_widget_call
     def restore_project_objects(self, proj_dict, filename, cli, plot):
 
         def worker_task():

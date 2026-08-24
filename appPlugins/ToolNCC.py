@@ -28,6 +28,7 @@ import builtins
 
 from appParsers.ParseGerber import Gerber
 from camlib import grace, flatten_shapely_geometry, is_mpl_key_event
+from appGUI.GUIElements import safe_widget_call
 
 fcTranslate.apply_language('strings')
 if '_' not in builtins.__dict__:
@@ -146,6 +147,7 @@ class NonCopperClear(Gerber, AppTool):
     def install(self, icon=None, separator=None, **kwargs):
         AppTool.install(self, icon, separator, shortcut='Alt+N', **kwargs)
 
+    @safe_widget_call
     def run(self, toggle=True):
         self.app.defaults.report_usage("ToolNonCopperClear()")
 
@@ -269,6 +271,7 @@ class NonCopperClear(Gerber, AppTool):
         # Cleanup on Graceful exit (CTRL+ALT+X combo key)
         self.app.cleanup.connect(self.set_tool_ui)
 
+    @safe_widget_call
     def set_tool_ui(self):
         self.units = self.app.app_units.upper()
         self.old_tool_dia = self.app.options["tools_ncc_newdia"]
@@ -416,6 +419,7 @@ class NonCopperClear(Gerber, AppTool):
             self.ui.level.setChecked(False)
         self.on_level_changed(self.ui.level.isChecked())
 
+    @safe_widget_call
     def on_level_changed(self, checked):
         if not checked:
             self.ui.level.setText('%s' % _('Beginner'))
@@ -495,6 +499,7 @@ class NonCopperClear(Gerber, AppTool):
             # Context Menu section
             self.ui.tools_table.setupContextMenu()
 
+    @safe_widget_call
     def on_type_obj_index_changed(self, val):
         obj_type = 0 if val == 'gerber' else 2
         self.ui.object_combo.setRootModelIndex(self.app.collection.index(obj_type, 0, QtCore.QModelIndex()))
@@ -503,6 +508,7 @@ class NonCopperClear(Gerber, AppTool):
             "gerber": "Gerber", "geometry": "Geometry"
         }[self.ui.type_obj_radio.get_value()]
 
+    @safe_widget_call
     def on_operation_change(self, val):
         self.ui.parameters_ui(val=val)
 
@@ -514,6 +520,7 @@ class NonCopperClear(Gerber, AppTool):
         except AttributeError:
             return
 
+    @safe_widget_call
     def on_object_selection_changed(self, current, previous):
         found_idx = None
         for tab_idx in range(self.app.ui.notebook.count()):
@@ -533,6 +540,7 @@ class NonCopperClear(Gerber, AppTool):
             except Exception:
                 pass
 
+    @safe_widget_call
     def on_toggle_all_rows(self):
         """
         will toggle the selection of all rows in Tools table
@@ -558,6 +566,7 @@ class NonCopperClear(Gerber, AppTool):
                 "<b>%s: <font color='#0000FF'>%s</font></b>" % (_('Parameters for'), _("Multiple Tools"))
             )
 
+    @safe_widget_call
     def on_row_selection_change(self):
         sel_model = self.ui.tools_table.selectionModel()
         sel_indexes = sel_model.selectedIndexes()
@@ -572,6 +581,7 @@ class NonCopperClear(Gerber, AppTool):
         if len(sel_rows) == 1:
             self.update_ui()
 
+    @safe_widget_call
     def update_ui(self):
         self.blockSignals(True)
 
@@ -636,6 +646,7 @@ class NonCopperClear(Gerber, AppTool):
                         self.app.log.error("NonCopperClear.storage_to_form() --> %s" % str(e))
                         pass
 
+    @safe_widget_call
     def form_to_storage(self):
         if self.ui.tools_table.rowCount() == 0:
             # there is no tool in tool table, so we can't save the GUI elements values to storage
@@ -664,6 +675,7 @@ class NonCopperClear(Gerber, AppTool):
 
         self.blockSignals(False)
 
+    @safe_widget_call
     def on_apply_param_to_all_clicked(self):
         if self.ui.tools_table.rowCount() == 0:
             # there is no tool in tool table, so we can't save the GUI elements values to storage
@@ -732,6 +744,7 @@ class NonCopperClear(Gerber, AppTool):
 
         self.blockSignals(False)
 
+    @safe_widget_call
     def rebuild_ui(self):
         # read the table tools uid
         current_uid_list = []
@@ -751,6 +764,7 @@ class NonCopperClear(Gerber, AppTool):
         # the tools table changed therefore we need to rebuild it
         QtCore.QTimer.singleShot(20, self.build_ui)
 
+    @safe_widget_call
     def build_ui(self):
         self.ui_disconnect()
 
@@ -925,6 +939,7 @@ class NonCopperClear(Gerber, AppTool):
         except (TypeError, AttributeError):
             pass
 
+    @safe_widget_call
     def on_reference_combo_changed(self):
         obj_type = self.ui.reference_combo_type.currentIndex()
         self.ui.reference_combo.setRootModelIndex(self.app.collection.index(obj_type, 0, QtCore.QModelIndex()))
@@ -935,6 +950,7 @@ class NonCopperClear(Gerber, AppTool):
         if order != 0:  # "Default"
             self.build_ui()
 
+    @safe_widget_call
     def on_tooltable_cellwidget_change(self):
         cw = self.sender()
         assert isinstance(cw, QtWidgets.QComboBox),\
@@ -1172,6 +1188,7 @@ class NonCopperClear(Gerber, AppTool):
 
         self.app.worker_task.emit({'fcn': job_thread, 'params': [self.app]})
 
+    @safe_widget_call
     def on_tool_add(self, custom_dia=None):
         self.blockSignals(True)
 
@@ -1315,6 +1332,7 @@ class NonCopperClear(Gerber, AppTool):
 
         self.app.inform.emit('[success] %s' % _("New tool added to Tool Table from Tools Database."))
 
+    @safe_widget_call
     def on_tool_default_add(self, dia=None, muted=None):
         self.blockSignals(True)
         self.units = self.app.app_units.upper()
@@ -1375,6 +1393,7 @@ class NonCopperClear(Gerber, AppTool):
         if muted is None:
             self.app.inform.emit('[success] %s' % _("Default tool added to Tool Table."))
 
+    @safe_widget_call
     def on_tool_add_by_key(self):
         # tool_add_popup = FCInputDialog(title='%s...' % _("New Tool"),
         #                                text='%s:' % _('Enter a Tool Diameter'),
@@ -1406,6 +1425,7 @@ class NonCopperClear(Gerber, AppTool):
             self.app.inform.emit('[WARNING_NOTCL] %s...' % _("Adding Tool cancelled"))
         self.optimal_found_sig.disconnect(find_optimal)
 
+    @safe_widget_call
     def on_tool_edit(self, item):
         self.blockSignals(True)
 
@@ -1447,6 +1467,7 @@ class NonCopperClear(Gerber, AppTool):
         self.blockSignals(False)
         self.build_ui()
 
+    @safe_widget_call
     def on_tool_delete(self, rows_to_delete=None, all_tools=None):
         """
         Will delete a tool in the tool table
@@ -1504,6 +1525,7 @@ class NonCopperClear(Gerber, AppTool):
         self.blockSignals(False)
         self.build_ui()
 
+    @safe_widget_call
     def on_ncc_click(self):
         """
         Slot for clicking signal
@@ -1624,6 +1646,7 @@ class NonCopperClear(Gerber, AppTool):
                              outname=self.o_name)
 
     # To be called after clicking on the plot.
+    @safe_widget_call
     def on_mouse_release(self, event):
         if self.app.use_3d_engine:
             event_pos = event.pos
@@ -1743,6 +1766,7 @@ class NonCopperClear(Gerber, AppTool):
             self.app.ui.notebook.setDisabled(False)
 
     # called on mouse move
+    @safe_widget_call
     def on_mouse_move(self, event):
         shape_type = self.ui.area_shape_radio.get_value()
 
@@ -1800,6 +1824,7 @@ class NonCopperClear(Gerber, AppTool):
             self.delete_moving_selection_shape()
             self.draw_moving_selection_shape_poly(points=self.points, data=(curr_pos[0], curr_pos[1]))
 
+    @safe_widget_call
     def on_key_press(self, event):
         # modifiers = QtWidgets.QApplication.keyboardModifiers()
         # matplotlib_key_flag = False
@@ -3925,6 +3950,7 @@ class NonCopperClear(Gerber, AppTool):
                 return 'fail'
         return geom
 
+    @safe_widget_call
     def on_ncc_tool_add_from_db_executed(self, tool):
         """
         Here add the tool from DB  in the selected geometry object
@@ -3960,6 +3986,7 @@ class NonCopperClear(Gerber, AppTool):
                 self.ui.tools_table.selectRow(row)
         self.on_row_selection_change()
 
+    @safe_widget_call
     def on_ncc_tool_from_db_inserted(self, tool):
         """
         Called from the Tools DB object through a App method when adding a tool from Tools Database
@@ -4011,6 +4038,7 @@ class NonCopperClear(Gerber, AppTool):
                 self.ui.tools_table.selectRow(row)
                 break
 
+    @safe_widget_call
     def on_ncc_tool_add_from_db_clicked(self):
         """
         Called when the user wants to add a new tool from Tools Database. It will create the Tools Database object

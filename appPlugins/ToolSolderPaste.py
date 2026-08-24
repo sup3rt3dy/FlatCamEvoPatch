@@ -29,6 +29,7 @@ from camlib import distance
 from appEditors.appTextEditor import AppTextEditor
 
 from io import StringIO
+from appGUI.GUIElements import safe_widget_call
 
 fcTranslate.apply_language('strings')
 if '_' not in builtins.__dict__:
@@ -70,6 +71,7 @@ class SolderPaste(AppTool):
         # stpre here the flattened geometry
         self.flat_geometry = []
 
+    @safe_widget_call
     def run(self, toggle=True):
         self.app.defaults.report_usage("ToolSolderPaste()")
 
@@ -162,6 +164,7 @@ class SolderPaste(AppTool):
         self.app.object_status_changed.connect(self.update_comboboxes)
         self.ui.reset_button.clicked.connect(self.set_tool_ui)
 
+    @safe_widget_call
     def on_toggle_all_rows(self):
         """
 
@@ -182,6 +185,7 @@ class SolderPaste(AppTool):
         else:
             self.ui.tools_table.selectAll()
 
+    @safe_widget_call
     def set_tool_ui(self):
         self.clear_ui(self.layout)
         self.ui = SolderUI(layout=self.layout, app=self.app, solder_class=self)
@@ -270,6 +274,7 @@ class SolderPaste(AppTool):
                     obj_name = o.obj_options['name']
                     self.ui.obj_combo.set_value(obj_name)
 
+    @safe_widget_call
     def build_ui(self):
         """
         Will rebuild the UI populating it (tools table)
@@ -340,6 +345,7 @@ class SolderPaste(AppTool):
 
         self.ui_connect()
 
+    @safe_widget_call
     def update_ui(self, row=None):
         """
         Will update the UI form with the data from obj.tools
@@ -394,6 +400,7 @@ class SolderPaste(AppTool):
         else:
             self.app.inform.emit('[WARNING_NOTCL] %s...' % _("Adding Tool cancelled"))
 
+    @safe_widget_call
     def on_row_selection_change(self):
         sel_model = self.ui.tools_table.selectionModel()
         sel_indexes = sel_model.selectedIndexes()
@@ -458,6 +465,7 @@ class SolderPaste(AppTool):
         except (TypeError, AttributeError, RuntimeError):
             pass
 
+    @safe_widget_call
     def update_comboboxes(self, obj, status):
         """
         Modify the current text of the comboboxes to show the last object
@@ -496,6 +504,7 @@ class SolderPaste(AppTool):
         for key in self.form_fields:
             self.obj_options[key] = self.form_fields[key].get_value()
 
+    @safe_widget_call
     def form_to_storage(self, tooluid=None):
         """
         Will read all the items in the UI form and set the self.tools data accordingly
@@ -548,6 +557,7 @@ class SolderPaste(AppTool):
             if key in val:
                 self.form_fields[key].set_value(val[key])
 
+    @safe_widget_call
     def on_tool_add(self, dia=None, muted=None):
         """
         Add a Tool in the Tool Table
@@ -618,6 +628,7 @@ class SolderPaste(AppTool):
 
         self.build_ui()
 
+    @safe_widget_call
     def on_tool_edit(self):
         """
         Edit a tool in the Tool Table
@@ -663,6 +674,7 @@ class SolderPaste(AppTool):
                 self.app.inform.emit('[WARNING_NOTCL] %s' % _("Cancelled. Already in the Tool Table."))
         self.build_ui()
 
+    @safe_widget_call
     def on_tool_delete(self, rows_to_delete=None, all_tools=None):
         """
         Will delete tool(s) in the Tool Table
@@ -713,6 +725,7 @@ class SolderPaste(AppTool):
         self.app.inform.emit('[success] %s' % _("Tools deleted from Tool Table."))
         self.build_ui()
 
+    @safe_widget_call
     def on_rmb_combo(self, pos, combo):
         """
         Will create a context menu on the combobox items
@@ -756,6 +769,7 @@ class SolderPaste(AppTool):
         #     self.save_gcode_frame.setDisabled(True)
         pass
 
+    @safe_widget_call
     def on_create_geo_click(self):
         """
         Will create a solderpaste dispensing geometry.
@@ -974,6 +988,7 @@ class SolderPaste(AppTool):
         else:
             self.app.app_obj.new_object("geometry", name + "_solderpaste", geo_init)
 
+    @safe_widget_call
     def on_create_gcode_click(self):
         """
         Will create a CNCJob object from the solderpaste dispensing geometry.
@@ -1105,6 +1120,7 @@ class SolderPaste(AppTool):
         else:
             self.app.app_obj.new_object("cncjob", name, job_init)
 
+    @safe_widget_call
     def on_view_gcode(self):
         """
         View GCode in the Editor Tab.
@@ -1172,6 +1188,7 @@ class SolderPaste(AppTool):
             self.app.inform.emit('[ERROR_NOTCL] %s' % _("Failed."))
             return
 
+    @safe_widget_call
     def on_save_gcode(self):
         """
         Save solderpaste dispensing GCode to a file on HDD.

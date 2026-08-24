@@ -20,6 +20,7 @@ from shapely.ops import nearest_points
 import gettext
 import appTranslation as fcTranslate
 import builtins
+from appGUI.GUIElements import safe_widget_call
 
 fcTranslate.apply_language('strings')
 if '_' not in builtins.__dict__:
@@ -59,6 +60,7 @@ class ToolOptimal(AppTool):
     def install(self, icon=None, separator=None, **kwargs):
         AppTool.install(self, icon, separator, shortcut='Alt+O', **kwargs)
 
+    @safe_widget_call
     def run(self, toggle=True):
         self.app.defaults.report_usage("ToolOptimal()")
 
@@ -174,6 +176,7 @@ class ToolOptimal(AppTool):
         except (TypeError, AttributeError, RuntimeError):
             pass
 
+    @safe_widget_call
     def set_tool_ui(self):
         self.clear_ui(self.layout)
         self.ui = OptimalUI(layout=self.layout, app=self.app)
@@ -208,6 +211,7 @@ class ToolOptimal(AppTool):
             obj_name = obj.obj_options['name']
             self.ui.gerber_object_combo.set_value(obj_name)
 
+    @safe_widget_call
     def find_minimum_distance(self):
         self.units = self.app.app_units.upper()
         self.decimals = int(self.ui.precision_spinner.get_value())
@@ -352,6 +356,7 @@ class ToolOptimal(AppTool):
             self.app.log.error("ToolOptimal.on_locate_position() --> sec try %s" % str(e))
             return
 
+    @safe_widget_call
     def on_update_text(self, data):
         txt = ''
         for loc in data:
@@ -360,6 +365,7 @@ class ToolOptimal(AppTool):
         self.ui.locations_textb.setPlainText(txt)
         self.ui.locate_button.setDisabled(False)
 
+    @safe_widget_call
     def on_textbox_clicked(self):
         # new cursor - select all document
         cursor = self.ui.locations_textb.textCursor()
@@ -381,6 +387,7 @@ class ToolOptimal(AppTool):
 
         self.selected_text = cursor.selectedText()
 
+    @safe_widget_call
     def on_update_sec_distances_txt(self, data):
         distance_list = sorted(list(data.keys()))
         txt = ''
@@ -389,6 +396,7 @@ class ToolOptimal(AppTool):
         self.ui.distances_textb.setPlainText(txt)
         self.ui.locate_sec_button.setDisabled(False)
 
+    @safe_widget_call
     def on_distances_textb_clicked(self):
         # new cursor - select all document
         cursor = self.ui.distances_textb.textCursor()
@@ -412,6 +420,7 @@ class ToolOptimal(AppTool):
         key_in_min_dict = eval(distance_text)
         self.on_update_locations_text(dist=key_in_min_dict)
 
+    @safe_widget_call
     def on_update_locations_text(self, dist):
         distance_list = self.min_dict[dist]
         txt = ''
@@ -420,6 +429,7 @@ class ToolOptimal(AppTool):
                 txt += '%s, %s\n' % (str(loc[0]), str(loc[1]))
         self.ui.locations_sec_textb.setPlainText(txt)
 
+    @safe_widget_call
     def on_locations_sec_clicked(self):
         # new cursor - select all document
         cursor = self.ui.locations_sec_textb.textCursor()

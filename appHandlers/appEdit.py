@@ -11,6 +11,7 @@ from shapely import MultiPolygon, Polygon, LinearRing, LineString, Point, unary_
 import gettext
 import appTranslation as fcTranslate
 import builtins
+from appGUI.GUIElements import safe_widget_call
 
 fcTranslate.apply_language('strings')
 if '_' not in builtins.__dict__:
@@ -606,6 +607,7 @@ class appEditor(QtCore.QObject):
         self.app_obj.new_object("gerber", 'Combo_Gerber', initialize)
         self.app.should_we_save = True
 
+    @safe_widget_call
     def on_custom_origin(self, use_thread=True):
         """
         Move selected objects to be centered in certain standard locations of the object (corners and center).

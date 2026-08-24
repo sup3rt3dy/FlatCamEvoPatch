@@ -18,6 +18,7 @@ from shapely.ops import unary_union
 import gettext
 import appTranslation as fcTranslate
 import builtins
+from appGUI.GUIElements import safe_widget_call
 
 fcTranslate.apply_language('strings')
 if '_' not in builtins.__dict__:
@@ -67,6 +68,7 @@ class ObjectReport(AppTool):
 
         self.calculations_finished.connect(self.show_area_chull)
 
+    @safe_widget_call
     def run(self, toggle=True):
         self.app.defaults.report_usage("ToolReport()")
 
