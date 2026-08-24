@@ -19,3 +19,7 @@ __pycache__/
 dist/
 *.egg-info/
 log.txt
+
+# Claude Code: keep shared settings, ignore per-machine state
+.claude/worktrees/
+.claude/settings.local.json
