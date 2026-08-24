@@ -9,7 +9,7 @@ from PyQt6 import QtWidgets, QtCore, QtGui
 from appTool import AppTool
 from appGUI.GUIElements import VerticalScrollArea, FCLabel, FCButton, FCFrame, GLay, FCComboBox, FCCheckBox, \
     FCComboBox2, RadioSet, FCDoubleSpinner, FCInputDialogSpinnerButton, FCTable, \
-    OptionalInputSection
+    OptionalInputSection, safe_widget_call
 
 import logging
 from copy import deepcopy
@@ -27,8 +27,7 @@ import appTranslation as fcTranslate
 import builtins
 
 from appParsers.ParseGerber import Gerber
-from camlib import grace, flatten_shapely_geometry
-from matplotlib.backend_bases import KeyEvent as mpl_key_event
+from camlib import grace, flatten_shapely_geometry, is_mpl_key_event
 
 fcTranslate.apply_language('strings')
 if '_' not in builtins.__dict__:
@@ -851,7 +850,7 @@ class NonCopperClear(Gerber, AppTool):
         for row in range(self.ui.tools_table.rowCount()):
             try:
                 self.ui.tools_table.cellWidget(row, 2).currentIndexChanged.connect(self.on_tooltable_cellwidget_change)
-            except AttributeError:
+            except (AttributeError, RuntimeError):
                 pass
 
         for opt in self.form_fields:
@@ -868,19 +867,20 @@ class NonCopperClear(Gerber, AppTool):
         self.ui.ncc_rest_cb.stateChanged.connect(self.ui.on_rest_machining_check)
         self.ui.ncc_order_combo.currentIndexChanged.connect(self.on_order_changed)
 
+    @safe_widget_call
     def ui_disconnect(self):
 
         try:
             # if connected, disconnect the signal from the slot on item_changed as it creates issues
             self.ui.tools_table.itemChanged.disconnect()
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
 
         for row in range(self.ui.tools_table.rowCount()):
 
             try:
                 self.ui.tools_table.cellWidget(row, 2).currentIndexChanged.disconnect()
-            except (TypeError, AttributeError):
+            except (TypeError, AttributeError, RuntimeError):
                 pass
 
         for opt in self.form_fields:
@@ -908,17 +908,17 @@ class NonCopperClear(Gerber, AppTool):
 
         try:
             self.ui.ncc_rest_cb.stateChanged.disconnect(self.ui.on_rest_machining_check)
-        except (TypeError, ValueError):
+        except (TypeError, ValueError, RuntimeError):
             pass
         try:
             self.ui.ncc_order_combo.currentIndexChanged.disconnect(self.on_order_changed)
-        except (TypeError, ValueError):
+        except (TypeError, ValueError, RuntimeError):
             pass
 
         # rows selected
         try:
             self.ui.tools_table.clicked.disconnect()
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
         try:
             self.ui.tools_table.horizontalHeader().sectionClicked.disconnect()
@@ -1810,7 +1810,7 @@ class NonCopperClear(Gerber, AppTool):
         # events from the GUI are of type QKeyEvent
         elif type(event) == QtGui.QKeyEvent:
             key = event.key()
-        elif isinstance(event, mpl_key_event):  # MatPlotLib key events are trickier to interpret than the rest
+        elif is_mpl_key_event(event):  # MatPlotLib key events are trickier to interpret than the rest
             # matplotlib_key_flag = True
 
             key = event.key

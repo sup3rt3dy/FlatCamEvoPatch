@@ -96,7 +96,7 @@ class FlatCAMObj(QtCore.QObject):
 
         if self.app.use_3d_engine:
             self.shapes = self.app.plotcanvas.new_shape_group()
-            self.mark_shapes = ShapeCollection(parent=self.app.plotcanvas.view.scene, layers=1, pool=self.app.pool,
+            self.mark_shapes = ShapeCollection(parent=self.app.plotcanvas.view.scene, layers=1, pool=lambda: self.app.pool,
                                                fcoptions=self.app.options)
         else:
             from appGUI.PlotCanvasLegacy import ShapeCollectionLegacy
@@ -271,28 +271,28 @@ class FlatCAMObj(QtCore.QObject):
         try:
             # it will raise an exception for those FlatCAM objects that do not build UI with the common elements
             self.ui.offset_button.clicked.connect(self.on_offset_button_click)
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
 
         try:
             self.ui.scale_button.clicked.connect(self.on_scale_button_click)
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
 
         try:
             self.ui.offsetvector_entry.returnPressed.connect(self.on_offset_button_click)
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
 
         # Creates problems on focusOut
         try:
             self.ui.scale_entry.returnPressed.connect(self.on_scale_button_click)
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
 
         try:
             self.ui.transformations_button.clicked.connect(lambda: self.app.transform_tool.run(toggle=True))
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
 
         # self.ui.skew_button.clicked.connect(self.on_skew_button_click)

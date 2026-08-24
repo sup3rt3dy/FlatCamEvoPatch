@@ -10,7 +10,7 @@ from PyQt6.QtCore import Qt
 from appTool import AppTool
 from appGUI.GUIElements import VerticalScrollArea, FCLabel, FCButton, FCFrame, GLay, FCComboBox, FCCheckBox, \
     FCJog, RadioSet, FCDoubleSpinner, FCSpinner, FCFileSaveDialog, FCDetachableTab, FCTable, \
-    FCZeroAxes, FCSliderWithDoubleSpinner, FCEntry, RotatedToolButton
+    FCZeroAxes, FCSliderWithDoubleSpinner, FCEntry, RotatedToolButton, safe_widget_call
 
 import logging
 from copy import deepcopy
@@ -29,7 +29,7 @@ from appObjects.AppObjectTemplate import ObjectDeleted
 from appGUI.VisPyVisuals import *
 from appEditors.appTextEditor import AppTextEditor
 
-from camlib import CNCjob
+from camlib import CNCjob, is_mpl_key_event
 
 import time
 import serial
@@ -37,7 +37,6 @@ import glob
 import random
 from io import StringIO
 
-from matplotlib.backend_bases import KeyEvent as mpl_key_event
 
 # try:
 #     from foronoi import Voronoi
@@ -269,7 +268,7 @@ class ToolLevelling(CNCjob, AppTool):
 
         # Shapes container for the Voronoi cells in Autolevelling
         if self.app.use_3d_engine:
-            self.probing_shapes = ShapeCollection(parent=self.app.plotcanvas.view.scene, layers=1, pool=self.app.pool)
+            self.probing_shapes = ShapeCollection(parent=self.app.plotcanvas.view.scene, layers=1, pool=lambda: self.app.pool)
         else:
             from appGUI.PlotCanvasLegacy import ShapeCollectionLegacy
             self.probing_shapes = ShapeCollectionLegacy(obj=self, app=self.app, name=name + "_probing_shapes")
@@ -329,7 +328,7 @@ class ToolLevelling(CNCjob, AppTool):
 
         try:
             self.ui.object_combo.currentIndexChanged.disconnect()
-        except (AttributeError, TypeError):
+        except (AttributeError, TypeError, RuntimeError):
             pass
         self.ui.object_combo.currentIndexChanged.connect(self.on_object_changed)
 
@@ -367,7 +366,7 @@ class ToolLevelling(CNCjob, AppTool):
             # Shapes container for the Voronoi cells in Autolevelling
             if self.app.use_3d_engine:
                 self.probing_shapes = ShapeCollection(parent=self.app.plotcanvas.view.scene, layers=1,
-                                                      pool=self.app.pool)
+                                                      pool=lambda: self.app.pool)
             else:
                 self.probing_shapes = ShapeCollectionLegacy(obj=self, app=self.app, name=obj_name + "_probing_shapes")
         else:
@@ -1033,7 +1032,7 @@ class ToolLevelling(CNCjob, AppTool):
         # events from the GUI are of type QKeyEvent
         elif isinstance(event, QtGui.QKeyEvent):
             key = event.key()
-        elif isinstance(event, mpl_key_event):  # MatPlotLib key events are trickier to interpret than the rest
+        elif is_mpl_key_event(event):  # MatPlotLib key events are trickier to interpret than the rest
             key = event.key
             key = QtGui.QKeySequence(key)
 
@@ -1837,15 +1836,16 @@ class ToolLevelling(CNCjob, AppTool):
         self.ui.al_add_button.clicked.connect(self.on_add_al_probepoints)
         self.ui.show_al_table.stateChanged.connect(self.on_show_al_table)
 
+    @safe_widget_call
     def ui_disconnect(self):
         try:
             self.ui.al_add_button.clicked.disconnect()
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
 
         try:
             self.ui.show_al_table.stateChanged.disconnect()
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
 
     def reset_fields(self):

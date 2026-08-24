@@ -22,8 +22,7 @@ import appTranslation as fcTranslate
 import builtins
 
 from appParsers.ParseGerber import Gerber
-from matplotlib.backend_bases import KeyEvent as mpl_key_event
-from camlib import flatten_shapely_geometry
+from camlib import flatten_shapely_geometry, is_mpl_key_event
 
 fcTranslate.apply_language('strings')
 if '_' not in builtins.__dict__:
@@ -656,7 +655,7 @@ class ToolFollow(Gerber, AppTool):
         # events from the GUI are of type QKeyEvent
         elif type(event) == QtGui.QKeyEvent:
             key = event.key()
-        elif isinstance(event, mpl_key_event):  # MatPlotLib key events are trickier to interpret than the rest
+        elif is_mpl_key_event(event):  # MatPlotLib key events are trickier to interpret than the rest
             # matplotlib_key_flag = True
 
             key = event.key

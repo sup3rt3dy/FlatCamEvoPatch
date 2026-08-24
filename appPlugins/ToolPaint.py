@@ -10,9 +10,8 @@ from PyQt6.QtCore import Qt
 
 from appTool import AppTool
 from appGUI.GUIElements import VerticalScrollArea, FCLabel, FCButton, FCFrame, GLay, FCComboBox, FCCheckBox, \
-    FCComboBox2, RadioSet, FCDoubleSpinner, FCInputDoubleSpinner, FCTable
+    FCComboBox2, RadioSet, FCDoubleSpinner, FCInputDoubleSpinner, FCTable, safe_widget_call
 
-from matplotlib.backend_bases import KeyEvent as mpl_key_event
 
 import logging
 from copy import deepcopy
@@ -34,7 +33,7 @@ import appTranslation as fcTranslate
 import builtins
 
 from appParsers.ParseGerber import Gerber
-from camlib import Geometry, AppRTreeStorage, grace, flatten_shapely_geometry
+from camlib import Geometry, AppRTreeStorage, grace, flatten_shapely_geometry, is_mpl_key_event
 
 fcTranslate.apply_language('strings')
 if '_' not in builtins.__dict__:
@@ -1544,7 +1543,7 @@ class ToolPaint(Gerber, AppTool):
         # events from the GUI are of type QKeyEvent
         elif isinstance(event, QtGui.QKeyEvent):
             key = event.key()
-        elif isinstance(event, mpl_key_event):  # MatPlotLib key events are trickier to interpret than the rest
+        elif is_mpl_key_event(event):  # MatPlotLib key events are trickier to interpret than the rest
             # matplotlib_key_flag = True
 
             key = event.key
@@ -2637,12 +2636,12 @@ class ToolPaint(Gerber, AppTool):
         for row in range(self.ui.tools_table.rowCount()):
             try:
                 self.ui.tools_table.cellWidget(row, 2).currentIndexChanged.connect(self.on_tooltable_cellwidget_change)
-            except AttributeError:
+            except (AttributeError, RuntimeError):
                 pass
 
             try:
                 self.ui.tools_table.cellWidget(row, 4).currentIndexChanged.connect(self.on_tooltable_cellwidget_change)
-            except AttributeError:
+            except (AttributeError, RuntimeError):
                 pass
 
         # Parameters FORM UI
@@ -2680,17 +2679,18 @@ class ToolPaint(Gerber, AppTool):
         self.ui.rest_cb.stateChanged.connect(self.ui.on_rest_machining_check)
         self.ui.paint_order_combo.currentIndexChanged.connect(self.on_order_changed)
 
+    @safe_widget_call
     def ui_disconnect(self):
         try:
             # if connected, disconnect the signal from the slot on item_changed as it creates issues
             self.ui.tools_table.itemChanged.disconnect()
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
 
         # rows selected
         try:
             self.ui.tools_table.clicked.disconnect()
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
         try:
             self.ui.tools_table.horizontalHeader().sectionClicked.disconnect()
@@ -2702,7 +2702,7 @@ class ToolPaint(Gerber, AppTool):
             for col in [2, 4]:
                 try:
                     self.ui.tools_table.cellWidget(row, col).currentIndexChanged.disconnect()
-                except (TypeError, AttributeError):
+                except (TypeError, AttributeError, RuntimeError):
                     pass
 
         # Parameters FORM UI
@@ -2732,13 +2732,13 @@ class ToolPaint(Gerber, AppTool):
         try:
             # if connected, disconnect the signal from the slot on item_changed as it creates issues
             self.ui.rest_cb.stateChanged.disconnect()
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
 
         try:
             # if connected, disconnect the signal from the slot on item_changed as it creates issues
             self.ui.paint_order_combo.currentIndexChanged.disconnect()
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
 
     @staticmethod

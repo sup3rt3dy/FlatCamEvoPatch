@@ -1,6 +1,6 @@
 
 from PyQt6 import QtGui, QtCore, QtWidgets
-from appGUI.GUIElements import FCTable, FCEntry, FCButton, FCFileSaveDialog, GLay, FCLabel
+from appGUI.GUIElements import FCTable, FCEntry, FCButton, FCFileSaveDialog, GLay, FCLabel, safe_widget_call
 
 import sys
 import webbrowser
@@ -129,6 +129,7 @@ class BookmarkManager(QtWidgets.QWidget):
     def ui_connect(self):
         self.table_widget.drag_drop_sig.connect(self.mark_table_rows_for_actions)
 
+    @safe_widget_call
     def ui_disconnect(self):
         try:
             self.table_widget.drag_drop_sig.connect(self.mark_table_rows_for_actions)

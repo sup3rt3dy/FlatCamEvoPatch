@@ -880,15 +880,15 @@ class AppGeoEditor(QtCore.QObject):
 
         try:
             self.app.ui.popmenu_copy.triggered.disconnect()
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
         try:
             self.app.ui.popmenu_delete.triggered.disconnect()
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
         try:
             self.app.ui.popmenu_move.triggered.disconnect()
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
 
         self.app.ui.popmenu_copy.triggered.connect(self.app.on_copy_command)
@@ -898,87 +898,87 @@ class AppGeoEditor(QtCore.QObject):
         # Geometry Editor
         try:
             self.app.ui.draw_line.triggered.disconnect(self.draw_tool_path)
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
 
         try:
             self.app.ui.draw_rect.triggered.disconnect(self.draw_tool_rectangle)
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
 
         try:
             self.app.ui.draw_cut.triggered.disconnect(self.cutpath)
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
 
         try:
             self.app.ui.draw_move.triggered.disconnect(self.on_move)
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
 
         try:
             self.app.ui.draw_circle.triggered.disconnect()
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
 
         try:
             self.app.ui.draw_poly.triggered.disconnect()
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
 
         try:
             self.app.ui.draw_arc.triggered.disconnect()
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
 
         try:
             self.app.ui.draw_text.triggered.disconnect()
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
 
         try:
             self.app.ui.draw_simplification.triggered.disconnect()
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
 
         try:
             self.app.ui.draw_buffer.triggered.disconnect()
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
 
         try:
             self.app.ui.draw_paint.triggered.disconnect()
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
 
         try:
             self.app.ui.draw_eraser.triggered.disconnect()
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
 
         try:
             self.app.ui.draw_union.triggered.disconnect(self.union)
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
 
         try:
             self.app.ui.draw_intersect.triggered.disconnect(self.intersection)
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
 
         try:
             self.app.ui.draw_substract.triggered.disconnect(self.subtract)
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
 
         try:
             self.app.ui.draw_substract_alt.triggered.disconnect(self.subtract_2)
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
 
         try:
             self.app.ui.draw_transform.triggered.disconnect()
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
 
         try:
@@ -1421,7 +1421,7 @@ class AppGeoEditor(QtCore.QObject):
         # #############################################################################################################
         try:
             self.ui.tw.currentItemChanged.disconnect(self.on_tree_geo_click)
-        except (AttributeError, TypeError):
+        except (AttributeError, TypeError, RuntimeError):
             pass
 
         self.ui.tw.selectionModel().clearSelection()

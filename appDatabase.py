@@ -1,7 +1,7 @@
 
 from PyQt6 import QtGui, QtCore, QtWidgets
 from appGUI.GUIElements import FCEntry, FCButton, FCDoubleSpinner, FCComboBox, FCCheckBox, FCSpinner, \
-    FCTree, RadioSet, FCFileSaveDialog, FCLabel, FCComboBox2, GLay
+    FCTree, RadioSet, FCFileSaveDialog, FCLabel, FCComboBox2, GLay, safe_widget_call
 from camlib import to_dict
 
 import sys
@@ -2322,34 +2322,35 @@ class ToolsDB2(QtWidgets.QWidget):
         self.ui.mill_vdia_entry.valueChanged.connect(self.on_calculate_tooldia)
         self.ui.mill_vangle_entry.valueChanged.connect(self.on_calculate_tooldia)
 
+    @safe_widget_call
     def ui_disconnect(self):
         try:
             self.ui.name_entry.editingFinished.disconnect(self.update_tree_name)
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
         try:
             self.ui.dia_entry.editingFinished.disconnect(self.update_tree_tooldia)
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
 
         try:
             self.ui.mill_shape_combo.currentIndexChanged.disconnect(self.on_calculate_tooldia)
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
 
         try:
             self.ui.mill_cutz_entry.valueChanged.disconnect(self.on_calculate_tooldia)
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
 
         try:
             self.ui.mill_vdia_entry.valueChanged.disconnect(self.on_calculate_tooldia)
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
 
         try:
             self.ui.mill_vangle_entry.valueChanged.disconnect(self.on_calculate_tooldia)
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
 
         for key in self.form_fields:

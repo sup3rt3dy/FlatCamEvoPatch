@@ -218,7 +218,7 @@ class DocumentObject(FlatCAMObj):
     def on_tab_size_change(self, val=None):
         try:
             self.ui.tab_size_spinner.returnPressed.disconnect(self.on_tab_size_change)
-        except TypeError:
+        except (TypeError, RuntimeError):
             pass
 
         if val:

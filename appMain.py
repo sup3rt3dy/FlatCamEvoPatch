@@ -15,9 +15,8 @@ from PyQt6.QtGui import QAction
 import os.path
 import sys
 
-import urllib.request
-import urllib.parse
-import urllib.error
+# NOTE: urllib is imported inside version_check() instead of here - it is only needed when the
+# app phones home for a version check, and it pulls in http.client/ssl (~36ms) at start-up.
 
 from datetime import datetime as dt
 from copy import deepcopy, copy
@@ -662,7 +661,10 @@ class App(QtCore.QObject):
         # ###########################################################################################################
         # ###################################### CREATE MULTIPROCESSING POOL #######################################
         # ###########################################################################################################
-        self.pool = Pool(processes=self.options["global_process_number"])
+        # PERFORMANCE: the pool is created on first use rather than here - see the 'pool' property.
+        # Spawning worker processes is not free, and a session that never plots a large object
+        # never needs them.
+        self._pool = None
 
         # ###########################################################################################################
         # ###################################### Clear GUI Settings - once at first start ###########################
@@ -948,15 +950,15 @@ class App(QtCore.QObject):
         if self.use_3d_engine:
             # VisPy visuals
             try:
-                self.tool_shapes = ShapeCollection(parent=self.plotcanvas.view.scene, layers=1, pool=self.pool)
+                self.tool_shapes = ShapeCollection(parent=self.plotcanvas.view.scene, layers=1, pool=lambda: self.pool)
             except AttributeError:
                 self.tool_shapes = None
 
             # Storage for Hover Shapes
-            self.hover_shapes = ShapeCollection(parent=self.plotcanvas.view.scene, layers=1, pool=self.pool)
+            self.hover_shapes = ShapeCollection(parent=self.plotcanvas.view.scene, layers=1, pool=lambda: self.pool)
 
             # Storage for Selection shapes
-            self.sel_shapes = ShapeCollection(parent=self.plotcanvas.view.scene, layers=1, pool=self.pool)
+            self.sel_shapes = ShapeCollection(parent=self.plotcanvas.view.scene, layers=1, pool=lambda: self.pool)
         else:
             from appGUI.PlotCanvasLegacy import ShapeCollectionLegacy
             self.tool_shapes = ShapeCollectionLegacy(obj=self, app=self, name="tool")
@@ -1044,11 +1046,12 @@ class App(QtCore.QObject):
         # when this list will get populated will contain a list of references to all the Plugins in this APp
         self.app_plugins = []
 
-        # always install tools only after the shell is initialized because the self.inform.emit() depends on shell
-        try:
-            self.install_tools()
-        except AttributeError as e:
-            self.log.debug("App.__init__() install_tools() --> %s" % str(e))
+        # NOTE: the plugins are no longer built here. Constructing all of them takes ~0.4s because
+        # each one builds its complete widget tree up front, and doing that before the main window
+        # is shown puts it squarely on the critical path to the first frame the user sees.
+        # It now happens in _install_tools_deferred(), immediately after the window is painted but
+        # still before the start-up Tcl scripts / file arguments run, which do depend on plugins.
+        # See the "SHOW GUI" section below.
 
         # ###########################################################################################################
         # ######################################### BookMarks Manager ###############################################
@@ -1340,12 +1343,21 @@ class App(QtCore.QObject):
 
             if self.options["global_systray_icon"]:
                 self.trayIcon.show()
+
+            # Let the window actually paint before the plugins are built, so the user sees the
+            # application appear ~0.4s sooner. The work itself is unchanged, it is just no longer
+            # in front of the first frame.
+            QtWidgets.QApplication.processEvents()
         else:
             try:
                 self.trayIcon.show()
             except Exception as t_err:
                 self.log.error("App.__init__() Running headless and trying to show the systray got: %s" % str(t_err))
             self.log.warning("*******************  RUNNING HEADLESS  *******************")
+
+        # Build the plugins now - after the window is up, but before the start-up arguments below,
+        # which may run Tcl commands that reach for them.
+        self._install_tools_deferred()
 
         # ###########################################################################################################
         # ######################################## START-UP ARGUMENTS ###############################################
@@ -1593,6 +1605,14 @@ class App(QtCore.QObject):
         ]:
             self.on_properties_tab_click()
 
+        # keep the cached copy used by the application-wide event filter in sync
+        if key_changed == "global_toggle_tooltips":
+            try:
+                self.ui.tooltips_enabled = self.options["global_toggle_tooltips"]
+            except AttributeError:
+                # options can change before the UI exists
+                pass
+
         # TODO handle changing the units in the Preferences
         # if key_changed == "units":
         #     self.on_toggle_units(no_pref=False)
@@ -1608,18 +1628,57 @@ class App(QtCore.QObject):
 
         fcTranslate.restart_program(app=self)
 
+    @property
+    def pool(self):
+        """
+        The application's multiprocessing pool, created on first access.
+
+        Creating it eagerly cost startup time for every session, including the many that never
+        need a worker process. Anything that wants the pool simply reads this property.
+
+        :return:    the process pool
+        :rtype:     multiprocessing.pool.Pool
+        """
+        if self._pool is None:
+            self._pool = Pool(processes=self.options["global_process_number"])
+        return self._pool
+
+    @pool.setter
+    def pool(self, value):
+        self._pool = value
+
     def clear_pool(self):
         """
         Clear the multiprocessing pool and calls garbage collector.
 
         :return: None
         """
-        self.pool.close()
+        if self._pool is not None:
+            self._pool.close()
+            self._pool = None
 
-        self.pool = Pool(processes=self.options["global_process_number"])
+        # Recreated lazily on next access; emit the fresh pool so listeners rebind to it.
         self.pool_recreated.emit(self.pool)
 
         gc.collect()
+
+    def _install_tools_deferred(self):
+        """
+        Builds the plugins once the main window is already on screen.
+
+        Constructing the plugins is the single most expensive step left in start-up because every
+        one of them builds its full widget tree immediately. Running it here rather than in the
+        middle of __init__ keeps it off the critical path to the first painted frame.
+
+        It is deliberately still synchronous and still inside __init__: the start-up Tcl scripts
+        and file arguments that follow can invoke plugins, so they must exist by then.
+
+        :return: None
+        """
+        try:
+            self.install_tools()
+        except AttributeError as e:
+            self.log.debug("App.__init__() install_tools() --> %s" % str(e))
 
     def install_tools(self, init_tcl=False):
         """
@@ -4099,7 +4158,7 @@ class App(QtCore.QObject):
         state = False if self.ui.general_pref_form.general_app_set_group.workspace_cb.get_value() else True
         try:
             self.ui.general_pref_form.general_app_set_group.workspace_cb.stateChanged.disconnect(self.on_workspace)
-        except TypeError:
+        except (TypeError, RuntimeError):
             pass
 
         self.ui.general_pref_form.general_app_set_group.workspace_cb.set_value(state)
@@ -7241,6 +7300,12 @@ class App(QtCore.QObject):
         :return: None
         """
 
+        # imported here rather than at module level: this is the only place that needs it and it
+        # would otherwise cost ~36ms of start-up for every session, including offline ones
+        import urllib.request
+        import urllib.parse
+        import urllib.error
+
         self.log.debug("version_check()")
 
         if self.ui.general_pref_form.general_app_group.send_stats_cb.get_value() is True:
@@ -7465,25 +7530,33 @@ class App(QtCore.QObject):
                 obj.obj_options.set_change_callback(lambda x: None)
                 try:
                     obj.obj_options['plot'] = True
-                    obj.ui.plot_cb.stateChanged.disconnect(obj.on_plot_cb_click)
+                    try:
+                        # Safely disconnect signal from widget that may have been deleted
+                        obj.ui.plot_cb.stateChanged.disconnect(obj.on_plot_cb_click)
+                    except RuntimeError as e:
+                        # Widget already deleted, skip disconnect
+                        if "wrapped C/C++ object" not in str(e):
+                            raise
                     # disable this cb while disconnected,
                     # in case the operation takes time the user is not allowed to change it
                     obj.ui.plot_cb.setDisabled(True)
-                except AttributeError:
+                except (AttributeError, TypeError, RuntimeError):
                     # try to build the ui
                     obj.build_ui()
                     # and try again
                     self.enable_plots(objects)
+                    return
 
                 obj.set_form_item("plot")
                 try:
                     obj.ui.plot_cb.stateChanged.connect(obj.on_plot_cb_click)
                     obj.ui.plot_cb.setDisabled(False)
-                except AttributeError:
+                except (AttributeError, TypeError, RuntimeError):
                     # try to build the ui
                     obj.build_ui()
                     # and try again
                     self.enable_plots(objects)
+                    return
                 obj.obj_options.set_change_callback(obj.on_options_change)
         self.collection.update_view()
 

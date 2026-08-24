@@ -242,7 +242,7 @@ class PlotCanvas3d(QtCore.QObject, scene.SceneCanvas):
         # sc = ShapeCollection(parent=self.view.scene, pool=self.app.pool, **kwargs)
         # self.shape_collections.append(sc)
         # return sc
-        return ShapeCollection(parent=self.view.scene, pool=self.fcapp.pool, **kwargs)
+        return ShapeCollection(parent=self.view.scene, pool=lambda: self.fcapp.pool, **kwargs)
 
     def new_cursor(self):
         """

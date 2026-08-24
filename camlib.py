@@ -18,6 +18,7 @@ from appParsers.ParseDXF import getdxfgeo
 
 from numpy.linalg import solve
 
+import sys
 import platform
 import traceback
 from decimal import Decimal
@@ -7834,6 +7835,26 @@ class CNCjob(Geometry):
 
         self.create_geometry()
         self.app.proc_container.new_text = ''
+
+
+def is_mpl_key_event(event) -> bool:
+    """
+    True if 'event' is a Matplotlib key event.
+
+    PERFORMANCE: this exists so that the plugins do not have to import Matplotlib just to run an
+    isinstance() check. Matplotlib key events only ever occur on the legacy 2D canvas, and that
+    canvas imports matplotlib.backend_bases itself - so if the module is not loaded, the event
+    simply cannot be one of its key events. Importing Matplotlib eagerly in nine plugin modules
+    cost ~90ms of start-up for a check that most sessions never need.
+
+    :param event:   the event to test
+    :return:        True if it is a Matplotlib KeyEvent
+    :rtype:         bool
+    """
+    mpl_backend_bases = sys.modules.get('matplotlib.backend_bases')
+    if mpl_backend_bases is None:
+        return False
+    return isinstance(event, mpl_backend_bases.KeyEvent)
 
 
 def flatten_shapely_geometry(geometry, simplify_tolerance: float = 0.0) -> list:

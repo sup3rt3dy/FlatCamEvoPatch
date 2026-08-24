@@ -62,8 +62,16 @@ class LoudDict(dict):
         """
         Overridden __setitem__ method. Will emit 'changed(QString)' if the item was changed, with key as parameter.
         """
-        if key in self and self.__getitem__(key) == value:
-            return
+        if key in self:
+            # NOTE: '==' does not necessarily return a bool. For a numpy array it returns an array,
+            # and testing that in an 'if' raises "truth value of an array ... is ambiguous". Treat
+            # anything that will not collapse to a single bool as "changed" and store it.
+            try:
+                unchanged = bool(self.__getitem__(key) == value)
+            except (ValueError, TypeError):
+                unchanged = False
+            if unchanged:
+                return
 
         dict.__setitem__(self, key, value)
         self.callback(key)
@@ -244,7 +252,7 @@ class ExclusionAreas(QtCore.QObject):
         if self.app.use_3d_engine:
             try:
                 self.exclusion_shapes = ShapeCollection(parent=self.app.plotcanvas.view.scene, layers=1,
-                                                        pool=self.app.pool)
+                                                        pool=lambda: self.app.pool)
             except AttributeError:
                 self.exclusion_shapes = None
         else:

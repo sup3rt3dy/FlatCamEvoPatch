@@ -8,9 +8,8 @@
 from PyQt6 import QtWidgets, QtCore, QtGui
 from appTool import AppTool
 from appGUI.GUIElements import VerticalScrollArea, FCLabel, FCButton, FCFrame, GLay, FCComboBox, FCCheckBox, \
-    RadioSet, FCDoubleSpinner, FCTable
+    RadioSet, FCDoubleSpinner, FCTable, safe_widget_call
 
-from matplotlib.backend_bases import KeyEvent as mpl_key_event
 
 import logging
 from copy import deepcopy
@@ -23,7 +22,7 @@ import appTranslation as fcTranslate
 import builtins
 
 from appParsers.ParseGerber import Gerber
-from camlib import Geometry
+from camlib import Geometry, is_mpl_key_event
 
 fcTranslate.apply_language('strings')
 if '_' not in builtins.__dict__:
@@ -513,16 +512,17 @@ class ToolPunchGerber(Gerber, AppTool):
                 wdg = self.ui.apertures_table.cellWidget(row, 3)
                 assert isinstance(wdg, FCCheckBox)
                 wdg.clicked.disconnect()
-            except (TypeError, AttributeError):
+            except (TypeError, AttributeError, RuntimeError):
                 pass
             wdg = self.ui.apertures_table.cellWidget(row, 3)
             assert isinstance(wdg, FCCheckBox)
             wdg.clicked.connect(self.on_mark_cb_click_table)
 
+    @safe_widget_call
     def ui_disconnect(self):
         try:
             self.ui.select_all_cb.stateChanged.disconnect()
-        except (AttributeError, TypeError):
+        except (AttributeError, TypeError, RuntimeError):
             pass
 
         # Mark Checkboxes
@@ -531,7 +531,7 @@ class ToolPunchGerber(Gerber, AppTool):
                 wdg = self.ui.apertures_table.cellWidget(row, 3)
                 assert isinstance(wdg, FCCheckBox)
                 wdg.clicked.disconnect()
-            except (TypeError, AttributeError):
+            except (TypeError, AttributeError, RuntimeError):
                 pass
 
     def on_punch_object_click(self):
@@ -1811,7 +1811,7 @@ class ToolPunchGerber(Gerber, AppTool):
         # events from the GUI are of type QKeyEvent
         elif type(event) == QtGui.QKeyEvent:
             key = event.key()
-        elif isinstance(event, mpl_key_event):  # MatPlotLib key events are trickier to interpret than the rest
+        elif is_mpl_key_event(event):  # MatPlotLib key events are trickier to interpret than the rest
             # matplotlib_key_flag = True
 
             key = event.key

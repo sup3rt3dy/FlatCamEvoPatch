@@ -10,7 +10,7 @@ from PyQt6.QtCore import Qt
 
 from appEditors.appTextEditor import AppTextEditor
 from appObjects.CNCJobObject import CNCJobObject
-from appGUI.GUIElements import FCTextArea, FCEntry, FCButton, FCTable, GLay, FCLabel
+from appGUI.GUIElements import FCTextArea, FCEntry, FCButton, FCTable, GLay, FCLabel, safe_widget_call
 
 # from io import StringIO
 
@@ -358,6 +358,7 @@ class AppGCodeEditor(QtCore.QObject):
             self.ui.exc_cnc_tools_table.clicked.connect(self.on_row_selection_change)
             self.ui.exc_cnc_tools_table.horizontalHeader().sectionClicked.connect(self.on_toggle_all_rows)
 
+    @safe_widget_call
     def ui_disconnect(self):
         """
 
@@ -368,7 +369,7 @@ class AppGCodeEditor(QtCore.QObject):
         if self.gcode_obj.obj_options['type'].lower() == 'geometry':
             try:
                 self.ui.cnc_tools_table.clicked.disconnect(self.on_row_selection_change)
-            except (TypeError, AttributeError):
+            except (TypeError, AttributeError, RuntimeError):
                 pass
             try:
                 self.ui.cnc_tools_table.horizontalHeader().sectionClicked.disconnect(self.on_toggle_all_rows)
@@ -378,7 +379,7 @@ class AppGCodeEditor(QtCore.QObject):
         if self.gcode_obj.obj_options['type'].lower() == 'excellon':
             try:
                 self.ui.exc_cnc_tools_table.clicked.disconnect(self.on_row_selection_change)
-            except (TypeError, AttributeError):
+            except (TypeError, AttributeError, RuntimeError):
                 pass
             try:
                 self.ui.exc_cnc_tools_table.horizontalHeader().sectionClicked.disconnect(self.on_toggle_all_rows)

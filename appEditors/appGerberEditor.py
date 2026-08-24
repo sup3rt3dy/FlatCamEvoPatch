@@ -126,7 +126,7 @@ class PadEditorGrb(ShapeToolEditorGrb):
         # Signals
         try:
             self.ui.add_btn.clicked.disconnect()
-        except (AttributeError, TypeError):
+        except (AttributeError, TypeError, RuntimeError):
             pass
         self.ui.add_btn.clicked.connect(self.on_add_pad)
 
@@ -515,7 +515,7 @@ class PadArrayEditorGrb(ShapeToolEditorGrb):
         # Signals
         try:
             self.ui.add_btn.clicked.disconnect()
-        except (AttributeError, TypeError):
+        except (AttributeError, TypeError, RuntimeError):
             pass
         self.ui.add_btn.clicked.connect(self.on_add_pad_array)
 
@@ -1681,7 +1681,7 @@ class TrackEditorGrb(ShapeToolEditorGrb):
         # Signals
         try:
             self.ui.add_btn.clicked.disconnect()
-        except (AttributeError, TypeError):
+        except (AttributeError, TypeError, RuntimeError):
             pass
         self.ui.add_btn.clicked.connect(self.on_add_track)
 
@@ -2484,7 +2484,7 @@ class ScaleEditorGrb(ShapeToolEditorGrb):
 
         try:
             self.draw_app.ui.scale_button.clicked.disconnect()
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
         self.draw_app.ui.scale_button.clicked.connect(self.on_scale_click)
 
@@ -2526,7 +2526,7 @@ class BufferEditorGrb(ShapeToolEditorGrb):
     def activate(self):
         try:
             self.buff_tool.ui.buffer_button.clicked.disconnect()
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
         self.buff_tool.ui.buffer_button.clicked.connect(self.on_buffer_clicked)
 
@@ -2537,7 +2537,7 @@ class BufferEditorGrb(ShapeToolEditorGrb):
     def deactivate(self):
         try:
             self.buff_tool.ui.buffer_button.clicked.disconnect()
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
         self.complete = True
         self.draw_app.select_tool("select")
@@ -2573,7 +2573,7 @@ class SimplifyEditorGrb(ShapeToolEditorGrb):
     def activate(self):
         try:
             self.draw_app.ui.simplification_btn.clicked.disconnect()
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
         self.ui.simplification_btn.clicked.connect(self.on_simplify_click)
 
@@ -2722,19 +2722,19 @@ class MarkEditorGrb(ShapeToolEditorGrb):
 
         try:
             self.draw_app.ui.ma_threshold_button.clicked.disconnect()
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
         self.draw_app.ui.ma_threshold_button.clicked.connect(self.on_markarea_click)
 
         try:
             self.draw_app.ui.ma_delete_button.clicked.disconnect()
-        except TypeError:
+        except (TypeError, RuntimeError):
             pass
         self.draw_app.ui.ma_delete_button.clicked.connect(self.on_markarea_delete)
 
         try:
             self.draw_app.ui.ma_clear_button.clicked.disconnect()
-        except TypeError:
+        except (TypeError, RuntimeError):
             pass
         self.draw_app.ui.ma_clear_button.clicked.connect(self.on_markarea_clear)
 
@@ -4025,7 +4025,8 @@ class AppGerberEditor(QtCore.QObject):
         self.tool_row = 0
 
         # Multiprocessing pool
-        self.pool = self.app.pool
+        # set by the pool_recreated slot; resolved from the app when actually needed
+        self.pool = None
 
         # Multiprocessing results
         self.results = []
@@ -4199,12 +4200,12 @@ class AppGerberEditor(QtCore.QObject):
         try:
             # if connected, disconnect the signal from the slot on item_changed as it creates issues
             self.ui.apertures_table.itemChanged.disconnect()
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
 
         try:
             self.ui.apertures_table.cellPressed.disconnect()
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
 
         # updated units
@@ -5003,17 +5004,17 @@ class AppGerberEditor(QtCore.QObject):
         # Canvas context Mneu
         try:
             self.app.ui.popmenu_copy.triggered.disconnect(self.on_copy_button)
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
 
         try:
             self.app.ui.popmenu_delete.triggered.disconnect(self.on_delete_btn)
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
 
         try:
             self.app.ui.popmenu_move.triggered.disconnect(self.on_move_button)
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
 
         self.app.ui.popmenu_copy.triggered.connect(self.app.on_copy_command)
@@ -5023,27 +5024,27 @@ class AppGerberEditor(QtCore.QObject):
         # Gerber Editor
         try:
             self.app.ui.grb_draw_pad.triggered.disconnect(self.on_pad_add)
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
 
         try:
             self.app.ui.grb_draw_pad_array.triggered.disconnect(self.on_pad_add_array)
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
 
         try:
             self.app.ui.grb_draw_track.triggered.disconnect(self.on_track_add)
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
 
         try:
             self.app.ui.grb_draw_region.triggered.disconnect(self.on_region_add)
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
 
         try:
             self.app.ui.grb_draw_poligonize.triggered.disconnect(self.on_poligonize)
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
         try:
             self.app.ui.grb_draw_semidisc.triggered.diconnect(self.on_add_semidisc)
@@ -5051,27 +5052,27 @@ class AppGerberEditor(QtCore.QObject):
             pass
         try:
             self.app.ui.grb_draw_disc.triggered.disconnect(self.on_disc_add)
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
         try:
             self.app.ui.grb_draw_buffer.triggered.disconnect()
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
         try:
             self.app.ui.grb_draw_scale.triggered.disconnect()
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
         try:
             self.app.ui.grb_draw_markarea.triggered.disconnect()
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
         try:
             self.app.ui.grb_draw_eraser.triggered.disconnect(self.on_eraser)
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
         try:
             self.app.ui.grb_draw_transformations.triggered.disconnect(self.on_transform)
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
 
         # disconnect the Jump signal
