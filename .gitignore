@@ -11,3 +11,11 @@ build/
 .LSOverride
 .vscode
 /.vs
+
+# Python / build artifacts
+__pycache__/
+*.pyo
+.pytest_cache/
+dist/
+*.egg-info/
+log.txt
