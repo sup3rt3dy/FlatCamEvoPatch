@@ -84,7 +84,6 @@ class ToolSub(AppTool):
         self.sub_union = []
 
         # multiprocessing
-        self.pool = self.app.pool
         self.results = []
 
         # start the QTimer to check for promises with 0.5 seconds period check

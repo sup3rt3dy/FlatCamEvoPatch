@@ -8,7 +8,7 @@
 from PyQt6 import QtWidgets, QtCore, QtGui
 from appTool import AppTool
 from appGUI.GUIElements import VerticalScrollArea, FCLabel, FCButton, FCFrame, GLay, FCComboBox, FCFileSaveDialog, \
-    FCComboBox2, FCEntry, FCDoubleSpinner, FCSpinner, FCInputSpinner, FCTable
+    FCComboBox2, FCEntry, FCDoubleSpinner, FCSpinner, FCInputSpinner, FCTable, safe_widget_call
 
 import traceback
 from copy import deepcopy
@@ -425,6 +425,7 @@ class SolderPaste(AppTool):
         self.ui.tools_table.itemChanged.connect(self.on_tool_edit)
         self.ui.tools_table.itemSelectionChanged.connect(self.on_row_selection_change)
 
+    @safe_widget_call
     def ui_disconnect(self):
         # if connected, disconnect the signal from the slot on item_changed as it creates issues
         for grid in self.ui.tools_box.parentWidget().findChildren(GLay):
@@ -449,12 +450,12 @@ class SolderPaste(AppTool):
 
         try:
             self.ui.tools_table.itemChanged.disconnect(self.on_tool_edit)
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
 
         try:
             self.ui.tools_table.itemSelectionChanged.disconnect(self.on_row_selection_change)
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
 
     def update_comboboxes(self, obj, status):

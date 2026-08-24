@@ -2063,6 +2063,11 @@ class MainGUI(QtWidgets.QMainWindow):
 
         self.util_pref_form = UtilPreferencesUI(app=self.app)
 
+        # PERFORMANCE: this filter sees every event in the application, so the setting it needs is
+        # cached here instead of being looked up in app.options on each one. App.on_options_value_
+        # changed() refreshes it when the user changes the preference.
+        self.tooltips_enabled = self.app.options["global_toggle_tooltips"]
+
         QtCore.QCoreApplication.instance().installEventFilter(self)
 
         # ########################################################################
@@ -4524,17 +4529,18 @@ class MainGUI(QtWidgets.QMainWindow):
         """
         Filter the ToolTips display based on a Preferences setting
 
+        This is installed on the QCoreApplication, so it runs for every event in the process -
+        mouse moves, paints, timers. It has to stay as cheap as possible: test the event type
+        first and read the cached flag, never a dict lookup into app.options.
+
         :param obj:
         :param event: QT event to filter
         :return:
         """
-        if self.app.options["global_toggle_tooltips"] is False:
-            if event.type() == QtCore.QEvent.Type.ToolTip:
-                return True
-            else:
-                return False
+        if event.type() != QtCore.QEvent.Type.ToolTip:
+            return False
 
-        return False
+        return not self.tooltips_enabled
 
     def dragEnterEvent(self, event):
         if event.mimeData().hasUrls:

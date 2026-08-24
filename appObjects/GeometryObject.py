@@ -12,7 +12,7 @@
 
 from PyQt6 import QtWidgets, QtCore
 from appObjects.AppObjectTemplate import FlatCAMObj, ObjectDeleted
-from appGUI.GUIElements import FCCheckBox
+from appGUI.GUIElements import FCCheckBox, safe_widget_call
 from appGUI.ObjectUI import GeometryObjectUI
 
 from shapely import MultiLineString, LinearRing, Polygon, MultiPolygon, LineString
@@ -556,16 +556,17 @@ class GeometryObject(FlatCAMObj, Geometry):
 
         self.ui.plot_cb.stateChanged.connect(self.on_plot_cb_click)
 
+    @safe_widget_call
     def ui_disconnect(self):
         for row in range(self.ui.geo_tools_table.rowCount()):
             try:
                 self.ui.geo_tools_table.cellWidget(row, 6).clicked.disconnect()
-            except (TypeError, AttributeError):
+            except (TypeError, AttributeError, RuntimeError):
                 pass
 
         try:
             self.ui.plot_cb.stateChanged.disconnect()
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
 
     def select_tools_table_row(self, row, clearsel=None):

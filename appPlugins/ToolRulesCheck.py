@@ -32,6 +32,19 @@ class RulesCheck(AppTool):
 
     tool_finished = QtCore.pyqtSignal(list)
 
+    @property
+    def pool(self):
+        """
+        The application's process pool, resolved on use rather than at construction.
+
+        This plugin is instantiated at startup like every other one, but the rule checks are the
+        only thing here that needs workers - so the pool is only created if a check is actually run.
+
+        :return:    the application process pool
+        :rtype:     multiprocessing.pool.Pool
+        """
+        return self.app.pool
+
     def __init__(self, app):
         self.decimals = app.decimals
 
@@ -53,8 +66,8 @@ class RulesCheck(AppTool):
         # flag to signal that the constraint was activated
         self.constrain_flag = False
 
-        # Multiprocessing Process Pool
-        self.pool = self.app.pool
+        # Multiprocessing Process Pool - resolved lazily via the 'pool' property below, so that
+        # merely constructing this plugin does not spawn worker processes at application startup.
         self.results = None
 
         self.decimals = 4

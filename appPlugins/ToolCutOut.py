@@ -9,7 +9,7 @@ from PyQt6 import QtWidgets, QtGui, QtCore
 from appTool import AppTool
 from appGUI.GUIElements import VerticalScrollArea, FCLabel, FCButton, FCFrame, GLay, FCComboBox, RadioSet, \
     FCDoubleSpinner, FCComboBox2, OptionalInputSection, FCCheckBox
-from camlib import flatten_shapely_geometry
+from camlib import flatten_shapely_geometry, is_mpl_key_event
 
 import math
 import logging
@@ -25,7 +25,6 @@ from shapely import Polygon, MultiPolygon, box, Point, LineString, MultiLineStri
 from shapely.ops import unary_union, linemerge
 from shapely.affinity import rotate
 
-from matplotlib.backend_bases import KeyEvent as mpl_key_event
 
 import gettext
 import appTranslation as fcTranslate
@@ -2061,7 +2060,7 @@ class CutOut(AppTool):
         # events from the GUI are of type QKeyEvent
         elif type(event) == QtGui.QKeyEvent:
             key = event.key()
-        elif isinstance(event, mpl_key_event):  # MatPlotLib key events are trickier to interpret than the rest
+        elif is_mpl_key_event(event):  # MatPlotLib key events are trickier to interpret than the rest
             key = event.key
             key = QtGui.QKeySequence(key)
 

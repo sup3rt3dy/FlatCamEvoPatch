@@ -148,7 +148,7 @@ class SelectEditorExc(FCShapeTool):
             # select the diameter of the selected shape in the tool table
             try:
                 self.draw_app.ui.tools_table_exc.cellPressed.disconnect()
-            except (TypeError, AttributeError):
+            except (TypeError, AttributeError, RuntimeError):
                 pass
 
             # if mod_key == self.draw_app.app.options["global_mselect_key"]:
@@ -303,7 +303,7 @@ class DrillAdd(FCShapeTool):
         # Signals
         try:
             self.ui.add_btn.clicked.disconnect()
-        except (AttributeError, TypeError):
+        except (AttributeError, TypeError, RuntimeError):
             pass
         self.ui.add_btn.clicked.connect(self.on_add_drill)
 
@@ -593,7 +593,7 @@ class DrillArray(FCShapeTool):
         # Signals
         try:
             self.ui.add_btn.clicked.disconnect()
-        except (AttributeError, TypeError):
+        except (AttributeError, TypeError, RuntimeError):
             pass
         self.ui.add_btn.clicked.connect(self.on_add_drill_array)
 
@@ -1049,7 +1049,7 @@ class SlotAdd(FCShapeTool):
         # Signals
         try:
             self.ui.add_btn.clicked.disconnect()
-        except (AttributeError, TypeError):
+        except (AttributeError, TypeError, RuntimeError):
             pass
         self.ui.add_btn.clicked.connect(self.on_add_slot)
 
@@ -1432,7 +1432,7 @@ class SlotArray(FCShapeTool):
         # Signals
         try:
             self.ui.add_btn.clicked.disconnect()
-        except (AttributeError, TypeError):
+        except (AttributeError, TypeError, RuntimeError):
             pass
         self.ui.add_btn.clicked.connect(self.on_add_slot_array)
 
@@ -1982,11 +1982,11 @@ class ResizeEditorExc(FCShapeTool):
         # Signals
         try:
             self.ui.resize_btn.clicked.disconnect()
-        except (AttributeError, TypeError):
+        except (AttributeError, TypeError, RuntimeError):
             pass
         try:
             self.ui.res_dia_entry.editingFinished.disconnect()
-        except (AttributeError, TypeError):
+        except (AttributeError, TypeError, RuntimeError):
             pass
         self.ui.resize_btn.clicked.connect(self.on_resize)
         self.ui.res_dia_entry.editingFinished.connect(self.on_resize)
@@ -2025,7 +2025,7 @@ class ResizeEditorExc(FCShapeTool):
 
         try:
             self.draw_app.ui.tools_table_exc.itemChanged.disconnect()
-        except TypeError:
+        except (TypeError, RuntimeError):
             pass
 
         new_dia = self.ui.res_dia_entry.get_value()
@@ -3256,12 +3256,12 @@ class AppExcEditor(QtCore.QObject):
         try:
             # if connected, disconnect the signal from the slot on item_changed as it creates issues
             self.ui.tools_table_exc.itemChanged.disconnect()
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
 
         try:
             self.ui.tools_table_exc.cellPressed.disconnect()
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
 
         # updated units
@@ -3611,12 +3611,12 @@ class AppExcEditor(QtCore.QObject):
         # if connected, disconnect the signal from the slot on item_changed as it creates issues
         try:
             self.ui.tools_table_exc.itemChanged.disconnect()
-        except TypeError:
+        except (TypeError, RuntimeError):
             pass
 
         try:
             self.ui.tools_table_exc.cellPressed.disconnect()
-        except TypeError:
+        except (TypeError, RuntimeError):
             pass
         # self.ui.tools_table_exc.selectionModel().currentChanged.disconnect()
 
@@ -3922,17 +3922,17 @@ class AppExcEditor(QtCore.QObject):
 
         try:
             self.app.ui.popmenu_copy.triggered.disconnect(self.exc_copy_drills)
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
 
         try:
             self.app.ui.popmenu_delete.triggered.disconnect(self.on_delete_btn)
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
 
         try:
             self.app.ui.popmenu_move.triggered.disconnect(self.exc_move_drills)
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
 
         self.app.ui.popmenu_copy.triggered.connect(self.app.on_copy_command)
@@ -3942,12 +3942,12 @@ class AppExcEditor(QtCore.QObject):
         # Excellon Editor
         try:
             self.app.ui.drill.triggered.disconnect(self.exc_add_drill)
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
 
         try:
             self.app.ui.drill_array.triggered.disconnect(self.exc_add_drill_array)
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
 
         try:

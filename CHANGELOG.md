@@ -8,6 +8,33 @@ CHANGELOG for FlatCAM Evo beta
 
 =================================================
 
+24.08.2026
+
+- PERFORMANCE: Gerber parsing is about 10x faster. The polygon union in ParseGerber.parse_lines() used the buffer(+1e-8)/buffer(-1e-8) trick, which was the fast option under Shapely 1.x but is far slower under Shapely 2.x; it now uses unary_union. Measured on a 26009 line Gerber: 55.96s -> 5.28s
+- also removed the buffer(0) that followed unary_union: since GEOS 3.8 unary_union already returns valid geometry, so that call only rebuilt the whole result for nothing (19.4s of the above on its own)
+- NOTE on the above: the old epsilon buffer also welded polygons less than 2e-8 apart and rounded corners, so the result can keep a couple of polygons separate that used to be merged (232 -> 234 on the test file, 0.023% area difference). That is far below Gerber's own coordinate resolution. If the welding is wanted explicitly, use shapely.set_precision()/union_all(grid_size=...) instead
+- the same buffer based union was replaced with unary_union in Gerber.buffer()
+- the "gerber_use_buffer_for_union" option no longer selects a union strategy (unary_union is always used now); it is kept only for compatibility with saved preferences. The Buffering preference (None/Full) still behaves as before
+- PERFORMANCE: plotting no longer dispatches one multiprocessing job per polygon. ShapeCollectionVisual.add() queues the shapes and they are translated in a single batched pool.map() when the collection is redrawn, falling back to in-process work for small batches because the pool round-trip cost more than the translation itself. Measured on 3000 shapes: 0.200s -> 0.029s. The queue is guarded by its own lock because objects are plotted on a worker thread, so add() and the flush can run concurrently
+- PERFORMANCE: flatcam.py no longer imports appMain at module level. On Windows every multiprocessing worker re-imported the whole application (Qt, VisPy, Shapely, all plugins) before it could do any work. Pool spawn to ready: 1.139s -> 0.075s
+- the multiprocessing pool is now created on first use instead of during App.__init__ (new App.pool property). Removed four unused "self.pool = self.app.pool" copies in ToolDrilling, ToolIsolation, ToolMilling and ToolSub that forced the pool to be created at startup anyway; RulesCheck now resolves it lazily through a property
+- PERFORMANCE: the application wide event filter in MainGUI no longer does a dictionary lookup into app.options for every single Qt event. The tooltip setting is cached and refreshed from on_options_value_changed(). It was running 59294 times during startup alone, and continuously while panning the canvas
+- the plugins are now built right after the main window is shown instead of in the middle of App.__init__, so the window appears about 0.4s sooner. They are still built before the start-up Tcl scripts and file arguments, which can use them
+- PERFORMANCE: nine plugin modules no longer import Matplotlib just to run an isinstance() check on key events. The new camlib.is_mpl_key_event() resolves the class from sys.modules instead, so Matplotlib is not loaded at all at startup when the 3D engine is used
+- urllib is now imported inside version_check() rather than at module level
+- overall startup measured 4.70s -> 4.39s headless, on top of the perceived gain from painting the window before the plugins are built
+
+- BUGFIX: fixed the "wrapped C/C++ object has been deleted" crash class properly. PATCH-8 fixed it for GerberObject only, but the same unguarded shape was present in 16 other ui_disconnect() methods (ExcellonObject, GeometryObject, CNCJobObject, the GCode editor, appDatabase, Bookmark and 10 plugins). Those handlers caught only (TypeError, AttributeError), and the self.ui.<table>.rowCount() call that starts them sits outside the try entirely, so a destroyed table raised RuntimeError straight out of the method
+- added GUIElements.safe_widget_call(), a decorator that swallows only the deleted-widget RuntimeError and re-raises everything else, so real bugs stay visible. Applied to the 16 ui_disconnect() methods and to the 28 set_value() implementations that had no such guard (PATCH-4 and PATCH-7 had covered 5 of the 33 by hand)
+- verified: with every widget of a plugin UI destroyed, 8 of 9 tested plugins raised RuntimeError out of ui_disconnect() before this change and none do after
+- BUGFIX: AppDefaults.__getattr__ and AppOptions.__getattr__ recursed infinitely when the backing dict was not set yet, because "self.defaults"/"self.options" re-entered __getattr__. deepcopy() of either class raised RecursionError. They now fetch the backing attribute directly and raise a normal AttributeError
+- BUGFIX: LoudDict.__setitem__ raised "truth value of an array is ambiguous" when a value was a numpy array, because the equality short-circuit assumed == returns a bool. Values that do not compare to a single bool are now treated as changed
+- BUGFIX: the Image Import plugin was silently unavailable - it did "from shapely import shape", which does not exist in Shapely 2.x (it is shapely.geometry.shape), and appPlugins swallowed the ImportError
+- BUGFIX: enable_plots() crashed with "wrapped C/C++ object of type FCCheckBox has been deleted" when re-enabling an object whose plot checkbox had been destroyed. disable_plots() had already been guarded against this, enable_plots() had not, so disabling worked and re-enabling crashed. It now guards the disconnect the same way, and the two build_ui() retry paths return instead of falling through, so a rebuild cannot recurse over the whole list twice
+- swept the rest of the codebase for the same pattern instead of fixing it one crash at a time: 213 further try-blocks that operate on .ui widgets caught only (TypeError, AttributeError) or similar and would have let the same RuntimeError escape. All now include RuntimeError. Files touched include the Gerber/Excellon/Geometry/GCode editors, the editor plugins, the object classes and 12 plugins
+
+- BUGFIX: guarded the new deferred shape queue with its own lock. Objects are plotted on a worker thread, so add() and the flush could run concurrently and a shape queued between the read and the clear would have been dropped and never drawn
+
 8.10.2025
 
 - added some changes suggested by Matthew Kaprocki on bitbucket regarding new Gerber extensions 

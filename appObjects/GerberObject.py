@@ -190,7 +190,7 @@ class GerberObject(FlatCAMObj, Gerber):
             self.ui.create_buffer_button.show()
             try:
                 self.ui.create_buffer_button.clicked.disconnect(self.on_generate_buffer)
-            except TypeError:
+            except (TypeError, RuntimeError):
                 pass
             self.ui.create_buffer_button.clicked.connect(self.on_generate_buffer)
         else:
@@ -266,7 +266,7 @@ class GerberObject(FlatCAMObj, Gerber):
             try:
                 # if connected, disconnect the signal from the slot on item_changed as it creates issues
                 self.ui.apertures_table.itemChanged.disconnect()
-            except (TypeError, AttributeError):
+            except (TypeError, AttributeError, RuntimeError):
                 pass
 
             self.apertures_row = 0
@@ -373,7 +373,7 @@ class GerberObject(FlatCAMObj, Gerber):
                 for row in range(self.ui.apertures_table.rowCount()):
                     try:
                         self.ui.apertures_table.cellWidget(row, 5).set_value(self.marked_rows[row])
-                    except IndexError:
+                    except (IndexError, RuntimeError):
                         pass
 
             self.ui_connect()
@@ -382,13 +382,13 @@ class GerberObject(FlatCAMObj, Gerber):
         for row in range(self.ui.apertures_table.rowCount()):
             try:
                 self.ui.apertures_table.cellWidget(row, 5).clicked.disconnect(self.on_mark_cb_click_table)
-            except (TypeError, AttributeError):
+            except (TypeError, AttributeError, RuntimeError):
                 pass
             self.ui.apertures_table.cellWidget(row, 5).clicked.connect(self.on_mark_cb_click_table)
 
         try:
             self.ui.mark_all_cb.clicked.disconnect(self.on_mark_all_click)
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
         self.ui.mark_all_cb.clicked.connect(self.on_mark_all_click)
 

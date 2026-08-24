@@ -9,7 +9,7 @@ from PyQt6 import QtWidgets, QtCore, QtGui
 from appTool import AppTool
 from appGUI.GUIElements import VerticalScrollArea, FCLabel, FCButton, FCFrame, GLay, FCComboBox, FCCheckBox, \
     FCComboBox2, RadioSet, FCDoubleSpinner, FCSpinner, FCInputDialogSpinnerButton, FCTable, \
-    OptionalInputSection
+    OptionalInputSection, safe_widget_call
 
 import logging
 from copy import deepcopy
@@ -28,8 +28,7 @@ import appTranslation as fcTranslate
 import builtins
 
 from appParsers.ParseGerber import Gerber
-from matplotlib.backend_bases import KeyEvent as mpl_key_event
-from camlib import grace, flatten_shapely_geometry
+from camlib import grace, flatten_shapely_geometry, is_mpl_key_event
 
 fcTranslate.apply_language('strings')
 if '_' not in builtins.__dict__:
@@ -108,7 +107,6 @@ class ToolIsolation(Gerber, AppTool):
         self.safe_tooldia = None
 
         # multiprocessing
-        self.pool = self.app.pool
         self.results = []
 
         # store here the validation status (if tool validation is used)
@@ -321,7 +319,7 @@ class ToolIsolation(Gerber, AppTool):
             self.ui.create_buffer_button.show()
             try:
                 self.ui.create_buffer_button.clicked.disconnect(self.on_generate_buffer)
-            except TypeError:
+            except (TypeError, RuntimeError):
                 pass
             self.ui.create_buffer_button.clicked.connect(self.on_generate_buffer)
         else:
@@ -698,37 +696,38 @@ class ToolIsolation(Gerber, AppTool):
         self.ui.rest_cb.stateChanged.connect(self.on_rest_machining_check)
         self.ui.iso_order_combo.currentIndexChanged.connect(self.on_order_changed)
 
+    @safe_widget_call
     def ui_disconnect(self):
 
         try:
             self.ui.tool_shape_combo.currentIndexChanged.disconnect()
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
 
         try:
             # if connected, disconnect the signal from the slot on item_changed as it creates issues
             self.ui.tools_table.itemChanged.disconnect()
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
 
         # V-shape tool parameters changes
         try:
             self.ui.cutz_entry.editingFinished.disconnect()
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
         try:
             self.ui.tipdia_entry.editingFinished.disconnect()
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
         try:
             self.ui.tipangle_entry.editingFinished.disconnect()
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
 
         # rows selected
         try:
             self.ui.tools_table.clicked.disconnect()
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
         try:
             self.ui.tools_table.horizontalHeader().sectionClicked.disconnect()
@@ -761,11 +760,11 @@ class ToolIsolation(Gerber, AppTool):
 
         try:
             self.ui.rest_cb.stateChanged.disconnect()
-        except (TypeError, ValueError):
+        except (TypeError, ValueError, RuntimeError):
             pass
         try:
             self.ui.iso_order_combo.currentIndexChanged.disconnect()
-        except (TypeError, ValueError):
+        except (TypeError, ValueError, RuntimeError):
             pass
 
     def sort_iso_tools(self):
@@ -2850,7 +2849,7 @@ class ToolIsolation(Gerber, AppTool):
         # events from the GUI are of type QKeyEvent
         elif type(event) == QtGui.QKeyEvent:
             key = event.key()
-        elif isinstance(event, mpl_key_event):  # MatPlotLib key events are trickier to interpret than the rest
+        elif is_mpl_key_event(event):  # MatPlotLib key events are trickier to interpret than the rest
             # matplotlib_key_flag = True
 
             key = event.key

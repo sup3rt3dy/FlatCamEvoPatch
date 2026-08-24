@@ -14,7 +14,11 @@ from copy import deepcopy
 import numpy as np
 import os
 
-from shapely import LineString, MultiLineString, Polygon, MultiPolygon, shape
+from shapely import LineString, MultiLineString, Polygon, MultiPolygon
+# NOTE: shape() is not re-exported from the shapely top level in Shapely 2.x, only from
+# shapely.geometry. Importing it from 'shapely' raised ImportError, and because appPlugins
+# swallows that in a try/except the whole Image Import plugin was silently unavailable.
+from shapely.geometry import shape
 from shapely.affinity import scale, translate
 import gettext
 import appTranslation as fcTranslate

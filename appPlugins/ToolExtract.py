@@ -8,7 +8,7 @@
 from PyQt6 import QtWidgets, QtCore, QtGui
 from appTool import AppTool
 from appGUI.GUIElements import VerticalScrollArea, FCLabel, FCButton, FCFrame, GLay, FCComboBox, FCCheckBox, \
-    RadioSet, FCDoubleSpinner, FCTable
+    RadioSet, FCDoubleSpinner, FCTable, safe_widget_call
 
 import logging
 from copy import deepcopy
@@ -375,16 +375,17 @@ class ToolExtract(AppTool):
                 wdg = self.ui.apertures_table.cellWidget(row, 3)
                 assert isinstance(wdg, FCCheckBox)
                 wdg.clicked.disconnect()
-            except (TypeError, AttributeError):
+            except (TypeError, AttributeError, RuntimeError):
                 pass
             wdg = self.ui.apertures_table.cellWidget(row, 3)
             assert isinstance(wdg, FCCheckBox)
             wdg.stateChanged.connect(self.on_mark_cb_click_table)
 
+    @safe_widget_call
     def ui_disconnect(self):
         try:
             self.ui.all_cb.stateChanged.disconnect()
-        except (AttributeError, TypeError):
+        except (AttributeError, TypeError, RuntimeError):
             pass
 
         # Mark Checkboxes
@@ -393,7 +394,7 @@ class ToolExtract(AppTool):
                 wdg = self.ui.apertures_table.cellWidget(row, 3)
                 assert isinstance(wdg, FCCheckBox)
                 wdg.stateChanged.disconnect()
-            except (TypeError, AttributeError):
+            except (TypeError, AttributeError, RuntimeError):
                 pass
 
     def on_select_all(self, state):

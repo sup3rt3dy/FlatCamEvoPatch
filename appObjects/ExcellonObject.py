@@ -14,7 +14,7 @@ from PyQt6 import QtWidgets, QtCore, QtGui
 
 from appParsers.ParseExcellon import Excellon
 from appObjects.AppObjectTemplate import FlatCAMObj, ObjectDeleted
-from appGUI.GUIElements import FCCheckBox
+from appGUI.GUIElements import FCCheckBox, safe_widget_call
 from appGUI.ObjectUI import ExcellonObjectUI
 
 import itertools
@@ -272,7 +272,7 @@ class ExcellonObject(FlatCAMObj, Excellon):
                 # if connected, disconnect the signal from the slot on item_changed as it creates issues
                 offset_spin_widget = self.ui.tools_table.cellWidget(row, 4)
                 offset_spin_widget.valueChanged.disconnect()
-            except (TypeError, AttributeError):
+            except (TypeError, AttributeError, RuntimeError):
                 pass
 
         n = len(self.tools)
@@ -572,6 +572,7 @@ class ExcellonObject(FlatCAMObj, Excellon):
         # rows selected
         self.ui.tools_table.clicked.connect(self.on_row_selection_change)
 
+    @safe_widget_call
     def ui_disconnect(self):
         """
         Will disconnect all signals in the Excellon UI that needs to be disconnected
@@ -583,17 +584,17 @@ class ExcellonObject(FlatCAMObj, Excellon):
         for row in range(self.ui.tools_table.rowCount()):
             try:
                 self.ui.tools_table.cellWidget(row, 5).clicked.disconnect()
-            except (TypeError, AttributeError):
+            except (TypeError, AttributeError, RuntimeError):
                 pass
         try:
             self.ui.plot_cb.stateChanged.disconnect()
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
 
         # rows selected
         try:
             self.ui.tools_table.clicked.disconnect()
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
 
     def on_row_selection_change(self):
@@ -713,7 +714,7 @@ class ExcellonObject(FlatCAMObj, Excellon):
                 except AttributeError:
                     try:
                         txt = self.ui.tools_table.cellWidget(x.row(), column).currentText()
-                    except AttributeError:
+                    except (AttributeError, RuntimeError):
                         pass
                 elem.append(txt)
             table_tools_items.append(deepcopy(elem))

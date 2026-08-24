@@ -17,6 +17,7 @@ from PyQt6.QtWidgets import QTextEdit, QCompleter
 from PyQt6.QtGui import QKeySequence, QTextCursor, QAction
 
 from copy import copy
+from functools import wraps
 import re
 import logging
 import html
@@ -34,6 +35,48 @@ if '_' not in builtins.__dict__:
     _ = gettext.gettext
 
 EDIT_SIZE_HINT = 70
+
+
+def is_deleted_widget_error(exc) -> bool:
+    """
+    True if 'exc' is PyQt's "the underlying C++ object has been deleted" RuntimeError.
+
+    Qt can destroy the C++ side of a widget while Python still holds a reference to it - when a
+    tab is closed, an object is deleted from the project, or a UI is rebuilt. Touching the wrapper
+    afterwards raises RuntimeError, and the message is the only thing that distinguishes it from a
+    genuine RuntimeError worth propagating.
+
+    :param exc:     the exception to classify
+    :return:        True if it is the deleted-widget RuntimeError
+    :rtype:         bool
+    """
+    if not isinstance(exc, RuntimeError):
+        return False
+    msg = str(exc)
+    return "has been deleted" in msg or "wrapped C/C++ object" in msg
+
+
+def safe_widget_call(fn):
+    """
+    Decorator for methods that touch widgets which may already have been destroyed by Qt.
+
+    Swallows only the deleted-widget RuntimeError and returns None in that case; every other
+    exception propagates untouched, so real bugs are still visible. Intended for teardown and
+    display helpers - ui_disconnect() and set_value() - where the widget going away first simply
+    means there is nothing left to do.
+
+    :param fn:  the method to wrap
+    :return:    the wrapped method
+    """
+    @wraps(fn)
+    def wrapper(*args, **kwargs):
+        try:
+            return fn(*args, **kwargs)
+        except RuntimeError as err:
+            if is_deleted_widget_error(err):
+                return None
+            raise
+    return wrapper
 
 
 class PlotTabWithDragDrop(QtWidgets.QWidget):
@@ -172,6 +215,7 @@ class RadioSet(QtWidgets.QWidget):
         log.error("No button was toggled in RadioSet.")
         return None
 
+    @safe_widget_call
     def set_value(self, val):
         for choice in self.choices:
             if choice['value'] == val:
@@ -265,6 +309,7 @@ class RadioSetCross(QtWidgets.QWidget):
         log.error("No button was toggled in RadioSet.")
         return None
 
+    @safe_widget_call
     def set_value(self, val):
         for choice in self.choices:
             if choice['value'] == val:
@@ -640,6 +685,7 @@ class LengthEntry(FCLineEdit):
             log.warning("Could not parse value in entry: %s" % str(raw))
             return None
 
+    @safe_widget_call
     def set_value(self, val, decimals=None):
         dec_digits = decimals if decimals is not None else self.decimals
         self.setText(str('%.*f' % (dec_digits, val)))
@@ -690,6 +736,7 @@ class FloatEntry(FCLineEdit):
                 log.error("Could not evaluate val: %s, error: %s" % (str(raw), str(e)))
             return None
 
+    @safe_widget_call
     def set_value(self, val, decimals=None):
         dig_digits = decimals if decimals is not None else self.decimals
         if val is not None:
@@ -736,6 +783,7 @@ class FloatEntry2(FCLineEdit):
                 log.error("Could not evaluate val: %s, error: %s" % (str(raw), str(e)))
             return None
 
+    @safe_widget_call
     def set_value(self, val, decimals=None):
         dig_digits = decimals if decimals is not None else self.decimals
         self.setText("%.*f" % (dig_digits, val))
@@ -781,6 +829,7 @@ class IntEntry(FCLineEdit):
         ret_val = int(ret_val)
         return ret_val
 
+    @safe_widget_call
     def set_value(self, val):
 
         if val == self.empty_val and self.allow_empty:
@@ -880,6 +929,7 @@ class FCEntry2(FCEntry):
     def __init__(self, parent=None):
         super(FCEntry2, self).__init__(parent)
 
+    @safe_widget_call
     def set_value(self, val, decimals=4):
         try:
             fval = float(val)
@@ -892,6 +942,7 @@ class FCEntry3(FCEntry):
     def __init__(self, parent=None):
         super(FCEntry3, self).__init__(parent)
 
+    @safe_widget_call
     def set_value(self, val, decimals=4):
         try:
             fval = float(val)
@@ -1000,6 +1051,7 @@ class EvalEntry2(FCLineEdit):
             return None
         return evaled
 
+    @safe_widget_call
     def set_value(self, val):
         self.setText(str(val))
 
@@ -1093,6 +1145,7 @@ class FCColorEntry(QtWidgets.QFrame):
     def get_value(self) -> str:
         return self.entry.get_value()
 
+    @safe_widget_call
     def set_value(self, value: str):
         self.entry.set_value(value)
         self._sync_button_color()
@@ -1190,6 +1243,7 @@ class FCSliderWithSpinner(QtWidgets.QFrame):
     def get_value(self) -> int:
         return self.spinner.get_value()
 
+    @safe_widget_call
     def set_value(self, value: int):
         self.spinner.set_value(value)
 
@@ -1783,6 +1837,7 @@ class FCSliderWithDoubleSpinner(QtWidgets.QFrame):
     def get_value(self) -> float:
         return self.spinner.get_value()
 
+    @safe_widget_call
     def set_value(self, value: float):
         self.spinner.set_value(value)
 
@@ -1841,6 +1896,7 @@ class FCDoubleSlider(QtWidgets.QSlider):
     def singleStep(self):
         return float(super(FCDoubleSlider, self).singleStep()) / self._multi
 
+    @safe_widget_call
     def set_value(self, value):
         super(FCDoubleSlider, self).setValue(int(value * self._multi))
 
@@ -1889,6 +1945,7 @@ class FCButtonWithDoubleSpinner(QtWidgets.QFrame):
     def get_value(self) -> float:
         return self.spinner.get_value()
 
+    @safe_widget_call
     def set_value(self, value: float):
         self.spinner.set_value(value)
 
@@ -1979,6 +2036,7 @@ class FCTextArea(QtWidgets.QPlainTextEdit):
     def __init__(self, parent=None):
         super(FCTextArea, self).__init__(parent)
 
+    @safe_widget_call
     def set_value(self, val):
         self.setPlainText(val)
 
@@ -2095,6 +2153,7 @@ class FCTextEdit(QtWidgets.QTextEdit):
         tcursor = self.textCursor()
         tcursor.deleteChar()
 
+    @safe_widget_call
     def set_value(self, txt):
         self.setText(txt)
 
@@ -2106,6 +2165,7 @@ class FCTextAreaRich(FCTextEdit):
     def __init__(self, parent=None):
         super(FCTextAreaRich, self).__init__(parent)
 
+    @safe_widget_call
     def set_value(self, val):
         self.setText(val)
 
@@ -2161,6 +2221,7 @@ class FCTextAreaExtended(FCTextEdit):
             self.completer.setWidget(self)
         QTextEdit.focusInEvent(self, event)
 
+    @safe_widget_call
     def set_value(self, val):
         self.setText(val)
 
@@ -2471,6 +2532,7 @@ class FCPlainTextAreaExtended(QtWidgets.QPlainTextEdit):
         tcursor = self.textCursor()
         tcursor.deleteChar()
 
+    @safe_widget_call
     def set_value(self, val):
         self.setPlainText(val)
 
@@ -2724,6 +2786,7 @@ class FCComboBox(QtWidgets.QComboBox):
     def get_value(self):
         return str(self.currentText())
 
+    @safe_widget_call
     def set_value(self, val):
         idx = self.findText(str(val))
         if idx == -1:
@@ -2762,6 +2825,7 @@ class FCComboBox2(FCComboBox):
     def get_value(self):
         return int(self.currentIndex())
 
+    @safe_widget_call
     def set_value(self, val):
         try:
             self.setCurrentIndex(val)
@@ -2878,6 +2942,7 @@ class FCInputDialog(QtWidgets.QInputDialog):
         return [self.val, self.ok]
 
     # "Transform", "Enter the Angle value:"
+    @safe_widget_call
     def set_value(self, val):
         pass
 
@@ -2953,6 +3018,7 @@ class FCInputDoubleSpinner(QtWidgets.QDialog):
     def set_step(self, val):
         self.wdg.set_step(val)
 
+    @safe_widget_call
     def set_value(self, val):
         self.wdg.set_value(val)
 
@@ -3153,6 +3219,7 @@ class FCInputDialogSpinnerButton(QtWidgets.QDialog):
     def set_step(self, val):
         self.wdg.spinner.set_step(val)
 
+    @safe_widget_call
     def set_value(self, val):
         self.wdg.spinner.set_value(val)
 
@@ -3307,6 +3374,7 @@ class FCButton(QtWidgets.QPushButton):
             # Any other unexpected exception - return False instead of crashing
             return False
 
+    @safe_widget_call
     def set_value(self, val):
         self.setText(str(val))
 
@@ -3435,6 +3503,7 @@ class FCLabel(QtWidgets.QLabel):
     def get_value(self):
         return self.text()
 
+    @safe_widget_call
     def set_value(self, val):
         self._title = str(val)
         self.setText(self._title)
@@ -6299,6 +6368,7 @@ class FCDateTime(QtWidgets.QDateTimeEdit):
     def __init__(self, parent):
         super(FCDateTime, self).__init__(parent)
 
+    @safe_widget_call
     def set_value(self, val):
         year = val[0]
         month = val[1]
@@ -6327,6 +6397,7 @@ class FCDate(QtWidgets.QDateEdit):
         }
         """)
 
+    @safe_widget_call
     def set_value(self, val):
         val_split = val.split('-')
         year = int(val_split[0])

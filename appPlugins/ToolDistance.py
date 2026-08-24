@@ -7,7 +7,7 @@
 
 from PyQt6 import QtWidgets, QtCore
 from appTool import AppTool
-from appGUI.GUIElements import VerticalScrollArea, FCLabel, FCButton, FCFrame, GLay, FCEntry, FCCheckBox
+from appGUI.GUIElements import VerticalScrollArea, FCLabel, FCButton, FCFrame, GLay, FCEntry, FCCheckBox, safe_widget_call
 from appGUI.VisPyVisuals import ShapeCollection
 from camlib import AppRTreeStorage
 from appEditors.appGeoEditor import DrawToolShape
@@ -84,7 +84,7 @@ class Distance(AppTool):
 
         # VisPy visuals
         if self.app.use_3d_engine:
-            self.sel_shapes = ShapeCollection(parent=self.app.plotcanvas.view.scene, layers=1, pool=self.app.pool)
+            self.sel_shapes = ShapeCollection(parent=self.app.plotcanvas.view.scene, layers=1, pool=lambda: self.app.pool)
         else:
             from appGUI.PlotCanvasLegacy import ShapeCollectionLegacy
             self.sel_shapes = ShapeCollectionLegacy(obj=self, app=self.app, name='measurement')
@@ -216,7 +216,7 @@ class Distance(AppTool):
 
         try:
             self.ui.snap_center_cb.toggled.disconnect()
-        except (AttributeError, TypeError):
+        except (AttributeError, TypeError, RuntimeError):
             pass
         self.ui.snap_center_cb.toggled.connect(self.on_snap_toggled)
 
@@ -323,6 +323,7 @@ class Distance(AppTool):
                 self.canvas.graph_event_disconnect(self.app.grb_editor.mp)
                 self.canvas.graph_event_disconnect(self.app.grb_editor.mr)
 
+    @safe_widget_call
     def ui_disconnect(self):
         if self.original_call_source == 'app':
             self.app.mm = self.canvas.graph_event_connect('mouse_move', self.app.on_mouse_move_over_plot)

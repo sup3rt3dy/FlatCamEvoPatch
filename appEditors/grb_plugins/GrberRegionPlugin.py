@@ -37,7 +37,7 @@ class GrbRegionEditorTool(AppToolEditor):
         # Signals
         try:
             self.ui.clear_btn.clicked.disconnect()
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
 
     def run(self):

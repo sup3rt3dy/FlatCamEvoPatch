@@ -933,7 +933,17 @@ class AppDefaults:
 
     def __getattr__(self, item):
         # Unfortunately this method alone is not enough to pass through the other magic methods above.
-        return self.defaults.__getattribute__(item)
+        #
+        # NOTE: __getattr__ only runs when normal lookup fails, so 'self.defaults' here would call
+        # back into __getattr__ whenever the backing dict is missing - and recurse until the stack
+        # blows. That happens on any instance built without __init__ (unpickling) and on deepcopy,
+        # which probes for __deepcopy__/__reduce_ex__ before the object is populated. Fetch the
+        # attribute directly and raise a normal AttributeError when it is not there yet.
+        try:
+            backing = object.__getattribute__(self, 'defaults')
+        except AttributeError:
+            raise AttributeError(item)
+        return getattr(backing, item)
 
     # #### Additional Methods #####
     def write(self, filename: str):
@@ -1105,7 +1115,15 @@ class AppOptions:
 
     def __getattr__(self, item):
         # Unfortunately this method alone is not enough to pass through the other magic methods above.
-        return self.options.__getattribute__(item)
+        #
+        # NOTE: see the matching comment in AppDefaults.__getattr__ - going through 'self.options'
+        # recurses forever when the backing dict has not been set yet (unpickling, deepcopy), so
+        # the attribute is fetched directly and a normal AttributeError is raised instead.
+        try:
+            backing = object.__getattribute__(self, 'options')
+        except AttributeError:
+            raise AttributeError(item)
+        return getattr(backing, item)
 
     def load(self, filename: str, inform):
         """

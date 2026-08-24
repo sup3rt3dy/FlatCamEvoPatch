@@ -26,8 +26,7 @@ import appTranslation as fcTranslate
 import builtins
 
 from appParsers.ParseExcellon import Excellon
-from matplotlib.backend_bases import KeyEvent as mpl_key_event
-from camlib import grace
+from camlib import grace, is_mpl_key_event
 
 fcTranslate.apply_language('strings')
 if '_' not in builtins.__dict__:
@@ -153,7 +152,6 @@ class ToolMilling(Excellon, AppTool):
         self.tooldia = None
 
         # multiprocessing
-        self.pool = self.app.pool
         self.results = []
 
         # disconnect flags
@@ -293,58 +291,58 @@ class ToolMilling(Excellon, AppTool):
 
         try:
             self.ui.level.toggled.disconnect()
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
 
         # add Tool
         try:
             self.ui.search_and_add_btn.clicked.disconnect()
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
         try:
             self.ui.deltool_btn.clicked.disconnect()
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
         try:
             self.ui.addtool_from_db_btn.clicked.disconnect()
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
 
         try:
             self.ui.target_radio.activated_custom.disconnect()
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
 
         try:
             self.ui.job_type_combo.currentIndexChanged.disconnect()
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
         try:
             self.ui.offset_type_combo.currentIndexChanged.disconnect()
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
         try:
             self.ui.pp_geo_name_cb.activated.disconnect()
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
 
         # V tool shape params changed
         try:
             self.ui.tipdia_entry.valueChanged.disconnect()
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
         try:
             self.ui.tipangle_entry.valueChanged.disconnect()
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
 
         try:
             self.ui.apply_param_to_all.clicked.disconnect()
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
         try:
             self.ui.tools_table_mill_exc.drag_drop_sig.disconnect()
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
 
         # Exclusion areas signals
@@ -354,33 +352,33 @@ class ToolMilling(Excellon, AppTool):
             pass
         try:
             self.ui.exclusion_table.lost_focus.disconnect()
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
         try:
             self.ui.exclusion_table.itemClicked.disconnect()
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
         try:
             self.ui.add_area_button.clicked.disconnect()
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
         try:
             self.ui.delete_area_button.clicked.disconnect()
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
         try:
             self.ui.delete_sel_area_button.clicked.disconnect()
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
         try:
             self.ui.strategy_radio.activated_custom.disconnect()
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
 
         # Geo Tools Table signals
         try:
             self.ui.tools_table_mill_geo.drag_drop_sig.disconnect()
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
         try:
             self.ui.tools_table_mill_geo.horizontalHeader().sectionClicked.disconnect()
@@ -394,13 +392,13 @@ class ToolMilling(Excellon, AppTool):
             pass
         try:
             self.ui.generate_cnc_button.clicked.disconnect()
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
 
         # Reset Tool
         try:
             self.ui.reset_button.clicked.disconnect()
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
         # Cleanup on Graceful exit (CTRL+ALT+X combo key)
         try:
@@ -655,7 +653,7 @@ class ToolMilling(Excellon, AppTool):
 
         try:
             self.ui.object_combo.currentIndexChanged.disconnect()
-        except (AttributeError, TypeError):
+        except (AttributeError, TypeError, RuntimeError):
             pass
         self.ui.object_combo.currentIndexChanged.connect(self.on_object_changed)
 
@@ -683,7 +681,7 @@ class ToolMilling(Excellon, AppTool):
 
         try:
             self.ui.plot_cb.stateChanged.disconnect()
-        except (AttributeError, TypeError):
+        except (AttributeError, TypeError, RuntimeError):
             pass
 
         self.ui.plot_cb.stateChanged.connect(self.on_plot_clicked)
@@ -1543,7 +1541,7 @@ class ToolMilling(Excellon, AppTool):
         # Excellon Tool Table - rows selected
         try:
             self.ui.tools_table_mill_exc.clicked.disconnect()
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
         try:
             self.ui.tools_table_mill_exc.horizontalHeader().sectionClicked.disconnect()
@@ -1553,11 +1551,11 @@ class ToolMilling(Excellon, AppTool):
         # Geo Tool Table
         try:
             self.ui.tools_table_mill_geo.clicked.disconnect()
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
         try:
             self.ui.tools_table_mill_geo.itemChanged.disconnect()
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
         try:
             self.ui.tools_table_mill_geo.horizontalHeader().sectionClicked.disconnect()
@@ -1568,7 +1566,7 @@ class ToolMilling(Excellon, AppTool):
         for row in range(self.ui.tools_table_mill_geo.rowCount()):
             try:
                 self.ui.tools_table_mill_geo.cellWidget(row, 4).clicked.disconnect()
-            except (TypeError, AttributeError):
+            except (TypeError, AttributeError, RuntimeError):
                 pass
 
         # Tool Parameters
@@ -1636,19 +1634,19 @@ class ToolMilling(Excellon, AppTool):
 
         try:
             self.ui.order_combo.currentIndexChanged.disconnect()
-        except (TypeError, ValueError):
+        except (TypeError, ValueError, RuntimeError):
             pass
 
         # Exclusion Table widgets disconnect
         for row in range(self.ui.exclusion_table.rowCount()):
             try:
                 self.ui.exclusion_table.cellWidget(row, 2).currentIndexChanged.disconnect()
-            except (TypeError, AttributeError):
+            except (TypeError, AttributeError, RuntimeError):
                 pass
 
         try:
             self.ui.exclusion_table.itemChanged.disconnect()
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
 
     def on_toggle_all_rows(self):
@@ -3748,7 +3746,7 @@ class ToolMilling(Excellon, AppTool):
         # events from the GUI are of type QKeyEvent
         elif isinstance(event, QtGui.QKeyEvent):
             key = event.key()
-        elif isinstance(event, mpl_key_event):  # MatPlotLib key events are trickier to interpret than the rest
+        elif is_mpl_key_event(event):  # MatPlotLib key events are trickier to interpret than the rest
             # matplotlib_key_flag = True
 
             key = event.key

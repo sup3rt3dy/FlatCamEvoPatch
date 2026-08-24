@@ -14,7 +14,7 @@ from PyQt6 import QtCore, QtWidgets
 
 from appEditors.appTextEditor import AppTextEditor
 from appObjects.AppObjectTemplate import FlatCAMObj, ObjectDeleted
-from appGUI.GUIElements import FCFileSaveDialog, FCCheckBox
+from appGUI.GUIElements import FCFileSaveDialog, FCCheckBox, safe_widget_call
 from appGUI.ObjectUI import CNCObjectUI
 from camlib import CNCjob
 
@@ -507,7 +507,7 @@ class CNCJobObject(FlatCAMObj, CNCjob):
                     self.ui.t_time_entry.set_value(time_r)
                     self.ui.units_time_label.setText('sec')
                 self.ui.units_time_label.setDisabled(True)
-        except AttributeError:
+        except (AttributeError, RuntimeError):
             pass
 
         if self.multitool is False:
@@ -528,7 +528,7 @@ class CNCJobObject(FlatCAMObj, CNCjob):
         # annotation signal
         try:
             self.ui.annotation_cb.stateChanged.disconnect(self.on_annotation_change)
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
         self.ui.annotation_cb.stateChanged.connect(self.on_annotation_change)
 
@@ -630,31 +630,32 @@ class CNCJobObject(FlatCAMObj, CNCjob):
         for row in range(self.ui.cnc_tools_table.rowCount()):
             try:
                 self.ui.cnc_tools_table.cellWidget(row, 6).clicked.connect(self.on_plot_cb_click_table)
-            except AttributeError:
+            except (AttributeError, RuntimeError):
                 pass
         for row in range(self.ui.exc_cnc_tools_table.rowCount()):
             try:
                 self.ui.exc_cnc_tools_table.cellWidget(row, 6).clicked.connect(self.on_plot_cb_click_table)
-            except AttributeError:
+            except (AttributeError, RuntimeError):
                 pass
         self.ui.plot_cb.stateChanged.connect(self.on_plot_cb_click)
 
+    @safe_widget_call
     def ui_disconnect(self):
         for row in range(self.ui.cnc_tools_table.rowCount()):
             try:
                 self.ui.cnc_tools_table.cellWidget(row, 6).clicked.disconnect(self.on_plot_cb_click_table)
-            except (TypeError, AttributeError):
+            except (TypeError, AttributeError, RuntimeError):
                 pass
 
         for row in range(self.ui.exc_cnc_tools_table.rowCount()):
             try:
                 self.ui.exc_cnc_tools_table.cellWidget(row, 6).clicked.disconnect(self.on_plot_cb_click_table)
-            except (TypeError, AttributeError):
+            except (TypeError, AttributeError, RuntimeError):
                 pass
 
         try:
             self.ui.plot_cb.stateChanged.disconnect(self.on_plot_cb_click)
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
 
     def on_properties(self, state):
@@ -1239,7 +1240,7 @@ class CNCJobObject(FlatCAMObj, CNCjob):
                     table_cb.setChecked(True)
                 else:
                     table_cb.setChecked(False)
-        except AttributeError:
+        except (AttributeError, RuntimeError):
             # TODO from Tcl commands - should fix it sometime
             pass
         self.ui_connect()

@@ -7,12 +7,12 @@
 
 from PyQt6 import QtWidgets, QtCore, QtGui
 from appTool import AppTool
+from camlib import is_mpl_key_event
 from appGUI.GUIElements import VerticalScrollArea, FCLabel, FCButton, FCFrame, GLay, FCComboBox, FCCheckBox, \
     FCComboBox2, RadioSet, FCDoubleSpinner, FCSpinner, NumericalEvalTupleEntry, NumericalEvalEntry, FCTable, \
-    OptionalInputSection, OptionalHideInputSection
+    OptionalInputSection, OptionalHideInputSection, safe_widget_call
 from appParsers.ParseExcellon import Excellon
 
-from matplotlib.backend_bases import KeyEvent as mpl_key_event
 
 import logging
 from copy import deepcopy
@@ -111,7 +111,6 @@ class ToolDrilling(Excellon, AppTool):
         self.tooldia = None
 
         # multiprocessing
-        self.pool = self.app.pool
         self.results = []
 
         # disconnect flags
@@ -234,23 +233,23 @@ class ToolDrilling(Excellon, AppTool):
             pass
         try:
             self.ui.level.toggled.disconnect()
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
         try:
             self.ui.search_load_db_btn.clicked.disconnect()
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
         try:
             self.ui.apply_param_to_all.clicked.disconnect()
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
         try:
             self.ui.generate_cnc_button.clicked.disconnect()
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
         try:
             self.ui.tools_table.drag_drop_sig.disconnect()
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
 
         # Exclusion areas signals
@@ -260,36 +259,36 @@ class ToolDrilling(Excellon, AppTool):
             pass
         try:
             self.ui.exclusion_table.lost_focus.disconnect()
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
         try:
             self.ui.exclusion_table.itemClicked.disconnect()
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
         try:
             self.ui.add_area_button.clicked.disconnect()
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
         try:
             self.ui.delete_area_button.clicked.disconnect()
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
         try:
             self.ui.delete_sel_area_button.clicked.disconnect()
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
         try:
             self.ui.strategy_radio.activated_custom.disconnect()
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
 
         try:
             self.ui.pp_excellon_name_cb.activated.disconnect()
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
         try:
             self.ui.reset_button.clicked.disconnect()
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
         # Cleanup on Graceful exit (CTRL+ALT+X combo key)
         try:
@@ -529,7 +528,7 @@ class ToolDrilling(Excellon, AppTool):
 
         try:
             self.ui.object_combo.currentTextChanged.disconnect()
-        except (AttributeError, TypeError):
+        except (AttributeError, TypeError, RuntimeError):
             pass
         self.ui.object_combo.currentTextChanged.connect(self.on_object_changed)
 
@@ -1065,6 +1064,7 @@ class ToolDrilling(Excellon, AppTool):
 
         self.ui.exclusion_table.itemChanged.connect(self.on_exclusion_table_overz)
 
+    @safe_widget_call
     def ui_disconnect(self):
         # When object selection on canvas change
         # self.app.collection.view.selectionModel().selectionChanged.disconnect()
@@ -1076,7 +1076,7 @@ class ToolDrilling(Excellon, AppTool):
         # rows selected
         try:
             self.ui.tools_table.clicked.disconnect(self.on_row_selection_change)
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
         try:
             self.ui.tools_table.horizontalHeader().sectionClicked.disconnect(self.on_toggle_all_rows)
@@ -1088,7 +1088,7 @@ class ToolDrilling(Excellon, AppTool):
 
             try:
                 self.ui.tools_table.cellWidget(row, 2).currentIndexChanged.disconnect()
-            except (TypeError, AttributeError):
+            except (TypeError, AttributeError, RuntimeError):
                 pass
 
         # Tool Parameters
@@ -1150,19 +1150,19 @@ class ToolDrilling(Excellon, AppTool):
                     pass
         try:
             self.ui.order_combo.currentIndexChanged.disconnect()
-        except (TypeError, ValueError):
+        except (TypeError, ValueError, RuntimeError):
             pass
 
         # Exclusion Table widgets disconnect
         for row in range(self.ui.exclusion_table.rowCount()):
             try:
                 self.ui.exclusion_table.cellWidget(row, 2).currentIndexChanged.disconnect()
-            except (TypeError, AttributeError):
+            except (TypeError, AttributeError, RuntimeError):
                 pass
 
         try:
             self.ui.exclusion_table.itemChanged.disconnect()
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
 
     def on_tool_db_load(self):
@@ -1451,7 +1451,7 @@ class ToolDrilling(Excellon, AppTool):
                 except AttributeError:
                     try:
                         txt = self.ui.tools_table.cellWidget(row, column).currentText()
-                    except AttributeError:
+                    except (AttributeError, RuntimeError):
                         pass
                 elem.append(txt)
             table_tools_items.append(deepcopy(elem))
@@ -1649,7 +1649,7 @@ class ToolDrilling(Excellon, AppTool):
         # events from the GUI are of type QKeyEvent
         elif type(event) == QtGui.QKeyEvent:
             key = event.key()
-        elif isinstance(event, mpl_key_event):  # MatPlotLib key events are trickier to interpret than the rest
+        elif is_mpl_key_event(event):  # MatPlotLib key events are trickier to interpret than the rest
             # matplotlib_key_flag = True
 
             key = event.key

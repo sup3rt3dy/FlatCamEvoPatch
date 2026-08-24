@@ -141,37 +141,37 @@ class ToolOptimal(AppTool):
 
         try:
             self.ui.calculate_button.clicked.disconnect(self.find_minimum_distance)
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
 
         try:
             self.ui.locate_button.clicked.disconnect(self.on_locate_position)
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
 
         try:
             self.ui.locations_textb.cursorPositionChanged.disconnect(self.on_textbox_clicked)
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
 
         try:
             self.ui.locate_sec_button.clicked.disconnect(self.on_locate_sec_position)
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
 
         try:
             self.ui.distances_textb.cursorPositionChanged.disconnect(self.on_distances_textb_clicked)
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
 
         try:
             self.ui.locations_sec_textb.cursorPositionChanged.disconnect(self.on_locations_sec_clicked)
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
 
         try:
             self.ui.reset_button.clicked.disconnect(self.set_tool_ui)
-        except (TypeError, AttributeError):
+        except (TypeError, AttributeError, RuntimeError):
             pass
 
     def set_tool_ui(self):

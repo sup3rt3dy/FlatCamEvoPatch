@@ -8,7 +8,7 @@
 from PyQt6 import QtWidgets, QtGui
 from appTool import AppTool
 from appGUI.GUIElements import VerticalScrollArea, FCLabel, FCButton, FCFrame, GLay, NumericalEvalEntry, RadioSet, \
-    FCDoubleSpinner, FCSpinner
+    FCDoubleSpinner, FCSpinner, safe_widget_call
 
 import logging
 import math
@@ -443,68 +443,69 @@ class ToolCalculator(AppTool):
         self.ep_calculate_copper_growth()
         self.ep_calculate_output()
 
+    @safe_widget_call
     def ui_disconnect(self):
         # V-Shape Calculator
         try:
             self.ui.cutDepth_entry.valueChanged.disconnect()
-        except (AttributeError, TypeError):
+        except (AttributeError, TypeError, RuntimeError):
             pass
         try:
             self.ui.cutDepth_entry.returnPressed.disconnect()
-        except (AttributeError, TypeError):
+        except (AttributeError, TypeError, RuntimeError):
             pass
         # ##
         try:
             self.ui.effectiveToolDia_entry.valueChanged.disconnect()
-        except (AttributeError, TypeError):
+        except (AttributeError, TypeError, RuntimeError):
             pass
         try:
             self.ui.effectiveToolDia_entry.returnPressed.disconnect()
-        except (AttributeError, TypeError):
+        except (AttributeError, TypeError, RuntimeError):
             pass
         # ###
 
         try:
             self.ui.tipDia_entry.returnPressed.disconnect()
-        except (AttributeError, TypeError):
+        except (AttributeError, TypeError, RuntimeError):
             pass
         try:
             self.ui.tipAngle_entry.returnPressed.disconnect()
-        except (AttributeError, TypeError):
+        except (AttributeError, TypeError, RuntimeError):
             pass
         try:
             self.ui.calculate_vshape_button.clicked.disconnect()
-        except (AttributeError, TypeError):
+        except (AttributeError, TypeError, RuntimeError):
             pass
 
         # Electroplating Calculator
         # Density
         try:
             self.ui.cdensity_entry.valueChanged.disconnect()
-        except (AttributeError, TypeError):
+        except (AttributeError, TypeError, RuntimeError):
             pass
         # Growth
         try:
             self.ui.growth_entry.valueChanged.disconnect()
-        except (AttributeError, TypeError):
+        except (AttributeError, TypeError, RuntimeError):
             pass
         # Area
         try:
             self.ui.area_entry.valueChanged.disconnect()
-        except (AttributeError, TypeError):
+        except (AttributeError, TypeError, RuntimeError):
             pass
         try:
             self.ui.pcblength_entry.valueChanged.disconnect()
-        except (AttributeError, TypeError):
+        except (AttributeError, TypeError, RuntimeError):
             pass
         try:
             self.ui.pcbwidth_entry.valueChanged.disconnect()
-        except (AttributeError, TypeError):
+        except (AttributeError, TypeError, RuntimeError):
             pass
         # Time
         try:
             self.ui.time_entry.valueChanged.disconnect()
-        except (AttributeError, TypeError):
+        except (AttributeError, TypeError, RuntimeError):
             pass
 
 

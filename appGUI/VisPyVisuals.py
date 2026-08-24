@@ -258,6 +258,14 @@ class ShapeCollectionVisual(CompoundVisual):
         self.pool = pool
         self.results = {}
 
+        # PERFORMANCE: keys of shapes added but not yet translated into mesh/line buffers.
+        # add() only records the key here; the actual translation is done for the whole batch
+        # at once in _flush_pending(), which avoids one pickle + IPC round-trip per shape.
+        # Guarded by its own lock: object plotting runs on a worker thread, so add() and
+        # _flush_pending() can be called concurrently and a key must never be lost between them.
+        self._pending = []
+        self._pending_lock = threading.Lock()
+
         self._meshes = [MeshVisual() for _ in range(0, layers)]
         # self._lines = [LineVisual(antialias=True) for _ in range(0, layers)]
         self._lines = [LineVisual(antialias=True) for _ in range(0, layers)]
@@ -331,19 +339,60 @@ class ShapeCollectionVisual(CompoundVisual):
         if linewidth:
             self._line_width = linewidth
 
-        if self.fc_options and self.fc_options["global_graphic_engine_3d_no_mp"] is True:
-            self.data[key] = _update_shape_buffers(self.data[key])
-        else:
-            # Add data to process pool if pool exists
-            try:
-                self.results[key] = self.pool.map_async(_update_shape_buffers, [self.data[key]])
-            except Exception:
-                self.data[key] = _update_shape_buffers(self.data[key])
+        # PERFORMANCE: defer the geometry -> buffers translation instead of dispatching a
+        # separate pool.map_async([single_shape]) here. Plotting an object calls add() once per
+        # polygon, so per-shape dispatch cost one pickle + IPC hop + unpickle each - which is more
+        # expensive than the translation itself. _flush_pending() now does them all in one batch.
+        with self._pending_lock:
+            self._pending.append(key)
 
         if update:
-            self.redraw()   # redraw() waits for pool process end
+            self.redraw()   # redraw() flushes the pending batch first
 
         return key
+
+    def _flush_pending(self):
+        """
+        Translates every shape queued by add() into mesh/line buffers, in a single batch.
+
+        Uses one chunked pool.map() call rather than one dispatch per shape. Falls back to
+        in-process translation when there is no pool, when multiprocessing is disabled via
+        the 'global_graphic_engine_3d_no_mp' option, or if the pool raises.
+        """
+        # Claim the queued keys atomically. add() runs on the worker thread that plots an object
+        # while a redraw can be flushing on another, so reading and clearing the queue has to be
+        # a single step - otherwise a shape added in between is dropped and never drawn.
+        with self._pending_lock:
+            if not self._pending:
+                return
+            # Only keep keys that still exist - a shape may have been removed before the flush.
+            keys = [k for k in self._pending if k in self.data]
+            self._pending = []
+
+        if not keys:
+            return
+
+        no_mp = bool(self.fc_options) and self.fc_options["global_graphic_engine_3d_no_mp"] is True
+
+        # A pool round-trip only pays off once there is a meaningful amount of work to ship.
+        # Resolving the pool is deliberately left until here: 'pool' may be a callable returning
+        # the application's pool, which lets the pool stay uncreated until something really needs it.
+        if no_mp or self.pool is None or len(keys) < 200:
+            for k in keys:
+                self.data[k] = _update_shape_buffers(self.data[k])
+            return
+
+        try:
+            pool = self.pool() if callable(self.pool) else self.pool
+            payload = [self.data[k] for k in keys]
+            chunksize = max(1, len(payload) // 32)
+            for k, translated in zip(keys, pool.map(_update_shape_buffers, payload, chunksize)):
+                if k in self.data:
+                    self.data[k] = translated
+        except Exception:
+            for k in keys:
+                if k in self.data:
+                    self.data[k] = _update_shape_buffers(self.data[k])
 
     def remove(self, key, update=False):
         """
@@ -364,6 +413,7 @@ class ShapeCollectionVisual(CompoundVisual):
             del self.data[key]
 
         if update:
+            self._flush_pending()
             self.__update()
 
     def clear(self, update=False):
@@ -374,6 +424,8 @@ class ShapeCollectionVisual(CompoundVisual):
         """
         self.last_key = -1
         self.data.clear()
+        with self._pending_lock:
+            self._pending = []
         if update:
             self.__update()
 
@@ -396,6 +448,9 @@ class ShapeCollectionVisual(CompoundVisual):
 
         if not self.data:
             return
+
+        # Colors are applied per triangle, so the shapes must already be translated
+        self._flush_pending()
 
         # if a new color is empty string then make it None so it will not be updated
         # if a new color is valid then transform it here in a format palatable
@@ -524,6 +579,10 @@ class ShapeCollectionVisual(CompoundVisual):
         """
         Merges internal buffers, sets data to visuals, redraws collection on scene
         """
+        # Safety net: never merge buffers for shapes that have not been translated yet.
+        # No-op when nothing is pending, so it is cheap on every other call.
+        self._flush_pending()
+
         mesh_vertices = [[] for _ in range(0, len(self._meshes))]       # Vertices for mesh
         mesh_tris = [[] for _ in range(0, len(self._meshes))]           # Faces for mesh
         mesh_colors = [[] for _ in range(0, len(self._meshes))]         # Face colors
@@ -586,6 +645,9 @@ class ShapeCollectionVisual(CompoundVisual):
             Shape indexes to get from process pool
         :param update_colors:
         """
+        # Translate everything queued by add() in one batch before drawing
+        self._flush_pending()
+
         # Only one thread can update data
         self.results_lock.acquire(True)
 
