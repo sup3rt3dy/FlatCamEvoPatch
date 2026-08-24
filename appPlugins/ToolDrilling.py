@@ -7,12 +7,13 @@
 
 from PyQt6 import QtWidgets, QtCore, QtGui
 from appTool import AppTool
-from camlib import is_mpl_key_event
 from appGUI.GUIElements import VerticalScrollArea, FCLabel, FCButton, FCFrame, GLay, FCComboBox, FCCheckBox, \
     FCComboBox2, RadioSet, FCDoubleSpinner, FCSpinner, NumericalEvalTupleEntry, NumericalEvalEntry, FCTable, \
-    OptionalInputSection, OptionalHideInputSection, safe_widget_call
+    OptionalInputSection, OptionalHideInputSection
 from appParsers.ParseExcellon import Excellon
+from camlib import distance_euclidian
 
+from matplotlib.backend_bases import KeyEvent as mpl_key_event
 
 import logging
 from copy import deepcopy
@@ -111,6 +112,7 @@ class ToolDrilling(Excellon, AppTool):
         self.tooldia = None
 
         # multiprocessing
+        self.pool = self.app.pool
         self.results = []
 
         # disconnect flags
@@ -233,23 +235,23 @@ class ToolDrilling(Excellon, AppTool):
             pass
         try:
             self.ui.level.toggled.disconnect()
-        except (TypeError, AttributeError, RuntimeError):
+        except (TypeError, AttributeError):
             pass
         try:
             self.ui.search_load_db_btn.clicked.disconnect()
-        except (TypeError, AttributeError, RuntimeError):
+        except (TypeError, AttributeError):
             pass
         try:
             self.ui.apply_param_to_all.clicked.disconnect()
-        except (TypeError, AttributeError, RuntimeError):
+        except (TypeError, AttributeError):
             pass
         try:
             self.ui.generate_cnc_button.clicked.disconnect()
-        except (TypeError, AttributeError, RuntimeError):
+        except (TypeError, AttributeError):
             pass
         try:
             self.ui.tools_table.drag_drop_sig.disconnect()
-        except (TypeError, AttributeError, RuntimeError):
+        except (TypeError, AttributeError):
             pass
 
         # Exclusion areas signals
@@ -259,36 +261,36 @@ class ToolDrilling(Excellon, AppTool):
             pass
         try:
             self.ui.exclusion_table.lost_focus.disconnect()
-        except (TypeError, AttributeError, RuntimeError):
+        except (TypeError, AttributeError):
             pass
         try:
             self.ui.exclusion_table.itemClicked.disconnect()
-        except (TypeError, AttributeError, RuntimeError):
+        except (TypeError, AttributeError):
             pass
         try:
             self.ui.add_area_button.clicked.disconnect()
-        except (TypeError, AttributeError, RuntimeError):
+        except (TypeError, AttributeError):
             pass
         try:
             self.ui.delete_area_button.clicked.disconnect()
-        except (TypeError, AttributeError, RuntimeError):
+        except (TypeError, AttributeError):
             pass
         try:
             self.ui.delete_sel_area_button.clicked.disconnect()
-        except (TypeError, AttributeError, RuntimeError):
+        except (TypeError, AttributeError):
             pass
         try:
             self.ui.strategy_radio.activated_custom.disconnect()
-        except (TypeError, AttributeError, RuntimeError):
+        except (TypeError, AttributeError):
             pass
 
         try:
             self.ui.pp_excellon_name_cb.activated.disconnect()
-        except (TypeError, AttributeError, RuntimeError):
+        except (TypeError, AttributeError):
             pass
         try:
             self.ui.reset_button.clicked.disconnect()
-        except (TypeError, AttributeError, RuntimeError):
+        except (TypeError, AttributeError):
             pass
         # Cleanup on Graceful exit (CTRL+ALT+X combo key)
         try:
@@ -528,7 +530,7 @@ class ToolDrilling(Excellon, AppTool):
 
         try:
             self.ui.object_combo.currentTextChanged.disconnect()
-        except (AttributeError, TypeError, RuntimeError):
+        except (AttributeError, TypeError):
             pass
         self.ui.object_combo.currentTextChanged.connect(self.on_object_changed)
 
@@ -1064,7 +1066,6 @@ class ToolDrilling(Excellon, AppTool):
 
         self.ui.exclusion_table.itemChanged.connect(self.on_exclusion_table_overz)
 
-    @safe_widget_call
     def ui_disconnect(self):
         # When object selection on canvas change
         # self.app.collection.view.selectionModel().selectionChanged.disconnect()
@@ -1076,7 +1077,7 @@ class ToolDrilling(Excellon, AppTool):
         # rows selected
         try:
             self.ui.tools_table.clicked.disconnect(self.on_row_selection_change)
-        except (TypeError, AttributeError, RuntimeError):
+        except (TypeError, AttributeError):
             pass
         try:
             self.ui.tools_table.horizontalHeader().sectionClicked.disconnect(self.on_toggle_all_rows)
@@ -1088,7 +1089,7 @@ class ToolDrilling(Excellon, AppTool):
 
             try:
                 self.ui.tools_table.cellWidget(row, 2).currentIndexChanged.disconnect()
-            except (TypeError, AttributeError, RuntimeError):
+            except (TypeError, AttributeError):
                 pass
 
         # Tool Parameters
@@ -1150,19 +1151,19 @@ class ToolDrilling(Excellon, AppTool):
                     pass
         try:
             self.ui.order_combo.currentIndexChanged.disconnect()
-        except (TypeError, ValueError, RuntimeError):
+        except (TypeError, ValueError):
             pass
 
         # Exclusion Table widgets disconnect
         for row in range(self.ui.exclusion_table.rowCount()):
             try:
                 self.ui.exclusion_table.cellWidget(row, 2).currentIndexChanged.disconnect()
-            except (TypeError, AttributeError, RuntimeError):
+            except (TypeError, AttributeError):
                 pass
 
         try:
             self.ui.exclusion_table.itemChanged.disconnect()
-        except (TypeError, AttributeError, RuntimeError):
+        except (TypeError, AttributeError):
             pass
 
     def on_tool_db_load(self):
@@ -1387,7 +1388,7 @@ class ToolDrilling(Excellon, AppTool):
         """
         if self.ui.tools_table.rowCount() == 2:
             # there is no tool in tool table so we can't save the GUI elements values to storage
-            # Excellon Tool Table has 2 rows by default
+            # Excellon Tool Table has 2 rows by default, so 2 rows means empty
             return
 
         self.ui_disconnect()
@@ -1451,7 +1452,7 @@ class ToolDrilling(Excellon, AppTool):
                 except AttributeError:
                     try:
                         txt = self.ui.tools_table.cellWidget(row, column).currentText()
-                    except (AttributeError, RuntimeError):
+                    except AttributeError:
                         pass
                 elem.append(txt)
             table_tools_items.append(deepcopy(elem))
@@ -1649,7 +1650,7 @@ class ToolDrilling(Excellon, AppTool):
         # events from the GUI are of type QKeyEvent
         elif type(event) == QtGui.QKeyEvent:
             key = event.key()
-        elif is_mpl_key_event(event):  # MatPlotLib key events are trickier to interpret than the rest
+        elif isinstance(event, mpl_key_event):  # MatPlotLib key events are trickier to interpret than the rest
             # matplotlib_key_flag = True
 
             key = event.key
@@ -1928,8 +1929,8 @@ class ToolDrilling(Excellon, AppTool):
         should_add_last_pt = self.ui.last_drill_cb.get_value()
 
         for tool_key, tl_dict in excellon_tools.items():
-            convert_slots = tl_dict['data']['tools_drill_drill_slots']
-            if convert_slots:
+            convert_slots = tl_dict['data'].get('tools_drill_drill_slots', False)
+            if convert_slots is True:
                 if tool_key in selected_tools:
                     overlap = 1 - (self.ui.drill_overlap_entry.get_value() / 100.0)
                     drill_overlap = 0.0
@@ -1970,7 +1971,7 @@ class ToolDrilling(Excellon, AppTool):
         # determine if we have toolchange event or not
         has_toolchange = False
         for v in self.excellon_tools.values():
-            if v["data"]["tools_drill_toolchange"] is True:
+            if v["data"].get("tools_drill_toolchange", False) is True:
                 has_toolchange = True
                 break
 
@@ -2215,7 +2216,7 @@ class ToolDrilling(Excellon, AppTool):
             # from the first tool that is available
 
             first_tool_available = sel_tools[0]
-            cnc_job_obj.xy_toolchange = cnc_job_obj.tools[first_tool_available]['data']["tools_drill_toolchangexy"]
+            cnc_job_obj.xy_toolchange = cnc_job_obj.tools[first_tool_available]['data'].get("tools_drill_toolchangexy", '')
 
             x_tc, y_tc = [0, 0]
             try:
@@ -2286,7 +2287,7 @@ class ToolDrilling(Excellon, AppTool):
                     cnc_job_obj.postdata['toolC'] = used_tooldia
 
                     # if slots are converted to drill for this tool, update the number of drills and make slots nr zero
-                    convert_slots = self.excellon_tools[tool_id]['data']['tools_drill_drill_slots']
+                    convert_slots = self.excellon_tools[tool_id]['data'].get('tools_drill_drill_slots', False)
                     if convert_slots is True:
                         nr_drills = len(tool_points)
                         nr_slots = 0
@@ -2351,9 +2352,9 @@ class ToolDrilling(Excellon, AppTool):
                 app_obj.log.debug("The total travel distance with with no optimization is: %s" %
                                   str(cnc_job_obj.measured_distance))
 
-            # #########################################################################################################
+            # #############################################################################################################
             # ############################# Calculate DISTANCE and ESTIMATED TIME #####################################
-            # #########################################################################################################
+            # #############################################################################################################
             if cnc_job_obj.xy_end is None:
                 cnc_job_obj.xy_end = [cnc_job_obj.oldx, cnc_job_obj.oldy]
 
@@ -2978,7 +2979,7 @@ class DrillingUI:
         self.exclusion_table.horizontalHeaderItem(2).setToolTip(
             _("The strategy used for exclusion area. Go around the exclusion areas or over it."))
         self.exclusion_table.horizontalHeaderItem(3).setToolTip(
-            _("If the strategy is to go over the area then this is the height at which the tool will go to avoid the "
+            _("If the strategy is to go over the area then this is the height to which the tool will go to avoid the "
               "exclusion area."))
 
         self.exclusion_table.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectionBehavior.SelectRows)
@@ -3090,11 +3091,3 @@ class DrillingUI:
                                             (_("Edited value is out of range"), minval, maxval), False)
         else:
             self.app.inform[str, bool].emit('[success] %s' % _("Edited value is within limits."), False)
-
-
-def distance(pt1, pt2):
-    return np.sqrt((pt1[0] - pt2[0]) ** 2 + (pt1[1] - pt2[1]) ** 2)
-
-
-def distance_euclidian(x1, y1, x2, y2):
-    return np.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2)

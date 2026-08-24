@@ -2403,8 +2403,15 @@ class App(QtCore.QObject):
             # self.ui.splitter.setSizes([0, 1])
             if edited_object.multigeo is True:
                 sel_rows = set()
-                for item in edited_object.ui.geo_tools_table.selectedItems():
-                    sel_rows.add(item.row())
+                try:
+                    for item in edited_object.ui.geo_tools_table.selectedItems():
+                        sel_rows.add(item.row())
+                except RuntimeError:
+                    # the tool table was destroyed by Qt before we got here (tab closed,
+                    # object deleted, UI rebuilt) - treat it as nothing being selected
+                    self.inform.emit('[WARNING_NOTCL] %s.' % _("No Tool Selected"))
+                    self.ui.menuobjects.setDisabled(False)
+                    return
                 sel_rows = list(sel_rows)
 
                 if len(sel_rows) > 1:
@@ -2422,7 +2429,13 @@ class App(QtCore.QObject):
 
                 # determine the tool dia of the selected tool
                 # selected_tooldia = float(edited_object.ui.geo_tools_table.item(sel_rows[0], 1).text())
-                sel_id = int(edited_object.ui.geo_tools_table.item(sel_rows[0], 5).text())
+                try:
+                    sel_id = int(edited_object.ui.geo_tools_table.item(sel_rows[0], 5).text())
+                except RuntimeError:
+                    # same as above: the table went away between the selection and this read
+                    self.inform.emit('[WARNING_NOTCL] %s.' % _("No Tool Selected"))
+                    self.ui.menuobjects.setDisabled(False)
+                    return
 
                 multi_tool = sel_id
                 self.log.debug("Editing MultiGeo Geometry with tool diameter: %s" % str(multi_tool))
