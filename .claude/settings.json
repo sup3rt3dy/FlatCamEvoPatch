@@ -50,6 +50,8 @@
       "Bash(gh api -X GET *)",
       "Bash(gh --version)",
 
+      "Bash(python -c *)",
+      "Bash(python - *)",
       "Bash(python --version)",
       "Bash(python -V)",
       "Bash(python -X importtime *)",
