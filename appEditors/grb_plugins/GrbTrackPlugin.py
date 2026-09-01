@@ -7,7 +7,6 @@ from appGUI.GUIElements import VerticalScrollArea, FCLabel, FCButton, FCFrame, G
 import gettext
 import appTranslation as fcTranslate
 import builtins
-from appGUI.GUIElements import safe_widget_call
 
 fcTranslate.apply_language('strings')
 if '_' not in builtins.__dict__:
@@ -42,7 +41,6 @@ class GrbTrackEditorTool(AppToolEditor):
         except (TypeError, AttributeError, RuntimeError):
             pass
 
-    @safe_widget_call
     def run(self):
         self.app.defaults.report_usage("Geo Editor ToolPath()")
         super().run()

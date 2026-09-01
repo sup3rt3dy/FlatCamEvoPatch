@@ -492,7 +492,6 @@ class DrillAdd(FCShapeTool):
         self.drill_point = curr_pos
         self.draw_app.clicked_pos = curr_pos
 
-    @safe_widget_call
     def on_add_drill(self):
         x = self.ui.x_entry.get_value()
         y = self.ui.y_entry.get_value()
@@ -959,7 +958,6 @@ class DrillArray(FCShapeTool):
 
         self.draw_app.clicked_pos = curr_pos
 
-    @safe_widget_call
     def on_add_drill_array(self):
         x = self.ui.x_entry.get_value()
         y = self.ui.y_entry.get_value()
@@ -1329,7 +1327,6 @@ class SlotAdd(FCShapeTool):
         self.slot_point = curr_pos
         self.draw_app.clicked_pos = curr_pos
 
-    @safe_widget_call
     def on_add_slot(self):
         x = self.ui.x_entry.get_value()
         y = self.ui.y_entry.get_value()
@@ -1922,7 +1919,6 @@ class SlotArray(FCShapeTool):
 
         self.draw_app.clicked_pos = curr_pos
 
-    @safe_widget_call
     def on_add_slot_array(self):
         x = self.ui.x_entry.get_value()
         y = self.ui.y_entry.get_value()
@@ -3260,7 +3256,6 @@ class AppExcEditor(QtCore.QObject):
         app_mode = self.app.options["global_app_level"]
         self.change_level(app_mode)
 
-    @safe_widget_call
     def build_ui(self, first_run=None):
 
         try:
@@ -3491,7 +3486,6 @@ class AppExcEditor(QtCore.QObject):
             self.ui.level.setChecked(False)
         self.on_level_changed(self.ui.level.isChecked())
 
-    @safe_widget_call
     def on_level_changed(self, checked):
         if not checked:
             self.ui.level.setText('%s' % _('Beginner'))
@@ -3516,7 +3510,6 @@ class AppExcEditor(QtCore.QObject):
             # Context Menu section
             # self.ui.tools_table_exc.setupContextMenu()
 
-    @safe_widget_call
     def on_tool_add(self, tooldia=None):
         self.is_modified = True
         if tooldia:
@@ -3564,7 +3557,6 @@ class AppExcEditor(QtCore.QObject):
         except TypeError as e:
             self.app.log.debug("AppExcEditor.on_tool_add() --> %s" % str(e))
 
-    @safe_widget_call
     def on_tool_delete(self, dia=None):
         self.is_modified = True
         deleted_tool_dia_list = []
@@ -3620,7 +3612,6 @@ class AppExcEditor(QtCore.QObject):
 
         self.build_ui()
 
-    @safe_widget_call
     def on_tool_edit(self, item_changed):
         # if connected, disconnect the signal from the slot on item_changed as it creates issues
         try:
@@ -3765,7 +3756,6 @@ class AppExcEditor(QtCore.QObject):
 
         # self.ui.tools_table_exc.selectionModel().currentChanged.connect(self.on_row_selected)
 
-    @safe_widget_call
     def on_name_activate(self):
         self.edited_obj_name = self.ui.name_entry.get_value()
 
@@ -4473,7 +4463,6 @@ class AppExcEditor(QtCore.QObject):
 
         self.replot()
 
-    @safe_widget_call
     def on_table_selection(self):
         selected_rows = self.ui.tools_table_exc.selectionModel().selectedRows(0)
 
@@ -5180,7 +5169,6 @@ class AppExcEditor(QtCore.QObject):
         self.select_tool('drill_move')
         return
 
-    @safe_widget_call
     def on_slots_conversion(self):
         # selected rows
         selected_rows = set()

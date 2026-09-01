@@ -20,7 +20,6 @@ from shapely.ops import unary_union
 import gettext
 import appTranslation as fcTranslate
 import builtins
-from appGUI.GUIElements import safe_widget_call
 
 fcTranslate.apply_language('strings')
 if '_' not in builtins.__dict__:
@@ -93,7 +92,6 @@ class ToolSub(AppTool):
     def install(self, icon=None, separator=None, **kwargs):
         AppTool.install(self, icon, separator, shortcut='Alt+W', **kwargs)
 
-    @safe_widget_call
     def run(self, toggle=True):
         self.app.defaults.report_usage("ToolSub()")
 
@@ -168,7 +166,6 @@ class ToolSub(AppTool):
 
         self.app.ui.notebook.setTabText(2, _("Subtract"))
 
-    @safe_widget_call
     def on_object_selection_changed(self, current, previous):
         found_idx = None
         for tab_idx in range(self.app.ui.notebook.count()):
@@ -200,7 +197,6 @@ class ToolSub(AppTool):
         self.job_finished.connect(self.on_job_finished)
         self.aperture_processing_finished.connect(self.new_gerber_object)
 
-    @safe_widget_call
     def set_tool_ui(self):
         self.new_apertures.clear()
         self.new_tools.clear()
@@ -240,7 +236,6 @@ class ToolSub(AppTool):
             self.ui.level.setChecked(False)
         self.on_level_changed(self.ui.level.isChecked())
 
-    @safe_widget_call
     def on_level_changed(self, checked):
         if not checked:
             self.ui.level.setText('%s' % _('Beginner'))
@@ -265,7 +260,6 @@ class ToolSub(AppTool):
             self.ui.param_label.show()
             self.ui.gp_frame.show()
 
-    @safe_widget_call
     def on_subtract_gerber_click(self):
         # reset previous values
         self.new_apertures.clear()
@@ -416,7 +410,6 @@ class ToolSub(AppTool):
 
         return apid, unafected_geo, affected_geo
 
-    @safe_widget_call
     def new_gerber_object(self, outname, output):
         """
 
@@ -507,7 +500,6 @@ class ToolSub(AppTool):
             self.new_solid_geometry[:] = []
             self.results = []
 
-    @safe_widget_call
     def on_subtract_geo_click(self):
         # reset previous values
         self.new_tools.clear()
@@ -750,7 +742,6 @@ class ToolSub(AppTool):
             self.app.log.error("ToolSub().periodic_check_handler() --> %s" % str(e))
             traceback.print_exc()
 
-    @safe_widget_call
     def on_job_finished(self, succcess):
         """
 

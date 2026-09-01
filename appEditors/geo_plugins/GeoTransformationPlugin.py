@@ -54,7 +54,6 @@ class TransformEditorTool(AppToolEditor):
         self.ui.buffer_button.clicked.connect(lambda: self.on_buffer_by_distance())
         self.ui.buffer_factor_button.clicked.connect(lambda: self.on_buffer_by_factor())
 
-    @safe_widget_call
     def run(self, toggle=True):
         self.app.defaults.report_usage("Geo Editor Transform Tool()")
 
@@ -108,7 +107,6 @@ class TransformEditorTool(AppToolEditor):
     def install(self, icon=None, separator=None, **kwargs):
         AppTool.install(self, icon, separator, shortcut='Alt+T', **kwargs)
 
-    @safe_widget_call
     def set_tool_ui(self):
         # Initialize form
         ref_val = self.app.options["tools_transform_reference"]
@@ -192,12 +190,10 @@ class TransformEditorTool(AppToolEditor):
                 self.app.inform.emit('[ERROR_NOTCL] %s' % _("No shape selected."))
                 return "fail"
 
-    @safe_widget_call
     def on_add_coords(self):
         val = self.app.clipboard.text()
         self.ui.point_entry.set_value(val)
 
-    @safe_widget_call
     def on_rotate(self, val=None, ref=None):
         value = float(self.ui.rotate_entry.get_value()) if val is None else val
         if value == 0:
@@ -222,7 +218,6 @@ class TransformEditorTool(AppToolEditor):
             return
         self.app.worker_task.emit({'fcn': self.on_flip, 'params': [axis, point]})
 
-    @safe_widget_call
     def on_skewx(self, val=None, ref=None):
         xvalue = float(self.ui.skewx_entry.get_value()) if val is None else val
 
@@ -238,7 +233,6 @@ class TransformEditorTool(AppToolEditor):
 
         self.app.worker_task.emit({'fcn': self.on_skew, 'params': [axis, xvalue, yvalue, point]})
 
-    @safe_widget_call
     def on_skewy(self, val=None, ref=None):
         xvalue = 0
         yvalue = float(self.ui.skewy_entry.get_value()) if val is None else val
@@ -253,7 +247,6 @@ class TransformEditorTool(AppToolEditor):
 
         self.app.worker_task.emit({'fcn': self.on_skew, 'params': [axis, xvalue, yvalue, point]})
 
-    @safe_widget_call
     def on_scalex(self, val=None, ref=None):
         xvalue = float(self.ui.scalex_entry.get_value()) if val is None else val
 
@@ -271,7 +264,6 @@ class TransformEditorTool(AppToolEditor):
 
         self.app.worker_task.emit({'fcn': self.on_scale, 'params': [axis, xvalue, yvalue, point]})
 
-    @safe_widget_call
     def on_scaley(self, val=None, ref=None):
         xvalue = 1
         yvalue = float(self.ui.scaley_entry.get_value()) if val is None else val
@@ -288,7 +280,6 @@ class TransformEditorTool(AppToolEditor):
 
         self.app.worker_task.emit({'fcn': self.on_scale, 'params': [axis, xvalue, yvalue, point]})
 
-    @safe_widget_call
     def on_offx(self, val=None):
         value = float(self.ui.offx_entry.get_value()) if val is None else val
         if value == 0:
@@ -298,7 +289,6 @@ class TransformEditorTool(AppToolEditor):
 
         self.app.worker_task.emit({'fcn': self.on_offset, 'params': [axis, value]})
 
-    @safe_widget_call
     def on_offy(self, val=None):
         value = float(self.ui.offy_entry.get_value()) if val is None else val
         if value == 0:
@@ -308,14 +298,12 @@ class TransformEditorTool(AppToolEditor):
 
         self.app.worker_task.emit({'fcn': self.on_offset, 'params': [axis, value]})
 
-    @safe_widget_call
     def on_buffer_by_distance(self):
         value = self.ui.buffer_entry.get_value()
         join = 1 if self.ui.buffer_rounded_cb.get_value() else 2
 
         self.app.worker_task.emit({'fcn': self.on_buffer_action, 'params': [value, join]})
 
-    @safe_widget_call
     def on_buffer_by_factor(self):
         value = 1 + (self.ui.buffer_factor_entry.get_value() / 100.0)
         join = 1 if self.ui.buffer_rounded_cb.get_value() else 2

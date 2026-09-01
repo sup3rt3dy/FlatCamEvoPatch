@@ -183,7 +183,6 @@ class BookmarkManager(QtWidgets.QWidget):
         for key, val in self.bm_dict.items():
             self.app.options["global_bookmarks"][key] = deepcopy(val)
 
-    @safe_widget_call
     def on_add_entry(self, **kwargs):
         """
         Add a entry in the Bookmark Table and in the menu actions
@@ -236,7 +235,6 @@ class BookmarkManager(QtWidgets.QWidget):
         # add the new entry to the bookmark manager table
         self.build_bm_ui()
 
-    @safe_widget_call
     def on_remove_entry(self):
         """
         Remove an Entry in the Bookmark table and from the menu actions

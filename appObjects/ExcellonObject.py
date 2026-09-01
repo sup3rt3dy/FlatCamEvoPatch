@@ -220,7 +220,6 @@ class ExcellonObject(FlatCAMObj, Excellon):
             self.ui.level.setChecked(False)
         self.on_level_changed(self.ui.level.isChecked())
 
-    @safe_widget_call
     def on_level_changed(self, checked):
         if not checked:
             self.ui.level.setText('%s' % _('Beginner'))
@@ -258,7 +257,6 @@ class ExcellonObject(FlatCAMObj, Excellon):
             # Context Menu section
             self.ui.tools_table.setupContextMenu()
 
-    @safe_widget_call
     def build_ui(self):
         """
         Will (re)build the Excellon UI updating it (the tool table)
@@ -601,7 +599,6 @@ class ExcellonObject(FlatCAMObj, Excellon):
         except (TypeError, AttributeError, RuntimeError):
             pass
 
-    @safe_widget_call
     def on_row_selection_change(self):
         """
         Called when the user clicks on a row in Tools Table
@@ -664,7 +661,6 @@ class ExcellonObject(FlatCAMObj, Excellon):
 
         self.ui_connect()
 
-    @safe_widget_call
     def on_toggle_rows(self):
         sel_model = self.ui.tools_table.selectionModel()
         sel_indexes = sel_model.selectedIndexes()
@@ -730,11 +726,9 @@ class ExcellonObject(FlatCAMObj, Excellon):
             item[0] = str(item[0])
         return table_tools_items
 
-    @safe_widget_call
     def on_table_visibility_toggle(self, state):
         self.ui.tools_table.show() if state else self.ui.tools_table.hide()
 
-    @safe_widget_call
     def on_properties(self, state):
         if state:
             self.ui.info_frame.show()
@@ -750,7 +744,6 @@ class ExcellonObject(FlatCAMObj, Excellon):
         # make sure that the FCTree widget columns are resized to content
         self.ui.treeWidget.resize_sig.emit()
 
-    @safe_widget_call
     def on_properties_expanded(self):
         for col in range(self.treeWidget.columnCount()):
             self.ui.treeWidget.resizeColumnToContents(col)
@@ -1241,7 +1234,6 @@ class ExcellonObject(FlatCAMObj, Excellon):
     def on_autoload_db_toggled(self, state):
         self.app.options["excellon_autoload_db"] = True if state else False
 
-    @safe_widget_call
     def on_plot_cb_click(self):
         if self.muted_ui:
             return
@@ -1257,7 +1249,6 @@ class ExcellonObject(FlatCAMObj, Excellon):
         self.ui_connect()
         self.on_plot_cb_click_table()
 
-    @safe_widget_call
     def on_plot_cb_click_table(self):
         self.ui_disconnect()
         check_row = 0

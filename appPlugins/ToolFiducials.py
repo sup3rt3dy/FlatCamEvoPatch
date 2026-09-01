@@ -89,7 +89,6 @@ class ToolFiducials(AppTool):
         # storage for temporary shapes when adding manual markers
         self.temp_shapes = self.app.sel_shapes
 
-    @safe_widget_call
     def run(self, toggle=True):
         self.app.defaults.report_usage("ToolFiducials()")
 
@@ -165,7 +164,6 @@ class ToolFiducials(AppTool):
 
         self.ui.reset_button.clicked.connect(self.set_tool_ui)
 
-    @safe_widget_call
     def set_tool_ui(self):
         self.units = self.app.app_units
 
@@ -223,7 +221,6 @@ class ToolFiducials(AppTool):
             self.ui.level.setChecked(False)
         self.on_level_changed(self.ui.level.isChecked())
 
-    @safe_widget_call
     def on_level_changed(self, checked):
         if not checked:
             self.ui.level.setText('%s' % _('Beginner'))
@@ -255,7 +252,6 @@ class ToolFiducials(AppTool):
             self.ui.line_thickness_label.show()
             self.ui.line_thickness_entry.show()
 
-    @safe_widget_call
     def on_second_point(self, val):
         if val == 'no':
             self.ui.id_item_3.setFlags(QtCore.Qt.ItemFlag.NoItemFlags)
@@ -266,7 +262,6 @@ class ToolFiducials(AppTool):
             self.ui.sec_point_coords_lbl.setFlags(QtCore.Qt.ItemFlag.ItemIsEnabled)
             self.ui.sec_points_coords_entry.setDisabled(False)
 
-    @safe_widget_call
     def on_method_change(self, val):
         """
         Make sure that on method change we disconnect the event handlers and reset the points storage
@@ -292,7 +287,6 @@ class ToolFiducials(AppTool):
         else:
             self.app.options['tools_fiducials_big_cursor'] = False
 
-    @safe_widget_call
     def on_fiducial_type(self, val):
         if val == 2:    # 'cross'
             self.ui.line_thickness_label.setDisabled(False)
@@ -301,7 +295,6 @@ class ToolFiducials(AppTool):
             self.ui.line_thickness_label.setDisabled(True)
             self.ui.line_thickness_entry.setDisabled(True)
 
-    @safe_widget_call
     def add_fiducials(self):
         self.app.call_source = "fiducials_tool"
         self.app.ui.notebook.setDisabled(True)
@@ -622,7 +615,6 @@ class ToolFiducials(AppTool):
 
         return ret
 
-    @safe_widget_call
     def add_soldermask_opening(self):
         sm_opening_dia = self.ui.fid_size_entry.get_value() * 2.0
 

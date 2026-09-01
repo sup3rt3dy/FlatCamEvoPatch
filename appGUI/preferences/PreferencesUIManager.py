@@ -928,7 +928,6 @@ class PreferencesUIManager(QtCore.QObject):
         # except Exception:
         #     self.ui.app.log.debug("Nothing to remove")
 
-    @safe_widget_call
     def on_tab_clicked(self, idx):
         if idx == 0 and self.general_displayed is False:
             self.general_displayed = True
@@ -1243,7 +1242,6 @@ class PreferencesUIManager(QtCore.QObject):
         if should_restart is True:
             self.ui.app.on_app_restart()
 
-    @safe_widget_call
     def on_restore_defaults_preferences(self):
         """
         Loads the application's factory default settings into ``self.defaults``.
@@ -1293,7 +1291,6 @@ class PreferencesUIManager(QtCore.QObject):
         # update the autosave timer
         self.ui.app.save_project_auto_update()
 
-    @safe_widget_call
     def on_preferences_edited(self):
         """
         Executed when a preference was changed in the Edit -> Preferences tab.
@@ -1382,7 +1379,6 @@ class PreferencesUIManager(QtCore.QObject):
                 self.inform.emit('')
                 return
 
-    @safe_widget_call
     def on_pref_close_button(self):
         # Preferences saved, update flag
         self.preferences_changed_flag = False

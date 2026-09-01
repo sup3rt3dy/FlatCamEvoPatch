@@ -37,7 +37,6 @@ class SimplificationTool(AppToolEditor):
         # Signals
         self.update_ui.connect(self.on_update_ui)   # noqa
 
-    @safe_widget_call
     def run(self):
         self.app.defaults.report_usage("Geo Editor SimplificationTool()")
         super().run()
@@ -73,7 +72,6 @@ class SimplificationTool(AppToolEditor):
 
         self.app.ui.notebook.setTabText(2,  self.plugin_name)
 
-    @safe_widget_call
     def set_tool_ui(self):
         # Init appGUI
         self.ui.geo_tol_entry.set_value(0.01 if self.draw_app.units == 'MM' else 0.0004)
@@ -107,7 +105,6 @@ class SimplificationTool(AppToolEditor):
 
         self.update_ui.emit(coords, vertex_nr)  # noqa
 
-    @safe_widget_call
     def on_update_ui(self, coords, vertex_nr):
         self.ui.geo_coords_entry.set_value(str(coords))
         self.ui.geo_vertex_entry.set_value(vertex_nr)

@@ -5021,7 +5021,6 @@ class _BrowserTextEdit(QTextEdit):
 
         self.menu.exec(event.globalPos())
 
-    @safe_widget_call
     def keyPressEvent(self, event) -> None:
         modifiers = QtWidgets.QApplication.keyboardModifiers()
         key = event.key()

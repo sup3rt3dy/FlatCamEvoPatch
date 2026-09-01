@@ -20,7 +20,6 @@ from shapely.ops import nearest_points
 import gettext
 import appTranslation as fcTranslate
 import builtins
-from appGUI.GUIElements import safe_widget_call
 
 fcTranslate.apply_language('strings')
 if '_' not in builtins.__dict__:
@@ -76,7 +75,6 @@ class RulesCheck(AppTool):
     # def on_object_loaded(self, index, row):
     #     print(index.internalPointer().child_items[row].obj.obj_options['name'], index.data())
 
-    @safe_widget_call
     def run(self, toggle=True):
         self.app.defaults.report_usage("ToolRulesCheck()")
 
@@ -157,7 +155,6 @@ class RulesCheck(AppTool):
         # Custom Signals
         self.tool_finished.connect(self.on_tool_finished)
 
-    @safe_widget_call
     def set_tool_ui(self):
         self.clear_ui(self.layout)
         self.ui = RulesUI(layout=self.layout, app=self.app)
@@ -663,7 +660,6 @@ class RulesCheck(AppTool):
         violations.append(deepcopy(obj_violations))
         return rule_title, violations
 
-    @safe_widget_call
     def execute(self):
         self.results = []
 

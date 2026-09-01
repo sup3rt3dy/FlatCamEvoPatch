@@ -54,7 +54,6 @@ class ToolImage(AppTool):
         self.pluginName = self.ui.pluginName
         self.connect_signals_at_init()
 
-    @safe_widget_call
     def run(self, toggle=True):
         self.app.defaults.report_usage("ToolImage()")
 
@@ -118,7 +117,6 @@ class ToolImage(AppTool):
         self.ui.import_button.clicked.connect(lambda: self.on_file_importimage())
         self.ui.image_type.activated_custom.connect(self.ui.on_image_type)
 
-    @safe_widget_call
     def set_tool_ui(self):
         self.clear_ui(self.layout)
         self.ui = ImageUI(layout=self.layout, app=self.app)

@@ -38,7 +38,6 @@ class ToolTransform(AppTool):
         self.pluginName = self.ui.pluginName
         self.connect_signals_at_init()
 
-    @safe_widget_call
     def run(self, toggle=True):
         self.app.defaults.report_usage("ToolTransform()")
 
@@ -122,7 +121,6 @@ class ToolTransform(AppTool):
 
         self.ui.reset_button.clicked.connect(self.set_tool_ui)
 
-    @safe_widget_call
     def set_tool_ui(self):
         self.clear_ui(self.layout)
         self.ui = TransformUI(layout=self.layout, app=self.app)
@@ -159,7 +157,6 @@ class ToolTransform(AppTool):
         self.ui.type_obj_combo.hide()
         self.ui.object_combo.hide()
 
-    @safe_widget_call
     def on_type_obj_index_changed(self, index):
         self.ui.object_combo.setRootModelIndex(self.app.collection.index(index, 0, QtCore.QModelIndex()))
         self.ui.object_combo.setCurrentIndex(0)
@@ -199,12 +196,10 @@ class ToolTransform(AppTool):
             py = (ymax + ymin) * 0.5
             return px, py
 
-    @safe_widget_call
     def on_add_coords(self):
         val = self.app.clipboard.text()
         self.ui.point_entry.set_value(val)
 
-    @safe_widget_call
     def on_rotate(self):
         value = float(self.ui.rotate_entry.get_value())
         if value == 0:
@@ -229,7 +224,6 @@ class ToolTransform(AppTool):
             return
         self.app.worker_task.emit({'fcn': self.on_flip, 'params': [axis, point]})
 
-    @safe_widget_call
     def on_skewx(self):
         xvalue = float(self.ui.skewx_entry.get_value())
 
@@ -248,7 +242,6 @@ class ToolTransform(AppTool):
 
         self.app.worker_task.emit({'fcn': self.on_skew, 'params': [axis, xvalue, yvalue, point]})
 
-    @safe_widget_call
     def on_skewy(self):
         xvalue = 0
         yvalue = float(self.ui.skewy_entry.get_value())
@@ -263,7 +256,6 @@ class ToolTransform(AppTool):
 
         self.app.worker_task.emit({'fcn': self.on_skew, 'params': [axis, xvalue, yvalue, point]})
 
-    @safe_widget_call
     def on_scalex(self):
         xvalue = float(self.ui.scalex_entry.get_value())
 
@@ -284,7 +276,6 @@ class ToolTransform(AppTool):
 
         self.app.worker_task.emit({'fcn': self.on_scale, 'params': [axis, xvalue, yvalue, point]})
 
-    @safe_widget_call
     def on_scaley(self):
         xvalue = 1
         yvalue = float(self.ui.scaley_entry.get_value())
@@ -301,7 +292,6 @@ class ToolTransform(AppTool):
 
         self.app.worker_task.emit({'fcn': self.on_scale, 'params': [axis, xvalue, yvalue, point]})
 
-    @safe_widget_call
     def on_offx(self):
         value = float(self.ui.offx_entry.get_value())
         if value == 0:
@@ -311,7 +301,6 @@ class ToolTransform(AppTool):
 
         self.app.worker_task.emit({'fcn': self.on_offset, 'params': [axis, value]})
 
-    @safe_widget_call
     def on_offy(self):
         value = float(self.ui.offy_entry.get_value())
         if value == 0:
@@ -321,14 +310,12 @@ class ToolTransform(AppTool):
 
         self.app.worker_task.emit({'fcn': self.on_offset, 'params': [axis, value]})
 
-    @safe_widget_call
     def on_buffer_by_distance(self):
         value = self.ui.buffer_entry.get_value()
         join = 1 if self.ui.buffer_rounded_cb.get_value() else 2
 
         self.app.worker_task.emit({'fcn': self.on_buffer_action, 'params': [value, join]})
 
-    @safe_widget_call
     def on_buffer_by_factor(self):
         value = 1 + self.ui.buffer_factor_entry.get_value() / 100.0
         join = 1 if self.ui.buffer_rounded_cb.get_value() else 2

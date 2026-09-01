@@ -18,7 +18,6 @@ import builtins
 
 import numpy as np
 from vispy.geometry import Rect
-from appGUI.GUIElements import safe_widget_call
 
 fcTranslate.apply_language('strings')
 if '_' not in builtins.__dict__:
@@ -235,7 +234,6 @@ class PlotCanvas(QtCore.QObject, VisPyCanvas):
         b_color = int(color[4:6], 16) / 255
         return r_color, g_color, b_color
 
-    @safe_widget_call
     def on_toggle_axis(self, signal=None, state=None, silent=None):
         if not state:
             state = not self.axis_enabled
@@ -282,7 +280,6 @@ class PlotCanvas(QtCore.QObject, VisPyCanvas):
             self.h_line._color = axis_color
             self.h_line._changed['color'] = True
 
-    @safe_widget_call
     def on_toggle_hud(self, signal=None, state=None, silent=None):
         if state is None:
             state = not self.hud_enabled

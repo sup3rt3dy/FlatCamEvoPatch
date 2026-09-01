@@ -37,7 +37,6 @@ except ImportError:
 
 from matplotlib.lines import Line2D
 from matplotlib.offsetbox import AnchoredText
-from appGUI.GUIElements import safe_widget_call
 
 # from matplotlib.widgets import Cursor
 
@@ -389,7 +388,6 @@ class PlotCanvasLegacy(QtCore.QObject):
         self.v_line.set_color(axis_color)
         self.canvas.draw()
 
-    @safe_widget_call
     def on_toggle_axis(self, signal=None, state=None, silent=None):
         if not state:
             state = not self.axis_enabled
@@ -421,7 +419,6 @@ class PlotCanvasLegacy(QtCore.QObject):
 
         self.canvas.draw()
 
-    @safe_widget_call
     def on_toggle_hud(self, signal=None, state=None, silent=None):
         if state is None:
             state = not self.hud_enabled
