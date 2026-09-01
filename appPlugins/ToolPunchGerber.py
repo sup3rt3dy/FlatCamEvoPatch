@@ -74,7 +74,6 @@ class ToolPunchGerber(Gerber, AppTool):
         self.pluginName = self.ui.pluginName
         self.connect_signals_at_init()
 
-    @safe_widget_call
     def on_object_combo_changed(self):
         punch_plugin_found = False
         for idx in range(self.app.ui.notebook.count()):
@@ -112,7 +111,6 @@ class ToolPunchGerber(Gerber, AppTool):
 
         self.build_tool_ui()
 
-    @safe_widget_call
     def run(self, toggle=True):
         self.app.defaults.report_usage("ToolPunchGerber()")
 
@@ -219,7 +217,6 @@ class ToolPunchGerber(Gerber, AppTool):
         self.ui.sel_all_btn.clicked.connect(self.on_manual_sel_all)
         self.ui.clear_all_btn.clicked.connect(self.on_manual_clear_all)
 
-    @safe_widget_call
     def set_tool_ui(self):
         self.clear_ui(self.layout)
         self.ui = PunchUI(layout=self.layout, app=self.app)
@@ -274,7 +271,6 @@ class ToolPunchGerber(Gerber, AppTool):
 
         self.app.ui.notebook.setTabText(2, _("Punch Gerber"))
 
-    @safe_widget_call
     def build_tool_ui(self):
         self.ui_disconnect()
 
@@ -421,7 +417,6 @@ class ToolPunchGerber(Gerber, AppTool):
             self.ui.level.setChecked(False)
         self.on_level_changed(self.ui.level.isChecked())
 
-    @safe_widget_call
     def on_level_changed(self, checked):
         if not checked:
             self.ui.level.setText('%s' % _('Beginner'))
@@ -448,7 +443,6 @@ class ToolPunchGerber(Gerber, AppTool):
             self.ui.sel_label.show()
             self.ui.s_frame.show()
 
-    @safe_widget_call
     def on_select_all(self, state):
         self.ui_disconnect()
         if state:
@@ -477,7 +471,6 @@ class ToolPunchGerber(Gerber, AppTool):
 
         self.ui_connect()
 
-    @safe_widget_call
     def on_method(self, val):
         self.ui.exc_label.hide()
         self.ui.exc_combo.hide()
@@ -503,7 +496,6 @@ class ToolPunchGerber(Gerber, AppTool):
             self.ui.factor_label.show()
             self.ui.factor_entry.show()
 
-    @safe_widget_call
     def on_punch_type(self, val):
         if val == 'm':
             self.ui.sel_all_btn.show()
@@ -543,7 +535,6 @@ class ToolPunchGerber(Gerber, AppTool):
             except (TypeError, AttributeError, RuntimeError):
                 pass
 
-    @safe_widget_call
     def on_punch_object_click(self):
         punch_type = self.ui.punch_type_radio.get_value()
         punch_method = self.ui.method_punch.get_value()
@@ -1892,7 +1883,6 @@ class ToolPunchGerber(Gerber, AppTool):
             self.delete_moving_selection_shape()
             self.delete_tool_selection_shape()
 
-    @safe_widget_call
     def on_mark_cb_click_table(self):
         """
         Will mark aperture geometries on canvas or delete the markings depending on the checkbox state
@@ -1933,7 +1923,6 @@ class ToolPunchGerber(Gerber, AppTool):
         else:
             grb_obj.clear_plot_apertures(aperture=aperture)
 
-    @safe_widget_call
     def on_manual_sel_all(self):
         if self.ui.punch_type_radio.get_value() != 'm':
             return
@@ -1976,7 +1965,6 @@ class ToolPunchGerber(Gerber, AppTool):
         self.app.tool_shapes.redraw()
         self.app.inform.emit(_("All selectable pads are selected."))
 
-    @safe_widget_call
     def on_manual_clear_all(self):
         if self.ui.punch_type_radio.get_value() != 'm':
             return

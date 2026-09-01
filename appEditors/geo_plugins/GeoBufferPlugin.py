@@ -37,7 +37,6 @@ class BufferSelectionTool(AppToolEditor):
         self.ui.buffer_int_button.clicked.connect(self.on_buffer_int)
         self.ui.buffer_ext_button.clicked.connect(self.on_buffer_ext)
 
-    @safe_widget_call
     def run(self):
         self.app.defaults.report_usage("Geo Editor ToolBuffer()")
         super().run()
@@ -73,7 +72,6 @@ class BufferSelectionTool(AppToolEditor):
 
         self.app.ui.notebook.setTabText(2, _("Buffer"))
 
-    @safe_widget_call
     def set_tool_ui(self):
         # Init appGUI
         self.ui.buffer_distance_entry.set_value(0.01)
@@ -83,7 +81,6 @@ class BufferSelectionTool(AppToolEditor):
         self.draw_app.select_tool("select")
         self.app.ui.notebook.callback_on_close = lambda: None
 
-    @safe_widget_call
     def on_buffer(self):
         try:
             buffer_distance = float(self.ui.buffer_distance_entry.get_value())
@@ -101,7 +98,6 @@ class BufferSelectionTool(AppToolEditor):
         join_style = {1: 'round', 2: 'mitre', 3: 'bevel'}.get(self.ui.buffer_corner_cb.currentIndex() + 1)
         self.buffer(buffer_distance, join_style)
 
-    @safe_widget_call
     def on_buffer_int(self):
         try:
             buffer_distance = float(self.ui.buffer_distance_entry.get_value())
@@ -119,7 +115,6 @@ class BufferSelectionTool(AppToolEditor):
         join_style = {1: 'round', 2: 'mitre', 3: 'bevel'}.get(self.ui.buffer_corner_cb.currentIndex() + 1)
         self.buffer_int(buffer_distance, join_style)
 
-    @safe_widget_call
     def on_buffer_ext(self):
         try:
             buffer_distance = float(self.ui.buffer_distance_entry.get_value())

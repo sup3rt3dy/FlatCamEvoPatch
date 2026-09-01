@@ -10,7 +10,6 @@ from appGUI.preferences.OptionsGroupUI import OptionsGroupUI
 import gettext
 import appTranslation as fcTranslate
 import builtins
-from appGUI.GUIElements import safe_widget_call
 
 fcTranslate.apply_language('strings')
 if '_' not in builtins.__dict__:
@@ -424,7 +423,6 @@ class GeneralAppPrefGroupUI(OptionsGroupUI):
 
         self.language_apply_btn.clicked.connect(lambda: fcTranslate.on_language_apply_click(app=self.app, restart=True))
 
-    @safe_widget_call
     def on_toggle_shell_from_settings(self, state):
         """
         Toggle shell ui: if is visible close it, if it is closed then open it

@@ -19,7 +19,6 @@ from appGUI.ObjectUI import ScriptObjectUI
 import gettext
 import appTranslation as fcTranslate
 import builtins
-from appGUI.GUIElements import safe_widget_call
 
 fcTranslate.apply_language('strings')
 if '_' not in builtins.__dict__:
@@ -146,7 +145,6 @@ class ScriptObject(FlatCAMObj):
         self.app.proc_container.view.set_idle()
         self.build_ui()
 
-    @safe_widget_call
     def build_ui(self):
         FlatCAMObj.build_ui(self)
 
@@ -177,7 +175,6 @@ class ScriptObject(FlatCAMObj):
             self.ui.level.setChecked(False)
         self.on_level_changed(self.ui.level.isChecked())
 
-    @safe_widget_call
     def on_level_changed(self, checked):
         if not checked:
             self.ui.level.setText('%s' % _('Beginner'))

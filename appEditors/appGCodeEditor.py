@@ -127,7 +127,6 @@ class AppGCodeEditor(QtCore.QObject):
         app_mode = self.app.options["global_app_level"]
         self.change_level(app_mode)
 
-    @safe_widget_call
     def build_ui(self):
         """
 
@@ -388,7 +387,6 @@ class AppGCodeEditor(QtCore.QObject):
             except (TypeError, AttributeError):
                 pass
 
-    @safe_widget_call
     def on_row_selection_change(self):
         """
 
@@ -568,7 +566,6 @@ class AppGCodeEditor(QtCore.QObject):
 
         self.edit_area.setExtraSelections(sel_list)
 
-    @safe_widget_call
     def on_toggle_all_rows(self):
         """
 
@@ -611,7 +608,6 @@ class AppGCodeEditor(QtCore.QObject):
             self.ui.level.setChecked(False)
         self.on_level_changed(self.ui.level.isChecked())
 
-    @safe_widget_call
     def on_level_changed(self, checked):
         if not checked:
             self.ui.level.setText('%s' % _('Beginner'))
@@ -640,7 +636,6 @@ class AppGCodeEditor(QtCore.QObject):
             # Context Menu section
             # self.ui.apertures_table.setupContextMenu()
 
-    @safe_widget_call
     def handleTextChanged(self):
         """
 
@@ -654,7 +649,6 @@ class AppGCodeEditor(QtCore.QObject):
         self.ui.buttonSave.setStyleSheet("QPushButton {color: red;}")
         self.ui.buttonSave.setIcon(QtGui.QIcon(self.app.resource_location + '/save_as_red.png'))
 
-    @safe_widget_call
     def insert_code_snippet_1(self):
         """
 
@@ -665,7 +659,6 @@ class AppGCodeEditor(QtCore.QObject):
         my_text_cursor = self.edit_area.textCursor()
         my_text_cursor.insertText(text)
 
-    @safe_widget_call
     def insert_code_snippet_2(self):
 
         text = self.ui.append_text.toPlainText() + '\n'
@@ -736,7 +729,6 @@ class AppGCodeEditor(QtCore.QObject):
         self.app.ui.editor_exit_btn_ret_action.setVisible(False)
         self.app.ui.editor_start_btn.setVisible(True)
 
-    @safe_widget_call
     def on_name_activate(self):
         self.edited_obj_name = self.ui.name_entry.get_value()
 

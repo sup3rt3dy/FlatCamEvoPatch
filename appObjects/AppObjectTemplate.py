@@ -27,7 +27,6 @@ import inspect
 import gettext
 import appTranslation as fcTranslate
 import builtins
-from appGUI.GUIElements import safe_widget_call
 
 fcTranslate.apply_language('strings')
 if '_' not in builtins.__dict__:
@@ -298,7 +297,6 @@ class FlatCAMObj(QtCore.QObject):
 
         # self.ui.skew_button.clicked.connect(self.on_skew_button_click)
 
-    @safe_widget_call
     def build_ui(self):
         """
         Sets up the UI/form for this object. Show the UI in the App.
@@ -331,7 +329,6 @@ class FlatCAMObj(QtCore.QObject):
 
         self.muted_ui = False
 
-    @safe_widget_call
     def on_name_activate(self, silent=None):
         old_name = copy(self.obj_options["name"])
         new_name = self.ui.name_entry.get_value()
@@ -355,7 +352,6 @@ class FlatCAMObj(QtCore.QObject):
                 )
                                      )
 
-    @safe_widget_call
     def on_offset_button_click(self):
         self.app.defaults.report_usage("obj_on_offset_button")
 
@@ -372,7 +368,6 @@ class FlatCAMObj(QtCore.QObject):
 
         self.app.worker_task.emit({'fcn': worker_task, 'params': []})
 
-    @safe_widget_call
     def on_scale_button_click(self):
         self.read_form()
         try:
@@ -404,7 +399,6 @@ class FlatCAMObj(QtCore.QObject):
 
         self.app.worker_task.emit({'fcn': worker_task, 'params': []})
 
-    @safe_widget_call
     def on_skew_button_click(self):
         self.app.defaults.report_usage("obj_on_skew_button")
         self.read_form()
@@ -944,7 +938,6 @@ class FlatCAMObj(QtCore.QObject):
 
         # treeWidget.addChild(separator, [''])
 
-    @safe_widget_call
     def update_area_chull(self, area, length, width, chull_area, copper_area, location):
 
         # add dimensions
