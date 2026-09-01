@@ -132,7 +132,6 @@ class ToolDrilling(Excellon, AppTool):
     def install(self, icon=None, separator=None, **kwargs):
         AppTool.install(self, icon, separator, shortcut='Alt+D', **kwargs)
 
-    @safe_widget_call
     def run(self, toggle=True):
         self.app.defaults.report_usage("ToolDrilling()")
 
@@ -317,7 +316,6 @@ class ToolDrilling(Excellon, AppTool):
     def init_ui(self):
         self.ui = DrillingUI(layout=self.layout, app=self.app, name=self.pluginName)
 
-    @safe_widget_call
     def set_tool_ui(self):
         self.units = self.app.app_units.upper()
 
@@ -549,7 +547,6 @@ class ToolDrilling(Excellon, AppTool):
             self.ui.level.setChecked(False)
         self.on_level_changed(self.ui.level.isChecked())
 
-    @safe_widget_call
     def on_level_changed(self, checked):
 
         try:
@@ -651,7 +648,6 @@ class ToolDrilling(Excellon, AppTool):
         # self.ui.pp_excellon_name_cb combobox
         self.on_pp_changed()
 
-    @safe_widget_call
     def rebuild_ui(self):
         # read the table tools uid
         current_uid_list = []
@@ -674,7 +670,6 @@ class ToolDrilling(Excellon, AppTool):
         # the tools table changed therefore we need to rebuild it
         QtCore.QTimer.singleShot(20, self.build_tool_ui)
 
-    @safe_widget_call
     def build_tool_ui(self):
         self.app.log.debug("ToolDrilling.build_tool_ui()")
         self.ui_disconnect()
@@ -951,7 +946,6 @@ class ToolDrilling(Excellon, AppTool):
                 "<b>%s: <font color='#0000FF'>%s %d</font></b>" % (_('Parameters for'), _("Tool"), toolnr)
             )
 
-    @safe_widget_call
     def on_object_changed(self):
         self.app.log.debug("ToolDrilling.on_object_changed()")
         # updated units
@@ -999,7 +993,6 @@ class ToolDrilling(Excellon, AppTool):
         else:
             self.ui.generate_cnc_button.setDisabled(False)
 
-    @safe_widget_call
     def on_object_selection_changed(self, current, previous):
         found_idx = None
         for tab_idx in range(self.app.ui.notebook.count()):
@@ -1256,7 +1249,6 @@ class ToolDrilling(Excellon, AppTool):
             self.excellon_tools = new_tools_dict
             self.build_tool_ui()
 
-    @safe_widget_call
     def on_toggle_all_rows(self):
         """
         will toggle the selection of all rows in Tools table
@@ -1287,7 +1279,6 @@ class ToolDrilling(Excellon, AppTool):
                 "<b>%s: <font color='#0000FF'>%s</font></b>" % (_('Parameters for'), _("Multiple Tools"))
             )
 
-    @safe_widget_call
     def on_row_selection_change(self):
         sel_model = self.ui.tools_table.selectionModel()
         sel_indexes = sel_model.selectedIndexes()
@@ -1302,7 +1293,6 @@ class ToolDrilling(Excellon, AppTool):
         if len(sel_rows) <= 1:
             self.update_ui()
 
-    @safe_widget_call
     def update_ui(self):
         self.blockSignals(True)
         self.ui_disconnect()
@@ -1389,7 +1379,6 @@ class ToolDrilling(Excellon, AppTool):
                         self.app.log.error("ToolDrilling.storage_to_form() -> common parameters --> %s" % str(e))
                         pass
 
-    @safe_widget_call
     def form_to_storage(self):
         """
         Will update the 'storage' attribute which is the dict self.tools with data collected from GUI
@@ -1473,7 +1462,6 @@ class ToolDrilling(Excellon, AppTool):
             item[0] = str(item[0])
         return table_tools_items
 
-    @safe_widget_call
     def on_apply_param_to_all_clicked(self):
         if self.ui.tools_table.rowCount() == 0:
             # there is no tool in tool table so we can't save the GUI elements values to storage
@@ -1506,7 +1494,6 @@ class ToolDrilling(Excellon, AppTool):
         if order != 0:  # 'default'
             self.build_tool_ui()
 
-    @safe_widget_call
     def on_tooltable_cellwidget_change(self):
         cw = self.sender()
         assert isinstance(cw, QtWidgets.QComboBox), \
@@ -1528,7 +1515,6 @@ class ToolDrilling(Excellon, AppTool):
                 'tool_type': tt,
             })
 
-    @safe_widget_call
     def on_pp_changed(self):
         current_pp = self.ui.pp_excellon_name_cb.get_value()
 
@@ -1698,7 +1684,6 @@ class ToolDrilling(Excellon, AppTool):
             self.delete_moving_selection_shape()
             self.delete_tool_selection_shape()
 
-    @safe_widget_call
     def on_add_area_click(self):
         shape_button = self.ui.area_shape_radio
         overz_button = self.ui.over_z_entry
@@ -1719,7 +1704,6 @@ class ToolDrilling(Excellon, AppTool):
         self.app.exc_areas.on_clear_area_click()
         self.app.exc_areas.e_shape_modified.emit()
 
-    @safe_widget_call
     def on_delete_sel_areas(self):
         sel_model = self.ui.exclusion_table.selectionModel()
         sel_indexes = sel_model.selectedIndexes()
@@ -1759,7 +1743,6 @@ class ToolDrilling(Excellon, AppTool):
         self.app.clipboard.setText(str(poly_coords))
         self.app.inform.emit('[success] %s' % _("Copied to clipboard."))
 
-    @safe_widget_call
     def draw_sel_shape(self):
         sel_model = self.ui.exclusion_table.selectionModel()
         sel_indexes = sel_model.selectedIndexes()
@@ -1791,14 +1774,12 @@ class ToolDrilling(Excellon, AppTool):
     def delete_sel_shape(self):
         self.app.delete_selection_shape()
 
-    @safe_widget_call
     def update_exclusion_table(self):
         self.exclusion_area_cb_is_checked = True if self.ui.exclusion_cb.isChecked() else False
 
         self.build_tool_ui()
         self.ui.exclusion_cb.set_value(self.exclusion_area_cb_is_checked)
 
-    @safe_widget_call
     def on_strategy(self, val):
         if val == 'around':
             self.ui.over_z_label.setDisabled(True)
@@ -1807,7 +1788,6 @@ class ToolDrilling(Excellon, AppTool):
             self.ui.over_z_label.setDisabled(False)
             self.ui.over_z_entry.setDisabled(False)
 
-    @safe_widget_call
     def exclusion_table_toggle_all(self):
         """
         will toggle the selection of all rows in Exclusion Areas table
@@ -1829,7 +1809,6 @@ class ToolDrilling(Excellon, AppTool):
             self.ui.exclusion_table.selectAll()
             self.draw_sel_shape()
 
-    @safe_widget_call
     def on_exclusion_table_overz(self, current_item):
         self.ui_disconnect()
 
@@ -1858,7 +1837,6 @@ class ToolDrilling(Excellon, AppTool):
         self.ui_connect()
         self.build_ui_sig.emit()
 
-    @safe_widget_call
     def on_exclusion_table_strategy(self):
         cw = self.sender()
         cw_index = self.ui.exclusion_table.indexAt(cw.pos())
@@ -1988,7 +1966,6 @@ class ToolDrilling(Excellon, AppTool):
                         return True
         return False
 
-    @safe_widget_call
     def on_generate_cnc_job(self):
         obj_name = self.ui.object_combo.currentText()
         # toolchange = self.ui.toolchange_cb.get_value()

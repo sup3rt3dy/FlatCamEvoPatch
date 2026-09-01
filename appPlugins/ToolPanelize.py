@@ -22,7 +22,6 @@ from shapely.affinity import translate
 import gettext
 import appTranslation as fcTranslate
 import builtins
-from appGUI.GUIElements import safe_widget_call
 
 fcTranslate.apply_language('strings')
 if '_' not in builtins.__dict__:
@@ -56,7 +55,6 @@ class Panelize(AppTool):
         # flag to signal the constrain was activated
         self.constrain_flag = False
 
-    @safe_widget_call
     def run(self, toggle=True):
         self.app.defaults.report_usage("ToolPanelize()")
 
@@ -126,7 +124,6 @@ class Panelize(AppTool):
 
         self.ui.reset_button.clicked.connect(self.set_tool_ui)
 
-    @safe_widget_call
     def set_tool_ui(self):
         self.clear_ui(self.layout)
         self.ui = PanelizeUI(layout=self.layout, app=self.app)
@@ -202,7 +199,6 @@ class Panelize(AppTool):
         app_mode = self.app.options["global_app_level"]
         self.change_level(app_mode)
 
-    @safe_widget_call
     def on_type_obj_index_changed(self):
         obj_type = self.ui.type_obj_combo.currentIndex()
         self.ui.object_combo.setRootModelIndex(self.app.collection.index(obj_type, 0, QtCore.QModelIndex()))
@@ -226,7 +222,6 @@ class Panelize(AppTool):
             self.ui.type_box_combo.setCurrentIndex(0) if obj_type == 0 else self.ui.type_box_combo.setCurrentIndex(1)
             self.ui.panel_type_radio.set_value(self.ui.object_combo.obj_type.lower())
 
-    @safe_widget_call
     def on_type_box_index_changed(self):
         obj_type = self.ui.type_box_combo.currentIndex()
         obj_type = 2 if obj_type == 1 else obj_type
@@ -235,7 +230,6 @@ class Panelize(AppTool):
 
         self.ui.box_combo.obj_type = {0: "Gerber", 2: "Geometry"}[obj_type]
 
-    @safe_widget_call
     def on_reference_radio_changed(self, current_val):
         if current_val == 'object':
             self.ui.type_box_combo.setDisabled(False)
@@ -246,7 +240,6 @@ class Panelize(AppTool):
             self.ui.type_box_combo_label.setDisabled(True)
             self.ui.box_combo.setDisabled(True)
 
-    @safe_widget_call
     def on_object_selection_changed(self, current, previous):
         found_idx = None
         for tab_idx in range(self.app.ui.notebook.count()):
@@ -286,7 +279,6 @@ class Panelize(AppTool):
             self.ui.level.setChecked(False)
         self.on_level_changed(self.ui.level.isChecked())
 
-    @safe_widget_call
     def on_level_changed(self, checked):
         if not checked:
             self.ui.level.setText('%s' % _('Beginner'))
@@ -313,7 +305,6 @@ class Panelize(AppTool):
             self.ui.param_label.show()
             self.ui.gp_frame.show()
 
-    @safe_widget_call
     def on_panelize(self):
         name = self.ui.object_combo.currentText()
 

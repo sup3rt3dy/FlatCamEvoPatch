@@ -20,7 +20,6 @@ from shapely.ops import unary_union
 import gettext
 import appTranslation as fcTranslate
 import builtins
-from appGUI.GUIElements import safe_widget_call
 
 fcTranslate.apply_language('strings')
 if '_' not in builtins.__dict__:
@@ -47,7 +46,6 @@ class ToolEtchCompensation(AppTool):
     def install(self, icon=None, separator=None, **kwargs):
         AppTool.install(self, icon, separator, shortcut='', **kwargs)
 
-    @safe_widget_call
     def run(self, toggle=True):
         self.app.defaults.report_usage("ToolEtchCompensation()")
         self.app.log.debug("ToolEtchCompensation() is running ...")
@@ -112,7 +110,6 @@ class ToolEtchCompensation(AppTool):
         self.ui.oz_entry.textChanged.connect(self.on_oz_conversion)
         self.ui.mils_entry.textChanged.connect(self.on_mils_conversion)
 
-    @safe_widget_call
     def set_tool_ui(self):
         self.clear_ui(self.layout)
         self.ui = EtchUI(layout=self.layout, app=self.app)
@@ -128,7 +125,6 @@ class ToolEtchCompensation(AppTool):
             obj_name = obj.obj_options['name']
             self.ui.gerber_combo.set_value(obj_name)
 
-    @safe_widget_call
     def on_ratio_change(self, val):
         """
         Called on activated_custom signal of the RadioSet GUI element self.radio_ratio
@@ -160,7 +156,6 @@ class ToolEtchCompensation(AppTool):
             self.ui.offset_label.show()
             self.ui.offset_entry.show()
 
-    @safe_widget_call
     def on_oz_conversion(self, txt):
         try:
             val = eval(txt)
@@ -172,7 +167,6 @@ class ToolEtchCompensation(AppTool):
             return
         self.ui.oz_to_um_entry.set_value(val, self.decimals)
 
-    @safe_widget_call
     def on_mils_conversion(self, txt):
         try:
             val = eval(txt)
@@ -182,7 +176,6 @@ class ToolEtchCompensation(AppTool):
             return
         self.ui.mils_to_um_entry.set_value(val, self.decimals)
 
-    @safe_widget_call
     def on_compensate(self):
         self.app.log.debug("ToolEtchCompensation.on_compensate()")
 

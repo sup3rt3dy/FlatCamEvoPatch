@@ -41,7 +41,6 @@ class ToolCalculator(AppTool):
 
         self.units = ''
 
-    @safe_widget_call
     def run(self, toggle=True):
         self.app.defaults.report_usage("ToolCalculators()")
 
@@ -112,7 +111,6 @@ class ToolCalculator(AppTool):
         self.ui.sol_radio.activated_custom.connect(self.on_tin_solution_type)
         self.ui.area_sel_radio.activated_custom.connect(self.on_area_calculation_radio)
 
-    @safe_widget_call
     def on_area_calculation_radio(self, val):
         self.ui_disconnect()
         self.ui_connect()
@@ -147,7 +145,6 @@ class ToolCalculator(AppTool):
     def install(self, icon=None, separator=None, **kwargs):
         AppTool.install(self, icon, separator, shortcut='Alt+C', **kwargs)
 
-    @safe_widget_call
     def set_tool_ui(self):
         self.units = self.app.app_units.lower()
 
@@ -201,7 +198,6 @@ class ToolCalculator(AppTool):
         self.ui_disconnect()
         self.ui_connect()
 
-    @safe_widget_call
     def on_calculate_tool_dia(self):
         self.ui_disconnect()
         # Calculation:
@@ -225,7 +221,6 @@ class ToolCalculator(AppTool):
 
         self.ui_connect()
 
-    @safe_widget_call
     def on_calculate_cutz(self):
         self.ui_disconnect()
         # Calculation:
@@ -254,37 +249,31 @@ class ToolCalculator(AppTool):
 
         self.ui_connect()
 
-    @safe_widget_call
     def on_calculate_inch_units(self):
         # Length units
         mm_val = float(self.ui.mm_entry.get_value())
         self.ui.inch_entry.set_value('%.*f' % (self.decimals, (mm_val / 25.4)))
 
-    @safe_widget_call
     def on_calculate_mm_units(self):
         # Length units
         inch_val = float(self.ui.inch_entry.get_value())
         self.ui.mm_entry.set_value('%.*f' % (self.decimals, (inch_val * 25.4)))
 
-    @safe_widget_call
     def on_calculate_oz_units(self):
         # Weight units
         gram_val = float(self.ui.g_entry.get_value())
         self.ui.oz_entry.set_value('%.*f' % (self.decimals, (gram_val / 28.3495)))
 
-    @safe_widget_call
     def on_calculate_gram_units(self):
         # Weight units
         oz_val = float(self.ui.oz_entry.get_value())
         self.ui.g_entry.set_value('%.*f' % (self.decimals, (oz_val * 28.3495)))
 
-    @safe_widget_call
     def on_calculate_floz_units(self):
         # Liquid weight units
         ml_val = float(self.ui.ml_entry.get_value())
         self.ui.fl_oz_entry.set_value('%.*f' % (self.decimals, (ml_val / 29.5735296875)))
 
-    @safe_widget_call
     def on_calculate_ml_units(self):
         # Liquid weight units
         floz_val = float(self.ui.fl_oz_entry.get_value())
@@ -367,7 +356,6 @@ class ToolCalculator(AppTool):
 
         self.ui_connect()
 
-    @safe_widget_call
     def on_tin_solution_type(self, val):
         if val == 'sol1':
             sncl2_val = 0.5

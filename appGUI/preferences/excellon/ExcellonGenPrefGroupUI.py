@@ -10,7 +10,6 @@ from appGUI.preferences.OptionsGroupUI import OptionsGroupUI
 import gettext
 import appTranslation as fcTranslate
 import builtins
-from appGUI.GUIElements import safe_widget_call
 
 fcTranslate.apply_language('strings')
 if '_' not in builtins.__dict__:
@@ -485,7 +484,6 @@ class ExcellonGenPrefGroupUI(OptionsGroupUI):
             except TypeError:
                 pass
 
-    @safe_widget_call
     def on_excellon_format_changed(self):
         """
         Slot activated when the user changes the Excellon format values in Preferences -> Excellon -> Excellon General
@@ -502,7 +500,6 @@ class ExcellonGenPrefGroupUI(OptionsGroupUI):
             self.app.ui.excellon_pref_form.excellon_exp_group.format_dec_entry.set_value(
                 self.excellon_format_lower_in_entry.get_value())
 
-    @safe_widget_call
     def on_excellon_zeros_changed(self, val):
         """
         Slot activated when the user changes the Excellon zeros values in Preferences -> Excellon -> Excellon General
@@ -510,7 +507,6 @@ class ExcellonGenPrefGroupUI(OptionsGroupUI):
         """
         self.app.ui.excellon_pref_form.excellon_exp_group.zeros_radio.set_value(val + 'Z')
 
-    @safe_widget_call
     def on_excellon_units_changed(self, val):
         """
         Slot activated when the user changes the Excellon unit values in Preferences -> Excellon -> Excellon General

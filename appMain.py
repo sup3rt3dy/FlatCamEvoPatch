@@ -1456,7 +1456,6 @@ class App(QtCore.QObject):
         if target is not None:
             self.custom_signal[params].connect(target)
 
-    @safe_widget_call
     def on_startup_args(self, args, silent=False):
         """
         This will process any arguments provided to the application at startup. Like trying to launch a file or project.
@@ -2206,7 +2205,6 @@ class App(QtCore.QObject):
         except Exception as c_err:
             self.log.error("App.connect_toolbar_signals() tools signals -> %s" % str(c_err))
 
-    @safe_widget_call
     def on_layout(self, lay=None, connect_signals=True):
         """
         Set the toolbars layout (location).
@@ -2371,7 +2369,6 @@ class App(QtCore.QObject):
         self.ui.snap_max_dist_entry.setText(str(self.options["global_snap_max"]))
         self.ui.grid_gap_link_cb.setChecked(True)
 
-    @safe_widget_call
     def on_editing_start(self):
         """
         Send the current Geometry, Gerber, "Excellon" object or CNCJob (if any) its editor.
@@ -2773,7 +2770,6 @@ class App(QtCore.QObject):
 
         self.post_edit_sig.emit()
 
-    @safe_widget_call
     def on_editing_final_action(self):
         self.log.debug("######################### Closing the EDITOR ################################")
         self.call_source = 'app'
@@ -3021,7 +3017,6 @@ class App(QtCore.QObject):
         # Re-build the recent items menu
         self.setup_recent_items()
 
-    @safe_widget_call
     def on_about(self):
         """
         Displays the "about" dialog found in the Menu --> Help.
@@ -3550,7 +3545,6 @@ class App(QtCore.QObject):
 
         AboutDialog(app=self, parent=self.ui).exec()
 
-    @safe_widget_call
     def on_howto(self):
         """
         Displays the "about" dialog found in the Menu --> Help.
@@ -3791,7 +3785,6 @@ class App(QtCore.QObject):
 
         self.ui.menuhelp_bookmarks_manager.triggered.connect(self.on_bookmarks_manager)
 
-    @safe_widget_call
     def on_bookmarks_manager(self):
         """
         Adds the bookmark manager in a Tab in Plot Area.
@@ -3821,7 +3814,6 @@ class App(QtCore.QObject):
         # Switch plot_area to preferences page
         self.ui.plot_tab_area.setCurrentWidget(self.book_dialog_tab)
 
-    @safe_widget_call
     def on_backup_site(self):
         """
         Called when the user click on the menu entry Help -> Bookmarks -> Backup Site
@@ -3850,7 +3842,6 @@ class App(QtCore.QObject):
         msgbox.exec()
         # response = msgbox.clickedButton()
 
-    @safe_widget_call
     def final_save(self):
         """
         Callback for doing a preferences save to file whenever the application is about to quit.
@@ -3903,7 +3894,6 @@ class App(QtCore.QObject):
                 pass
             self.quit_application()
 
-    @safe_widget_call
     def quit_application(self, silent=False):
         """
         Called (as a pyslot or not) when the application is quit.
@@ -4170,7 +4160,6 @@ class App(QtCore.QObject):
         self.preferencesUiManager.defaults_read_form()
         self.plotcanvas.draw_workspace(workspace_size=self.options['global_workspaceT'])
 
-    @safe_widget_call
     def on_workspace(self):
         if self.ui.general_pref_form.general_app_set_group.workspace_cb.get_value():
             self.plotcanvas.draw_workspace(workspace_size=self.options['global_workspaceT'])
@@ -4181,7 +4170,6 @@ class App(QtCore.QObject):
         self.preferencesUiManager.defaults_read_form()
         # self.save_defaults(silent=True)
 
-    @safe_widget_call
     def on_workspace_toggle(self):
         state = False if self.ui.general_pref_form.general_app_set_group.workspace_cb.get_value() else True
         try:
@@ -4202,7 +4190,6 @@ class App(QtCore.QObject):
             subprocess.Popen(['xdg-open', self.log_path()])
         self.inform.emit('[success] %s' % _("FlatCAM log opened."))
 
-    @safe_widget_call
     def on_cursor_type(self, val, control_cursor=True):
         """
 
@@ -4336,7 +4323,6 @@ class App(QtCore.QObject):
     # Hovering over Selected tab, if the selected tab is a Geometry it will delete tools in tool table. But even if
     # there is a Selected tab in focus with a Geometry inside, if you hover over canvas it will delete an object.
     # Complicated, I know :)
-    @safe_widget_call
     def on_delete(self, force_deletion=False):
         """
         Delete the currently selected FlatCAMObjs.
@@ -4653,7 +4639,6 @@ class App(QtCore.QObject):
             worker_task()
         self.should_we_save = True
 
-    @safe_widget_call
     def on_jump_to(self, custom_location=None, fit_center=True):
         """
         Jump to a location by setting the mouse cursor location.
@@ -5159,7 +5144,6 @@ class App(QtCore.QObject):
                     self.log.error(
                         "App.on_select_all(). Object %s can't be selected on canvas. Error: %s" % (name, str(gerr)))
 
-    @safe_widget_call
     def on_toggle_preferences(self):
         pref_open = False
         for idx in range(self.ui.plot_tab_area.count()):
@@ -5178,7 +5162,6 @@ class App(QtCore.QObject):
         else:
             self.on_preferences()
 
-    @safe_widget_call
     def on_preferences(self):
         """
         Adds the Preferences in a Tab in Plot Area
@@ -5340,7 +5323,6 @@ class App(QtCore.QObject):
         # detect changes in the Tools in Tools DB, connect signals from table widget in tab
         self.tools_db_tab.ui_connect()
 
-    @safe_widget_call
     def on_3d_area(self):
         if self.use_3d_engine is False:
             msg = '[ERROR_NOTCL] %s' % _("Not available for Legacy 2D graphic mode.")
@@ -5448,7 +5430,6 @@ class App(QtCore.QObject):
         else:
             self.inform.emit('[ERROR_NOTCL] %s' % _("Adding tool from DB is not allowed for this object."))
 
-    @safe_widget_call
     def on_plot_area_tab_closed(self, tab_obj_name):
         """
         Executed whenever a QTab is closed in the Plot Area.
@@ -5506,13 +5487,11 @@ class App(QtCore.QObject):
         self.ui.toggle_coords(checked=self.options["global_coords_bar_show"])
         self.ui.toggle_delta_coords(checked=self.options["global_delta_coords_bar_show"])
 
-    @safe_widget_call
     def on_plot_area_tab_double_clicked(self):
         # tab_obj_name = self.ui.plot_tab_area.widget(index).objectName()
         # print(tab_obj_name)
         self.ui.on_toggle_notebook()
 
-    @safe_widget_call
     def on_notebook_closed(self):
 
         # closed_plugin_name = self.ui.plugin_scroll_area.widget().objectName()
@@ -5685,7 +5664,6 @@ class App(QtCore.QObject):
                 self.inform.emit('[ERROR_NOTCL] %s: %s.' % (_("Action was not executed"), str(e)))
                 return
 
-    @safe_widget_call
     def on_rotate(self, silent=False, preset=None):
         """
         Executed when Options -> Rotate Selection menu entry is clicked.
@@ -5744,7 +5722,6 @@ class App(QtCore.QObject):
                     self.inform.emit('[ERROR_NOTCL] %s: %s' % (_("Rotation movement was not executed."), str(e)))
                     return
 
-    @safe_widget_call
     def on_skewx(self):
         """
         Executed when the menu entry in Options -> Skew on X axis is clicked.
@@ -5793,7 +5770,6 @@ class App(QtCore.QObject):
                     self.app_obj.object_changed.emit(obj)
                 self.inform.emit('[success] %s' % _("Skew on X axis done."))
 
-    @safe_widget_call
     def on_skewy(self):
         """
         Executed when the menu entry in Options -> Skew on Y axis is clicked.
@@ -5900,7 +5876,6 @@ class App(QtCore.QObject):
         grid_delete.triggered.connect(self.on_grid_delete)
         grid_toggle.triggered.connect(lambda: self.ui.grid_snap_btn.trigger())
 
-    @safe_widget_call
     def set_grid(self):
         menu_action = self.sender()
         assert isinstance(menu_action, QtGui.QAction), "Expected QAction got %s" % type(menu_action)
@@ -5908,7 +5883,6 @@ class App(QtCore.QObject):
         self.ui.grid_gap_x_entry.setText(menu_action.text())
         self.ui.grid_gap_y_entry.setText(menu_action.text())
 
-    @safe_widget_call
     def on_grid_add(self):
         # ## Current application units in lower Case
         units = self.app_units.lower()
@@ -5934,7 +5908,6 @@ class App(QtCore.QObject):
         else:
             self.inform.emit('[WARNING_NOTCL] %s...' % _("Adding New Grid cancelled"))
 
-    @safe_widget_call
     def on_grid_delete(self):
         # ## Current application units in lower Case
         units = self.app_units.lower()
@@ -6784,7 +6757,6 @@ class App(QtCore.QObject):
         if self.use_3d_engine is False:
             self.sel_shapes.redraw()
 
-    @safe_widget_call
     def obj_properties(self):
         """
         Will launch the object Properties Tool
@@ -6895,7 +6867,6 @@ class App(QtCore.QObject):
         # Switch plot_area to CNCJob tab
         self.ui.plot_tab_area.setCurrentWidget(self.text_editor_tab)
 
-    @safe_widget_call
     def on_view_source(self):
         """
         Called when the user wants to see the source file of the selected object
@@ -6986,7 +6957,6 @@ class App(QtCore.QObject):
         self.proc_container.view.set_idle()
         # self.ui.show()
 
-    @safe_widget_call
     def on_toggle_code_editor(self):
         self.defaults.report_usage("on_toggle_code_editor()")
 
@@ -7007,7 +6977,6 @@ class App(QtCore.QObject):
     def on_code_editor_close(self):
         self.toggle_codeeditor = False
 
-    @safe_widget_call
     def plot_all(self, fit_view=True, muted=False, use_thread=True):
         """
         Re-generates all plots from all objects.
@@ -7244,13 +7213,11 @@ class App(QtCore.QObject):
 
         self.log.debug("Recent items list has been populated.")
 
-    @safe_widget_call
     def on_properties_tab_click(self):
         tab_wdg = self.ui.properties_scroll_area.widget()
         if tab_wdg and tab_wdg.objectName() == 'default_properties':
             self.setup_default_properties_tab()
 
-    @safe_widget_call
     def on_notebook_tab_changed(self):
         """
         Slot for current tab changed in self.ui.notebook
@@ -7762,7 +7729,6 @@ class App(QtCore.QObject):
 
         self.worker_task.emit({'fcn': worker_task, 'params': [obj]})
 
-    @safe_widget_call
     def on_set_color_action_triggered(self):
         """
         This slot gets called by clicking on the menu entry in the Set Color submenu of the context menu in Project Tab
@@ -8052,7 +8018,6 @@ class App(QtCore.QObject):
             self.log.debug(
                 "shell_message() is called before Shell Class is instantiated. The message is: %s" % str(msg))
 
-    @safe_widget_call
     def script_processing(self, script_code):
         # trying to run a Tcl command without having the Shell open will create some warnings because the Tcl Shell
         # tries to print on a hidden widget, therefore show the dock if hidden

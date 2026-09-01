@@ -31,7 +31,6 @@ import qrcode
 import qrcode.image.svg
 import qrcode.image.pil
 from lxml import etree as ET
-from appGUI.GUIElements import safe_widget_call
 
 fcTranslate.apply_language('strings')
 if '_' not in builtins.__dict__:
@@ -74,7 +73,6 @@ class QRCode(AppTool):
 
         self.old_back_color = ''
 
-    @safe_widget_call
     def run(self, toggle=True):
         self.app.defaults.report_usage("QRCode()")
 
@@ -148,7 +146,6 @@ class QRCode(AppTool):
         self.ui.transparent_cb.stateChanged.connect(self.on_transparent_back_color)
         self.ui.reset_button.clicked.connect(self.set_tool_ui)
 
-    @safe_widget_call
     def set_tool_ui(self):
         self.units = self.app.app_units
 
@@ -200,7 +197,6 @@ class QRCode(AppTool):
             self.ui.level.setChecked(False)
         self.on_level_changed(self.ui.level.isChecked())
 
-    @safe_widget_call
     def on_level_changed(self, checked):
         if not checked:
             self.ui.level.setText('%s' % _('Beginner'))
@@ -231,7 +227,6 @@ class QRCode(AppTool):
             self.ui.export_png_button.show()
             self.ui.qrcode_button.hide()
 
-    @safe_widget_call
     def execute(self):
         text_data = self.ui.text_data.get_value()
         if text_data == '':
@@ -578,7 +573,6 @@ class QRCode(AppTool):
         self.delete_utility_geo()
         self.app.call_source = 'app'
 
-    @safe_widget_call
     def export_png_file(self):
         text_data = self.ui.text_data.get_value()
         if text_data == '':
@@ -630,7 +624,6 @@ class QRCode(AppTool):
         else:
             self.app.worker_task.emit({'fcn': job_thread_qr_png, 'params': [self.app, filename]})
 
-    @safe_widget_call
     def export_svg_file(self):
         text_data = self.ui.text_data.get_value()
         if text_data == '':
@@ -680,12 +673,10 @@ class QRCode(AppTool):
         else:
             self.app.worker_task.emit({'fcn': job_thread_qr_svg, 'params': [self.app, filename]})
 
-    @safe_widget_call
     def on_qrcode_fill_color_entry(self):
         color = self.ui.fill_color_entry.get_value()
         self.ui.fill_color_button.setStyleSheet("background-color:%s;" % str(color))
 
-    @safe_widget_call
     def on_qrcode_fill_color_button(self):
         current_color = QtGui.QColor(self.ui.fill_color_entry.get_value())
 
@@ -700,12 +691,10 @@ class QRCode(AppTool):
         new_val_sel = str(fill_color.name())
         self.ui.fill_color_entry.set_value(new_val_sel)
 
-    @safe_widget_call
     def on_qrcode_back_color_entry(self):
         color = self.ui.back_color_entry.get_value()
         self.ui.back_color_button.setStyleSheet("background-color:%s;" % str(color))
 
-    @safe_widget_call
     def on_qrcode_back_color_button(self):
         current_color = QtGui.QColor(self.ui.back_color_entry.get_value())
 
@@ -720,7 +709,6 @@ class QRCode(AppTool):
         new_val_sel = str(back_color.name())
         self.ui.back_color_entry.set_value(new_val_sel)
 
-    @safe_widget_call
     def on_transparent_back_color(self, state):
         if state:
             self.ui.back_color_entry.setDisabled(True)

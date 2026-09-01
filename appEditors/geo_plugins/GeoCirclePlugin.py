@@ -38,7 +38,6 @@ class CircleEditorTool(AppToolEditor):
         # Signals
         self.ui.add_button.clicked.connect(self.on_execute)
 
-    @safe_widget_call
     def run(self):
         self.app.defaults.report_usage("Geo Editor CircleTool()")
         super().run()
@@ -74,7 +73,6 @@ class CircleEditorTool(AppToolEditor):
 
         self.app.ui.notebook.setTabText(2, self.ui.pluginName)
 
-    @safe_widget_call
     def set_tool_ui(self):
         # Init appGUI
         self.ui.x_entry.set_value(0)

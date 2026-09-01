@@ -39,7 +39,6 @@ class RectangleEditorTool(AppToolEditor):
         # Signals
         self.ui.add_button.clicked.connect(self.on_execute)
 
-    @safe_widget_call
     def run(self):
         self.app.defaults.report_usage("Geo Editor RectangleTool()")
         super().run()
@@ -75,7 +74,6 @@ class RectangleEditorTool(AppToolEditor):
 
         self.app.ui.notebook.setTabText(2, self.ui.pluginName)
 
-    @safe_widget_call
     def set_tool_ui(self):
         # Init appGUI
         self.ui.anchor_radio.set_value('c')

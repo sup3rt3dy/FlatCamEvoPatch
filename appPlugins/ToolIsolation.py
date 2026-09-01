@@ -146,7 +146,6 @@ class ToolIsolation(Gerber, AppTool):
     def install(self, icon=None, separator=None, **kwargs):
         AppTool.install(self, icon, separator, shortcut='Alt+I', **kwargs)
 
-    @safe_widget_call
     def run(self, toggle=True):
         self.app.defaults.report_usage("ToolIsolation()")
 
@@ -267,7 +266,6 @@ class ToolIsolation(Gerber, AppTool):
         # Cleanup on Graceful exit (CTRL+ALT+X combo key)
         self.app.cleanup.connect(self.set_tool_ui)
 
-    @safe_widget_call
     def on_type_excobj_index_changed(self, val):
         obj_type = 0 if val == 'gerber' else 2
         self.ui.exc_obj_combo.setRootModelIndex(self.app.collection.index(obj_type, 0, QtCore.QModelIndex()))
@@ -276,7 +274,6 @@ class ToolIsolation(Gerber, AppTool):
             "gerber": "Gerber", "geometry": "Geometry"
         }[self.ui.type_excobj_radio.get_value()]
 
-    @safe_widget_call
     def set_tool_ui(self):
         self.units = self.app.app_units.upper()
 
@@ -471,7 +468,6 @@ class ToolIsolation(Gerber, AppTool):
             self.ui.level.setChecked(False)
         self.on_level_changed(self.ui.level.isChecked())
 
-    @safe_widget_call
     def on_level_changed(self, checked):
         if not checked:
             self.ui.level.setText('%s' % _('Beginner'))
@@ -578,7 +574,6 @@ class ToolIsolation(Gerber, AppTool):
             # Context Menu section
             self.ui.tools_table.setupContextMenu()
 
-    @safe_widget_call
     def rebuild_ui(self):
         # read the table tools uid
         currenuid_list = []
@@ -598,7 +593,6 @@ class ToolIsolation(Gerber, AppTool):
         # the tools table changed therefore we need to rebuild it
         QtCore.QTimer.singleShot(20, self.build_ui)
 
-    @safe_widget_call
     def build_ui(self):
         self.ui_disconnect()
 
@@ -795,7 +789,6 @@ class ToolIsolation(Gerber, AppTool):
             new_toolid += 1
             self.iso_tools[new_toolid] = tool[1]
 
-    @safe_widget_call
     def on_tt_change(self):
         tool_type = self.ui.tool_shape_combo.get_value()
         self.ui_update_v_shape(tool_type)
@@ -808,7 +801,6 @@ class ToolIsolation(Gerber, AppTool):
             return
         self.ui.v_frame.hide()
 
-    @safe_widget_call
     def on_update_tool_dia(self):
         if not self.ui.v_frame.isVisible():
             return
@@ -851,7 +843,6 @@ class ToolIsolation(Gerber, AppTool):
 
         self.ui_connect()
 
-    @safe_widget_call
     def on_toggle_all_rows(self):
         """
         will toggle the selection of all rows in Tools table
@@ -877,7 +868,6 @@ class ToolIsolation(Gerber, AppTool):
                 "<b>%s: <font color='#0000FF'>%s</font></b>" % (_('Parameters for'), _("Multiple Tools"))
             )
 
-    @safe_widget_call
     def on_row_selection_change(self):
         sel_model = self.ui.tools_table.selectionModel()
         sel_indexes = sel_model.selectedIndexes()
@@ -892,7 +882,6 @@ class ToolIsolation(Gerber, AppTool):
         if len(sel_rows) == 1:
             self.update_ui()
 
-    @safe_widget_call
     def update_ui(self):
         self.ui_disconnect()
 
@@ -959,7 +948,6 @@ class ToolIsolation(Gerber, AppTool):
                         self.app.log.error("ToolIsolation.storage_to_form() --> %s" % str(e))
                         pass
 
-    @safe_widget_call
     def form_to_storage(self):
         if self.ui.tools_table.rowCount() == 0:
             # there is no tool in tool table so we can't save the GUI elements values to storage
@@ -988,7 +976,6 @@ class ToolIsolation(Gerber, AppTool):
 
         self.blockSignals(False)
 
-    @safe_widget_call
     def on_apply_param_to_all_clicked(self):
         if self.ui.tools_table.rowCount() == 0:
             # there is no tool in tool table so we can't save the GUI elements values to storage
@@ -1049,14 +1036,12 @@ class ToolIsolation(Gerber, AppTool):
             self.app.inform.emit('[WARNING_NOTCL] %s...' % _("Adding Tool cancelled"))
         self.optimal_found_sig.disconnect(find_optimal)
 
-    @safe_widget_call
     def on_reference_combo_changed(self):
         obj_type = self.ui.reference_combo_type.currentIndex()
         self.ui.reference_combo.setRootModelIndex(self.app.collection.index(obj_type, 0, QtCore.QModelIndex()))
         self.ui.reference_combo.setCurrentIndex(0)
         self.ui.reference_combo.obj_type = {0: "Gerber", 1: "Excellon", 2: "Geometry"}[obj_type]
 
-    @safe_widget_call
     def on_toggle_reference(self):
         val = self.ui.select_combo.get_value()
 
@@ -1115,7 +1100,6 @@ class ToolIsolation(Gerber, AppTool):
     def on_order_changed(self):
         self.build_ui()
 
-    @safe_widget_call
     def on_rest_machining_check(self, state):
         if state:
             self.ui.iso_order_combo.set_value(2)  # "Reverse"
@@ -1348,7 +1332,6 @@ class ToolIsolation(Gerber, AppTool):
 
         self.app.worker_task.emit({'fcn': job_thread, 'params': [self.app]})
 
-    @safe_widget_call
     def on_tool_add(self, custom_dia=None):
         self.ui_disconnect()
 
@@ -1525,7 +1508,6 @@ class ToolIsolation(Gerber, AppTool):
         if muted is None:
             self.app.inform.emit('[success] %s' % _("Default tool added to Tool Table."))
 
-    @safe_widget_call
     def on_tool_edit(self, item):
         self.ui_disconnect()
 
@@ -1570,7 +1552,6 @@ class ToolIsolation(Gerber, AppTool):
         self.app.inform.emit('[WARNING_NOTCL] %s' % _("Cancelled. New diameter value is already in the Tool Table."))
         self.build_ui()
 
-    @safe_widget_call
     def on_tool_delete(self, rows_to_delete=None, all_tools=None):
         """
         Will delete a tool in the tool table
@@ -1625,7 +1606,6 @@ class ToolIsolation(Gerber, AppTool):
         self.app.inform.emit('[success] %s' % _("Tools deleted from Tool Table."))
         self.build_ui()
 
-    @safe_widget_call
     def on_generate_buffer(self):
         self.app.inform.emit('[WARNING_NOTCL] %s...' % _("Buffering solid geometry"))
 
@@ -1654,7 +1634,6 @@ class ToolIsolation(Gerber, AppTool):
 
         self.app.worker_task.emit({'fcn': buffer_task, 'params': [self.app]})
 
-    @safe_widget_call
     def on_iso_button_click(self):
         use_validation = self.ui.valid_cb.get_value()
         # assume that the validation is OK
@@ -2571,7 +2550,6 @@ class ToolIsolation(Gerber, AppTool):
                 self.app.inform.emit('[ERROR_NOTCL] %s' % _("List of single polygons is empty. Aborting."))
                 return "fail"
 
-    @safe_widget_call
     def on_select_all_polygons(self):
         self.app.log.debug("ToolIsolation.on_select_all_polygons()")
 
@@ -3037,7 +3015,6 @@ class ToolIsolation(Gerber, AppTool):
         # if self.ui.tools_table.rowCount() != 0:
         #     self.param_frame.setDisabled(False)
 
-    @safe_widget_call
     def on_tool_add_from_db_clicked(self):
         """
         Called when the user wants to add a new tool from Tools Database. It will create the Tools Database object

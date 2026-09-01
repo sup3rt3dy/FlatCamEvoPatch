@@ -10,7 +10,6 @@ from copy import deepcopy
 import gettext
 import appTranslation as fcTranslate
 import builtins
-from appGUI.GUIElements import safe_widget_call
 
 fcTranslate.apply_language('strings')
 if '_' not in builtins.__dict__:
@@ -428,7 +427,6 @@ class ColorsManager(QtWidgets.QDialog):
 
         self.ok = True if self.exec() == QtWidgets.QDialog.DialogCode.Accepted else False
 
-    @safe_widget_call
     def build_ui(self):
         n = len(self.original_color_list)
         self.colors_table.setRowCount(n)

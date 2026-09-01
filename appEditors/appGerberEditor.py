@@ -148,7 +148,6 @@ class PadEditorGrb(ShapeToolEditorGrb):
         self.make()
         return "Done."
 
-    @safe_widget_call
     def on_add_pad(self):
         self.draw_app.last_length = self.pad_tool.length
         self.points = self.ui.x_entry.get_value(), self.ui.y_entry.get_value()
@@ -998,7 +997,6 @@ class PadArrayEditorGrb(ShapeToolEditorGrb):
 
         self.draw_app.clicked_pos = curr_pos
 
-    @safe_widget_call
     def on_add_pad_array(self):
         x = self.ui.x_entry.get_value()
         y = self.ui.y_entry.get_value()
@@ -2050,7 +2048,6 @@ class TrackEditorGrb(ShapeToolEditorGrb):
         self.ui.y_entry.set_value(track_pos[1])
         self.draw_app.clicked_pos = track_pos
 
-    @safe_widget_call
     def on_add_track(self):
         x = self.ui.x_entry.get_value()
         y = self.ui.y_entry.get_value()
@@ -2640,7 +2637,6 @@ class SimplifyEditorGrb(ShapeToolEditorGrb):
         self.draw_app.plot_all()
         self.simp_tool.calculate_coords_vertex()
 
-    @safe_widget_call
     def on_simplification_click(self):
         self.app.log.debug("SimplifyEditorGrb.on_simplification_click()")
 
@@ -3335,7 +3331,6 @@ class SelectEditorGrb(QtCore.QObject, DrawTool):
                 if Point(point).intersects(geometric_data):
                     return ap_key, chunk, idx
 
-    @safe_widget_call
     def after_selection(self):
         # ######################################################################################################
         # select the aperture in the Apertures Table that is associated with the selected shape
@@ -4209,7 +4204,6 @@ class AppGerberEditor(QtCore.QObject):
         app_mode = self.app.options["global_app_level"]
         self.change_level(app_mode)
 
-    @safe_widget_call
     def build_ui(self, first_run=None):
         try:
             # if connected, disconnect the signal from the slot on item_changed as it creates issues
@@ -4526,7 +4520,6 @@ class AppGerberEditor(QtCore.QObject):
             else:
                 self.last_aperture_selected = int(self.ui.apertures_table.item(0, 1).text())
 
-    @safe_widget_call
     def on_tool_edit(self):
         if self.ui.apertures_table.currentItem() is None:
             return
@@ -4708,7 +4701,6 @@ class AppGerberEditor(QtCore.QObject):
         self.ui.apertures_table.itemChanged.connect(self.on_tool_edit)
         # self.ui.apertures_table.cellPressed.connect(self.on_row_selected)
 
-    @safe_widget_call
     def update_ui(self):
         is_zoom_selected = self.ui.geo_zoom.get_value()
 
@@ -4798,7 +4790,6 @@ class AppGerberEditor(QtCore.QObject):
             self.ui.level.setChecked(False)
         self.on_level_changed(self.ui.level.isChecked())
 
-    @safe_widget_call
     def on_level_changed(self, checked):
         if not checked:
             self.ui.level.setText('%s' % _('Beginner'))
@@ -4827,11 +4818,9 @@ class AppGerberEditor(QtCore.QObject):
             # Context Menu section
             # self.ui.apertures_table.setupContextMenu()
 
-    @safe_widget_call
     def on_name_activate(self):
         self.edited_obj_name = self.ui.name_entry.get_value()
 
-    @safe_widget_call
     def on_aptype_changed(self, current_index):
         # 'O' is letter O not zero.
         # print(current_index)
@@ -5598,7 +5587,6 @@ class AppGerberEditor(QtCore.QObject):
                 self.select_tool('select')
                 self.active_tool = SelectEditorGrb(self)
 
-    @safe_widget_call
     def on_row_selected(self, row, col):
         # log.debug("AppGerberEditor.on_row_selected() --> %s" % str(inspect.stack()[1][3]))
         key_modifier = QtWidgets.QApplication.keyboardModifiers()
@@ -5655,7 +5643,6 @@ class AppGerberEditor(QtCore.QObject):
 
         self.plot_all()
 
-    @safe_widget_call
     def on_table_selection(self):
         # log.debug("AppGerberEditor.on_table_selection() -> %s" % str(inspect.stack()[1][3]))
         selected_rows = self.ui.apertures_table.selectionModel().selectedRows(0)
@@ -6457,7 +6444,6 @@ class AppGerberEditor(QtCore.QObject):
     def on_simplification(self):
         self.select_tool('simplify')
 
-    @safe_widget_call
     def on_scale(self):
         scale_factor = 1.0
         self.app.log.debug("AppGerberEditor.on_scale()")
@@ -6520,7 +6506,6 @@ class AppGerberEditor(QtCore.QObject):
         self.plot_all()
         self.app.inform.emit('[success] %s' % _("Done."))
 
-    @safe_widget_call
     def on_markarea(self):
         # clear previous marking
         self.ma_annotation.clear(update=True)
@@ -7400,7 +7385,6 @@ class TransformEditorTool(AppTool):
 
         self.set_tool_ui()
 
-    @safe_widget_call
     def run(self, toggle=True):
         self.app.defaults.report_usage("Gerber Editor Transform Tool()")
 

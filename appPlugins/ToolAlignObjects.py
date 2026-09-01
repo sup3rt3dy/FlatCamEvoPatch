@@ -78,7 +78,6 @@ class AlignObjects(AppTool):
         self.ui.type_aligner_obj_radio.activated_custom.connect(self.on_type_aligner_changed)
         self.ui.reset_button.clicked.connect(self.set_tool_ui)
 
-    @safe_widget_call
     def run(self, toggle=True):
         self.app.defaults.report_usage("ToolAlignObjects()")
 
@@ -137,7 +136,6 @@ class AlignObjects(AppTool):
     def install(self, icon=None, separator=None, **kwargs):
         AppTool.install(self, icon, separator, shortcut='Alt+A', **kwargs)
 
-    @safe_widget_call
     def set_tool_ui(self):
 
         self.clear_ui(self.layout)
@@ -164,21 +162,18 @@ class AlignObjects(AppTool):
         if self.local_connected is True:
             self.disconnect_cal_events()
 
-    @safe_widget_call
     def on_type_obj_changed(self, val):
         obj_type = {'grb': 0, 'exc': 1}[val]
         self.ui.object_combo.setRootModelIndex(self.app.collection.index(obj_type, 0, QtCore.QModelIndex()))
         self.ui.object_combo.setCurrentIndex(0)
         self.ui.object_combo.obj_type = {'grb': "Gerber", 'exc': "Excellon"}[val]
 
-    @safe_widget_call
     def on_type_aligner_changed(self, val):
         obj_type = {'grb': 0, 'exc': 1}[val]
         self.ui.aligner_object_combo.setRootModelIndex(self.app.collection.index(obj_type, 0, QtCore.QModelIndex()))
         self.ui.aligner_object_combo.setCurrentIndex(0)
         self.ui.aligner_object_combo.obj_type = {'grb': "Gerber", 'exc': "Excellon"}[val]
 
-    @safe_widget_call
     def on_align(self):
         self.app.delete_selection_shape()
 

@@ -37,7 +37,6 @@ class BufferEditorTool(AppToolEditor):
         # Signals
         pass
 
-    @safe_widget_call
     def run(self):
         self.app.defaults.report_usage("Geo Editor ToolBuffer()")
         super().run()
@@ -73,7 +72,6 @@ class BufferEditorTool(AppToolEditor):
 
         self.app.ui.notebook.setTabText(2, _("Buffer"))
 
-    @safe_widget_call
     def set_tool_ui(self):
         # Init appGUI
         self.ui.buffer_distance_entry.set_value(self.draw_app.app.options['gerber_editor_buff_f'])
@@ -83,7 +81,6 @@ class BufferEditorTool(AppToolEditor):
         self.draw_app.select_tool("select")
         self.app.ui.notebook.callback_on_close = lambda: None
 
-    @safe_widget_call
     def on_buffer(self):
         try:
             buffer_distance = float(self.ui.buffer_distance_entry.get_value())

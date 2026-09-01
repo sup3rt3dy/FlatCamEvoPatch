@@ -101,7 +101,6 @@ class CutOut(AppTool):
         # here store the tool data for the Cutout Tool
         self.cut_tool_dict = {}
 
-    @safe_widget_call
     def on_type_obj_changed(self, val):
         obj_type = {'grb': 0, 'geo': 2}[val]
         self.ui.obj_combo.setRootModelIndex(self.app.collection.index(obj_type, 0, QtCore.QModelIndex()))
@@ -115,7 +114,6 @@ class CutOut(AppTool):
             self.ui.convex_box_label.setDisabled(True)
             self.ui.convex_box_cb.setDisabled(True)
 
-    @safe_widget_call
     def on_object_selection_changed(self, current, previous):
         found_idx = None
         for tab_idx in range(self.app.ui.notebook.count()):
@@ -137,7 +135,6 @@ class CutOut(AppTool):
             except IndexError:
                 pass
 
-    @safe_widget_call
     def run(self, toggle=True):
         self.app.defaults.report_usage("ToolCutOut()")
 
@@ -221,7 +218,6 @@ class CutOut(AppTool):
 
         self.ui.reset_button.clicked.connect(self.set_tool_ui)
 
-    @safe_widget_call
     def set_tool_ui(self):
 
         self.clear_ui(self.layout)
@@ -309,7 +305,6 @@ class CutOut(AppTool):
             self.ui.level.setChecked(False)
         self.on_level_changed(self.ui.level.isChecked())
 
-    @safe_widget_call
     def on_level_changed(self, checked):
         if not checked:
             self.ui.level.setText('%s' % _('Beginner'))
@@ -388,7 +383,6 @@ class CutOut(AppTool):
             tool_data = self.cut_tool_dict['data']
             self.ui.on_gap_type_radio(tool_data['tools_cutout_gap_type'])
 
-    @safe_widget_call
     def update_ui(self, tool_dict):
         self.ui.obj_kind_combo.set_value(self.default_data["tools_cutout_kind"])
         self.ui.big_cursor_cb.set_value(self.default_data['tools_cutout_big_cursor'])
@@ -409,7 +403,6 @@ class CutOut(AppTool):
         self.ui.mpass_cb.set_value(bool(tool_dict["tools_cutout_mdepth"]))
         self.ui.maxdepth_entry.set_value(float(tool_dict["tools_cutout_depthperpass"]))
 
-    @safe_widget_call
     def on_cutout_type(self, val):
         if val == 'a':
             self.ui.gaps_label.show()
@@ -428,7 +421,6 @@ class CutOut(AppTool):
             self.ui.man_gaps_creation_btn.show()
             self.ui.man_frame.show()
 
-    @safe_widget_call
     def on_cutout_shape_changed(self, state):
         if state:
             self.ui.generate_cutout_btn.setIcon(QtGui.QIcon(self.app.resource_location + '/rectangle32.png'))
@@ -439,7 +431,6 @@ class CutOut(AppTool):
             self.ui.man_geo_creation_btn.setIcon(QtGui.QIcon(self.app.resource_location + '/irregular32.png'))
             self.ui.cutout_shape_cb.setText('%s' % _("Any"))
 
-    @safe_widget_call
     def on_tool_add(self, custom_dia=None):
         self.blockSignals(True)
 
@@ -634,7 +625,6 @@ class CutOut(AppTool):
 
         return 1
 
-    @safe_widget_call
     def on_tool_add_from_db_clicked(self):
         """
         Called when the user wants to add a new tool from Tools Database. It will create the Tools Database object
@@ -655,7 +645,6 @@ class CutOut(AppTool):
         self.app.tools_db_tab.ui.add_tool_from_db.show()
         self.app.tools_db_tab.ui.cancel_tool_from_db.show()
 
-    @safe_widget_call
     def on_cutout_generation(self):
         cutout_rect_shape = self.ui.cutout_shape_cb.get_value()
         if cutout_rect_shape:
@@ -1484,7 +1473,6 @@ class CutOut(AppTool):
             proc_geometry = [geom]
         return proc_geometry
 
-    @safe_widget_call
     def on_drill_cut_click(self):
 
         margin = self.ui.drill_margin_entry.get_value()
@@ -1582,7 +1570,6 @@ class CutOut(AppTool):
             if ret != 'fail':
                 self.app.inform.emit('[success] %s' % _("Done."))
 
-    @safe_widget_call
     def on_manual_gap_click(self):
         name = self.ui.man_object_combo.currentText()
 
@@ -1731,7 +1718,6 @@ class CutOut(AppTool):
 
         self.app.should_we_save = True
 
-    @safe_widget_call
     def on_manual_geo(self):
         name = self.ui.obj_combo.currentText()
 

@@ -1588,7 +1588,6 @@ class ToolsDB2(QtWidgets.QWidget):
 
         self.setup_db_ui()
 
-    @safe_widget_call
     def on_menu_request(self, pos):
 
         menu = QtWidgets.QMenu()
@@ -1637,7 +1636,6 @@ class ToolsDB2(QtWidgets.QWidget):
         self.storage_to_form(self.db_tool_dict[current.text(0)])
         self.ui_connect()
 
-    @safe_widget_call
     def on_list_item_edited(self, item, column):
         if column == 0:
             return
@@ -1827,7 +1825,6 @@ class ToolsDB2(QtWidgets.QWidget):
 
         self.ui_connect()
 
-    @safe_widget_call
     def on_tool_target_changed(self, index=None, val=None):
         self.update_tree_target()
 
@@ -1892,7 +1889,6 @@ class ToolsDB2(QtWidgets.QWidget):
                     self.ui.milling_box.setEnabled(True)
                     self.ui.milling_box.show()
 
-    @safe_widget_call
     def on_tool_add(self):
         """
         Add a tool in the DB Tool Table
@@ -2045,7 +2041,6 @@ class ToolsDB2(QtWidgets.QWidget):
         self.on_tool_target_changed(val=dict_elem['data']['tool_target'])
         self.app.inform.emit('[success] %s' % _("Tool added to DB."))
 
-    @safe_widget_call
     def on_tool_copy(self):
         """
         Copy a selection of Tools in the Tools DB table
@@ -2079,7 +2074,6 @@ class ToolsDB2(QtWidgets.QWidget):
         self.on_tools_db_edited()
         self.app.inform.emit('[success] %s' % _("Tool copied from Tools DB."))
 
-    @safe_widget_call
     def on_tool_delete(self):
         """
         Delete a selection of Tools in the Tools DB table
@@ -2281,7 +2275,6 @@ class ToolsDB2(QtWidgets.QWidget):
         self.app.tools_db_changed_flag = False
         self.on_save_tools_db()
 
-    @safe_widget_call
     def on_calculate_tooldia(self):
         if self.ui.mill_shape_combo.get_value() == 'V':
             tip_dia = float(self.ui.mill_vdia_entry.get_value())
@@ -2400,7 +2393,6 @@ class ToolsDB2(QtWidgets.QWidget):
                 except (TypeError, AttributeError):
                     pass
 
-    @safe_widget_call
     def update_tree_name(self):
         val = self.ui.name_entry.get_value()
 
@@ -2435,7 +2427,6 @@ class ToolsDB2(QtWidgets.QWidget):
         header.setSectionResizeMode(2, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
         header.setSectionResizeMode(3, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
 
-    @safe_widget_call
     def update_tree_tooldia(self):
         val = self.ui.dia_entry.get_value()
 
@@ -2445,7 +2436,6 @@ class ToolsDB2(QtWidgets.QWidget):
         # I'm setting the value for the forth column (designated by 3) because first column holds the ID
         item.setData(3, QtCore.Qt.ItemDataRole.DisplayRole, val)
 
-    @safe_widget_call
     def update_storage(self):
         """
         Update the dictionary that is the storage of the tools 'database'
@@ -2641,7 +2631,6 @@ class ToolsDB2(QtWidgets.QWidget):
 
         self.on_tools_db_edited()
 
-    @safe_widget_call
     def on_tool_requested_from_app(self):
         if not self.ui.tree_widget.selectedItems():
             self.app.inform.emit('[WARNING_NOTCL] %s...' % _("No Tool/row selected in the Tools Database table"))

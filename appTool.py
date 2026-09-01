@@ -12,7 +12,6 @@ from shapely import Polygon, LineString
 import gettext
 import appTranslation as fcTranslate
 import builtins
-from appGUI.GUIElements import safe_widget_call
 
 fcTranslate.apply_language('strings')
 if '_' not in builtins.__dict__:
@@ -83,7 +82,6 @@ class AppTool(QtWidgets.QWidget):
 
         self.menuAction.triggered.connect(lambda: self.run(toggle=True))
 
-    @safe_widget_call
     def run(self):
 
         if self.app.plugin_tab_locked is True:

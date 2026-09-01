@@ -19,7 +19,6 @@ from shapely.ops import nearest_points, unary_union
 import gettext
 import appTranslation as fcTranslate
 import builtins
-from appGUI.GUIElements import safe_widget_call
 
 fcTranslate.apply_language('strings')
 if '_' not in builtins.__dict__:
@@ -50,7 +49,6 @@ class ObjectDistance(AppTool):
 
         self.h_point = (0, 0)
 
-    @safe_widget_call
     def run(self, toggle=False):
         # if the plugin was already launched do not do it again
         if self.active is True:
@@ -135,7 +133,6 @@ class ObjectDistance(AppTool):
     def on_didstance_type_changed(self):
         self.init_plugin()
 
-    @safe_widget_call
     def activate_measure_tool(self):
         # ENABLE the Measuring TOOL
         self.ui.jump_hp_btn.setDisabled(False)
