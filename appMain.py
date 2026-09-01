@@ -7575,6 +7575,64 @@ class App(QtCore.QObject):
         self.disable_plots(objects=object_list)
         self.inform.emit('[success] %s' % _("Selected plots disabled..."))
 
+    @staticmethod
+    def _apply_plot_checkbox(obj):
+        """
+        Push an object's stored 'plot' option into its Plot checkbox.
+
+        The checkbox is only a mirror of obj_options['plot']; the stored option is what actually
+        drives plotting. If the widget is missing or Qt has already destroyed it, there is simply
+        nothing to mirror.
+
+        :param obj:     the object whose Plot checkbox should be refreshed
+        :return:        True if the checkbox was updated, False if it was unavailable
+        :rtype:         bool
+        """
+        try:
+            plot_cb = obj.ui.plot_cb
+            try:
+                plot_cb.stateChanged.disconnect(obj.on_plot_cb_click)
+            except (TypeError, RuntimeError):
+                # not connected, or the widget is gone - the next line settles which
+                pass
+            # keep the checkbox disabled while disconnected, so a slow operation cannot be
+            # interrupted by the user toggling it
+            plot_cb.setDisabled(True)
+            obj.set_form_item("plot")
+            plot_cb.stateChanged.connect(obj.on_plot_cb_click)
+            plot_cb.setDisabled(False)
+            return True
+        except (AttributeError, TypeError, RuntimeError):
+            return False
+
+    def _refresh_plot_checkbox(self, obj):
+        """
+        Refresh an object's Plot checkbox, rebuilding its UI once if that is what it needs.
+
+        Replaces an older recovery that called build_ui() unguarded and then re-entered
+        enable_plots()/disable_plots() for the whole list. build_ui() touches the same widgets
+        that just failed, so on a destroyed UI it raised a second time and took the application
+        down; the re-entry was also pointless, since the object's 'plot' option has already been
+        flipped by then and the retry skips it.
+
+        :param obj:     the object whose Plot checkbox should be refreshed
+        :return:        None
+        """
+        if self._apply_plot_checkbox(obj):
+            return
+
+        # the UI may simply not have been built yet - build it once and retry
+        try:
+            obj.build_ui()
+        except (AttributeError, TypeError, RuntimeError):
+            # the UI is gone for good; the stored option is already correct, so plotting
+            # still does the right thing and there is nothing left to update
+            self.log.debug("App._refresh_plot_checkbox() - no usable UI for '%s'" %
+                           str(getattr(obj, 'obj_options', {}).get('name', obj)))
+            return
+
+        self._apply_plot_checkbox(obj)
+
     def enable_plots(self, objects, silent=False):
         """
         Enable plots
@@ -7592,34 +7650,10 @@ class App(QtCore.QObject):
                 obj.obj_options.set_change_callback(lambda x: None)
                 try:
                     obj.obj_options['plot'] = True
-                    try:
-                        # Safely disconnect signal from widget that may have been deleted
-                        obj.ui.plot_cb.stateChanged.disconnect(obj.on_plot_cb_click)
-                    except RuntimeError as e:
-                        # Widget already deleted, skip disconnect
-                        if "wrapped C/C++ object" not in str(e):
-                            raise
-                    # disable this cb while disconnected,
-                    # in case the operation takes time the user is not allowed to change it
-                    obj.ui.plot_cb.setDisabled(True)
-                except (AttributeError, TypeError, RuntimeError):
-                    # try to build the ui
-                    obj.build_ui()
-                    # and try again
-                    self.enable_plots(objects)
-                    return
-
-                obj.set_form_item("plot")
-                try:
-                    obj.ui.plot_cb.stateChanged.connect(obj.on_plot_cb_click)
-                    obj.ui.plot_cb.setDisabled(False)
-                except (AttributeError, TypeError, RuntimeError):
-                    # try to build the ui
-                    obj.build_ui()
-                    # and try again
-                    self.enable_plots(objects)
-                    return
-                obj.obj_options.set_change_callback(obj.on_options_change)
+                    self._refresh_plot_checkbox(obj)
+                finally:
+                    # always restore the callback, even if refreshing the checkbox failed
+                    obj.obj_options.set_change_callback(obj.on_options_change)
         self.collection.update_view()
 
         def worker_task(objs):
@@ -7649,31 +7683,10 @@ class App(QtCore.QObject):
                 obj.obj_options.set_change_callback(lambda x: None)
                 try:
                     obj.obj_options['plot'] = False
-                    try:
-                        # Safely disconnect signal from widget that may have been deleted
-                        obj.ui.plot_cb.stateChanged.disconnect(obj.on_plot_cb_click)
-                    except RuntimeError as e:
-                        # Widget already deleted, skip disconnect
-                        if "wrapped C/C++ object" not in str(e):
-                            raise
-                    obj.ui.plot_cb.setDisabled(True)
-                except (AttributeError, TypeError, RuntimeError):
-                    # try to build the ui
-                    obj.build_ui()
-                    # and try again
-                    self.disable_plots(objects)
-                    return
-
-                obj.set_form_item("plot")
-                try:
-                    obj.ui.plot_cb.stateChanged.connect(obj.on_plot_cb_click)
-                    obj.ui.plot_cb.setDisabled(False)
-                except (AttributeError, TypeError, RuntimeError):
-                    # try to build the ui
-                    obj.build_ui()
-                    # and try again
-                    self.disable_plots(objects)
-                obj.obj_options.set_change_callback(obj.on_options_change)
+                    self._refresh_plot_checkbox(obj)
+                finally:
+                    # always restore the callback, even if refreshing the checkbox failed
+                    obj.obj_options.set_change_callback(obj.on_options_change)
 
         try:
             self.delete_selection_shape()

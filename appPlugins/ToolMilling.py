@@ -1000,6 +1000,7 @@ class ToolMilling(Excellon, AppTool):
                 "<b>%s: <font color='#0000FF'>%s</font></b>" % (_('Parameters for'), _("Multiple Tools"))
             )
 
+    @safe_widget_call
     def build_ui_mill(self):
         self.units = self.app.app_units
 
@@ -1122,6 +1123,7 @@ class ToolMilling(Excellon, AppTool):
                 "<b>%s: <font color='#0000FF'>%s</font></b>" % (_('Parameters for'), _("Multiple Tools"))
             )
 
+    @safe_widget_call
     def build_ui_exc(self):
         # updated units
         self.units = self.app.app_units.upper()
