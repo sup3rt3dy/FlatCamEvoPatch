@@ -65,7 +65,18 @@ def safe_widget_call(fn):
     display helpers - ui_disconnect() and set_value() - where the widget going away first simply
     means there is nothing left to do.
 
-    :param fn:  the method to wrap
+    DO NOT apply this to a method that is connected to a Qt signal.
+
+    PyQt decides how many arguments to pass a slot by reading the slot's declared argument count,
+    and silently drops the extras. It is normal here for a pyqtSignal(object, int) to be connected
+    to a handler taking a single argument. This wrapper is declared (*args, **kwargs), which erases
+    that argument count, so PyQt passes every signal argument through and the call dies with
+    "takes 2 positional arguments but 3 were given" - at signal time, not at import time.
+
+    A signature-preserving wrapper would be needed to make slots safe this way. Until one exists,
+    guard signal handlers with an explicit try/except RuntimeError instead.
+
+    :param fn:  the method to wrap; must not be a Qt slot
     :return:    the wrapped method
     """
     @wraps(fn)

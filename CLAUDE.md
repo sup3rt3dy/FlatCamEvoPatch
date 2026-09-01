@@ -85,6 +85,18 @@ re-raises everything else — or include `RuntimeError` in the except clause. An
 touches `self.ui.<widget>` should handle it. Do not catch bare `Exception` for this; it hides
 real bugs.
 
+### Qt slots and decorators
+
+`safe_widget_call` must **not** be applied to a method connected to a Qt signal. PyQt reads the
+slot's declared argument count and silently drops any extra signal arguments — it is normal here
+for a `pyqtSignal(object, int)` to be connected to a handler taking one argument. A
+`(*args, **kwargs)` wrapper erases that count, so PyQt passes everything through and the call dies
+with *"takes 2 positional arguments but 3 were given"*, at signal time rather than at import.
+
+A blanket sweep that decorated 592 signal handlers this way broke opening a project, and was
+reverted. Guard signal handlers with an explicit `try/except RuntimeError` instead, or build a
+signature-preserving wrapper first.
+
 ### Geometry
 
 Shapely 2 is required. Its `unary_union` is far faster than the old `buffer(+eps).buffer(-eps)`
