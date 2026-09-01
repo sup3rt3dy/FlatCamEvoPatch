@@ -123,6 +123,7 @@ import appTranslation as fcTranslate
 import builtins
 
 import darkdetect
+from appGUI.GUIElements import safe_widget_call
 
 fcTranslate.apply_language('strings')
 if '_' not in builtins.__dict__:
@@ -1455,6 +1456,7 @@ class App(QtCore.QObject):
         if target is not None:
             self.custom_signal[params].connect(target)
 
+    @safe_widget_call
     def on_startup_args(self, args, silent=False):
         """
         This will process any arguments provided to the application at startup. Like trying to launch a file or project.
@@ -1597,6 +1599,7 @@ class App(QtCore.QObject):
     def log_path(self):
         return os.path.join(self.data_path, 'log.txt')
 
+    @safe_widget_call
     def on_options_value_changed(self, key_changed):
         # when changing those properties the associated keys change, so we get an updated Properties default Tab
         if key_changed in [
@@ -2203,6 +2206,7 @@ class App(QtCore.QObject):
         except Exception as c_err:
             self.log.error("App.connect_toolbar_signals() tools signals -> %s" % str(c_err))
 
+    @safe_widget_call
     def on_layout(self, lay=None, connect_signals=True):
         """
         Set the toolbars layout (location).
@@ -2367,6 +2371,7 @@ class App(QtCore.QObject):
         self.ui.snap_max_dist_entry.setText(str(self.options["global_snap_max"]))
         self.ui.grid_gap_link_cb.setChecked(True)
 
+    @safe_widget_call
     def on_editing_start(self):
         """
         Send the current Geometry, Gerber, "Excellon" object or CNCJob (if any) its editor.
@@ -2403,8 +2408,15 @@ class App(QtCore.QObject):
             # self.ui.splitter.setSizes([0, 1])
             if edited_object.multigeo is True:
                 sel_rows = set()
-                for item in edited_object.ui.geo_tools_table.selectedItems():
-                    sel_rows.add(item.row())
+                try:
+                    for item in edited_object.ui.geo_tools_table.selectedItems():
+                        sel_rows.add(item.row())
+                except RuntimeError:
+                    # the tool table was destroyed by Qt before we got here (tab closed,
+                    # object deleted, UI rebuilt) - treat it as nothing being selected
+                    self.inform.emit('[WARNING_NOTCL] %s.' % _("No Tool Selected"))
+                    self.ui.menuobjects.setDisabled(False)
+                    return
                 sel_rows = list(sel_rows)
 
                 if len(sel_rows) > 1:
@@ -2422,7 +2434,13 @@ class App(QtCore.QObject):
 
                 # determine the tool dia of the selected tool
                 # selected_tooldia = float(edited_object.ui.geo_tools_table.item(sel_rows[0], 1).text())
-                sel_id = int(edited_object.ui.geo_tools_table.item(sel_rows[0], 5).text())
+                try:
+                    sel_id = int(edited_object.ui.geo_tools_table.item(sel_rows[0], 5).text())
+                except RuntimeError:
+                    # same as above: the table went away between the selection and this read
+                    self.inform.emit('[WARNING_NOTCL] %s.' % _("No Tool Selected"))
+                    self.ui.menuobjects.setDisabled(False)
+                    return
 
                 multi_tool = sel_id
                 self.log.debug("Editing MultiGeo Geometry with tool diameter: %s" % str(multi_tool))
@@ -2518,6 +2536,7 @@ class App(QtCore.QObject):
 
         self.should_we_save = True
 
+    @safe_widget_call
     def on_editing_finished(self, cleanup=None, force_cancel=None):
         """
         Transfers the Geometry or an "Excellon", from its editor to the current object.
@@ -2754,6 +2773,7 @@ class App(QtCore.QObject):
 
         self.post_edit_sig.emit()
 
+    @safe_widget_call
     def on_editing_final_action(self):
         self.log.debug("######################### Closing the EDITOR ################################")
         self.call_source = 'app'
@@ -3001,6 +3021,7 @@ class App(QtCore.QObject):
         # Re-build the recent items menu
         self.setup_recent_items()
 
+    @safe_widget_call
     def on_about(self):
         """
         Displays the "about" dialog found in the Menu --> Help.
@@ -3529,6 +3550,7 @@ class App(QtCore.QObject):
 
         AboutDialog(app=self, parent=self.ui).exec()
 
+    @safe_widget_call
     def on_howto(self):
         """
         Displays the "about" dialog found in the Menu --> Help.
@@ -3769,6 +3791,7 @@ class App(QtCore.QObject):
 
         self.ui.menuhelp_bookmarks_manager.triggered.connect(self.on_bookmarks_manager)
 
+    @safe_widget_call
     def on_bookmarks_manager(self):
         """
         Adds the bookmark manager in a Tab in Plot Area.
@@ -3798,6 +3821,7 @@ class App(QtCore.QObject):
         # Switch plot_area to preferences page
         self.ui.plot_tab_area.setCurrentWidget(self.book_dialog_tab)
 
+    @safe_widget_call
     def on_backup_site(self):
         """
         Called when the user click on the menu entry Help -> Bookmarks -> Backup Site
@@ -3826,6 +3850,7 @@ class App(QtCore.QObject):
         msgbox.exec()
         # response = msgbox.clickedButton()
 
+    @safe_widget_call
     def final_save(self):
         """
         Callback for doing a preferences save to file whenever the application is about to quit.
@@ -3878,6 +3903,7 @@ class App(QtCore.QObject):
                 pass
             self.quit_application()
 
+    @safe_widget_call
     def quit_application(self, silent=False):
         """
         Called (as a pyslot or not) when the application is quit.
@@ -4144,6 +4170,7 @@ class App(QtCore.QObject):
         self.preferencesUiManager.defaults_read_form()
         self.plotcanvas.draw_workspace(workspace_size=self.options['global_workspaceT'])
 
+    @safe_widget_call
     def on_workspace(self):
         if self.ui.general_pref_form.general_app_set_group.workspace_cb.get_value():
             self.plotcanvas.draw_workspace(workspace_size=self.options['global_workspaceT'])
@@ -4154,6 +4181,7 @@ class App(QtCore.QObject):
         self.preferencesUiManager.defaults_read_form()
         # self.save_defaults(silent=True)
 
+    @safe_widget_call
     def on_workspace_toggle(self):
         state = False if self.ui.general_pref_form.general_app_set_group.workspace_cb.get_value() else True
         try:
@@ -4174,6 +4202,7 @@ class App(QtCore.QObject):
             subprocess.Popen(['xdg-open', self.log_path()])
         self.inform.emit('[success] %s' % _("FlatCAM log opened."))
 
+    @safe_widget_call
     def on_cursor_type(self, val, control_cursor=True):
         """
 
@@ -4200,6 +4229,7 @@ class App(QtCore.QObject):
         else:
             self.app_cursor.enabled = True
 
+    @safe_widget_call
     def on_tool_add_keypress(self):
         # ## Current application units in Upper Case
         self.units = self.app_units.upper()
@@ -4270,6 +4300,7 @@ class App(QtCore.QObject):
 
     # It's meant to delete tools in tool tables via a 'Delete' shortcut key but only if certain conditions are met
     # See description below.
+    @safe_widget_call
     def on_delete_keypress(self):
         notebook_widget_name = self.ui.notebook.currentWidget().objectName()
 
@@ -4305,6 +4336,7 @@ class App(QtCore.QObject):
     # Hovering over Selected tab, if the selected tab is a Geometry it will delete tools in tool table. But even if
     # there is a Selected tab in focus with a Geometry inside, if you hover over canvas it will delete an object.
     # Complicated, I know :)
+    @safe_widget_call
     def on_delete(self, force_deletion=False):
         """
         Delete the currently selected FlatCAMObjs.
@@ -4457,6 +4489,7 @@ class App(QtCore.QObject):
             pass
         self.replot_signal[list].connect(origin_replot)
 
+    @safe_widget_call
     def on_set_zero_click(self, event, location=None, noplot=False, use_thread=True):
         """
 
@@ -4620,6 +4653,7 @@ class App(QtCore.QObject):
             worker_task()
         self.should_we_save = True
 
+    @safe_widget_call
     def on_jump_to(self, custom_location=None, fit_center=True):
         """
         Jump to a location by setting the mouse cursor location.
@@ -4740,6 +4774,7 @@ class App(QtCore.QObject):
         self.inform.emit('[success] %s' % _("Done."))
         return location
 
+    @safe_widget_call
     def on_locate(self, obj, fit_center=True):
         """
         Jump to one of the corners (or center) of an object by setting the mouse cursor location
@@ -4865,6 +4900,7 @@ class App(QtCore.QObject):
         self.inform.emit('[success] %s' % _("Done."))
         return location
 
+    @safe_widget_call
     def on_numeric_move(self, val=None):
         """
         Move to a specific location (absolute or relative against current position)
@@ -5123,6 +5159,7 @@ class App(QtCore.QObject):
                     self.log.error(
                         "App.on_select_all(). Object %s can't be selected on canvas. Error: %s" % (name, str(gerr)))
 
+    @safe_widget_call
     def on_toggle_preferences(self):
         pref_open = False
         for idx in range(self.ui.plot_tab_area.count()):
@@ -5141,6 +5178,7 @@ class App(QtCore.QObject):
         else:
             self.on_preferences()
 
+    @safe_widget_call
     def on_preferences(self):
         """
         Adds the Preferences in a Tab in Plot Area
@@ -5221,6 +5259,7 @@ class App(QtCore.QObject):
                 except AttributeError:
                     pass
 
+    @safe_widget_call
     def on_tools_database(self, source='app'):
         """
         Adds the Tools Database in a Tab in Plot Area.
@@ -5301,6 +5340,7 @@ class App(QtCore.QObject):
         # detect changes in the Tools in Tools DB, connect signals from table widget in tab
         self.tools_db_tab.ui_connect()
 
+    @safe_widget_call
     def on_3d_area(self):
         if self.use_3d_engine is False:
             msg = '[ERROR_NOTCL] %s' % _("Not available for Legacy 2D graphic mode.")
@@ -5351,6 +5391,7 @@ class App(QtCore.QObject):
         # Switch plot_area to Area 3D page
         self.ui.plot_tab_area.setCurrentWidget(self.area_3d_tab)
 
+    @safe_widget_call
     def on_geometry_tool_add_from_db_executed(self, tool):
         """
         Here add the tool from DB  in the selected geometry object.
@@ -5407,6 +5448,7 @@ class App(QtCore.QObject):
         else:
             self.inform.emit('[ERROR_NOTCL] %s' % _("Adding tool from DB is not allowed for this object."))
 
+    @safe_widget_call
     def on_plot_area_tab_closed(self, tab_obj_name):
         """
         Executed whenever a QTab is closed in the Plot Area.
@@ -5464,11 +5506,13 @@ class App(QtCore.QObject):
         self.ui.toggle_coords(checked=self.options["global_coords_bar_show"])
         self.ui.toggle_delta_coords(checked=self.options["global_delta_coords_bar_show"])
 
+    @safe_widget_call
     def on_plot_area_tab_double_clicked(self):
         # tab_obj_name = self.ui.plot_tab_area.widget(index).objectName()
         # print(tab_obj_name)
         self.ui.on_toggle_notebook()
 
+    @safe_widget_call
     def on_notebook_closed(self):
 
         # closed_plugin_name = self.ui.plugin_scroll_area.widget().objectName()
@@ -5641,6 +5685,7 @@ class App(QtCore.QObject):
                 self.inform.emit('[ERROR_NOTCL] %s: %s.' % (_("Action was not executed"), str(e)))
                 return
 
+    @safe_widget_call
     def on_rotate(self, silent=False, preset=None):
         """
         Executed when Options -> Rotate Selection menu entry is clicked.
@@ -5699,6 +5744,7 @@ class App(QtCore.QObject):
                     self.inform.emit('[ERROR_NOTCL] %s: %s' % (_("Rotation movement was not executed."), str(e)))
                     return
 
+    @safe_widget_call
     def on_skewx(self):
         """
         Executed when the menu entry in Options -> Skew on X axis is clicked.
@@ -5747,6 +5793,7 @@ class App(QtCore.QObject):
                     self.app_obj.object_changed.emit(obj)
                 self.inform.emit('[success] %s' % _("Skew on X axis done."))
 
+    @safe_widget_call
     def on_skewy(self):
         """
         Executed when the menu entry in Options -> Skew on Y axis is clicked.
@@ -5853,6 +5900,7 @@ class App(QtCore.QObject):
         grid_delete.triggered.connect(self.on_grid_delete)
         grid_toggle.triggered.connect(lambda: self.ui.grid_snap_btn.trigger())
 
+    @safe_widget_call
     def set_grid(self):
         menu_action = self.sender()
         assert isinstance(menu_action, QtGui.QAction), "Expected QAction got %s" % type(menu_action)
@@ -5860,6 +5908,7 @@ class App(QtCore.QObject):
         self.ui.grid_gap_x_entry.setText(menu_action.text())
         self.ui.grid_gap_y_entry.setText(menu_action.text())
 
+    @safe_widget_call
     def on_grid_add(self):
         # ## Current application units in lower Case
         units = self.app_units.lower()
@@ -5885,6 +5934,7 @@ class App(QtCore.QObject):
         else:
             self.inform.emit('[WARNING_NOTCL] %s...' % _("Adding New Grid cancelled"))
 
+    @safe_widget_call
     def on_grid_delete(self):
         # ## Current application units in lower Case
         units = self.app_units.lower()
@@ -5962,6 +6012,7 @@ class App(QtCore.QObject):
         if event.button == 1:
             self.doubleclick = True
 
+    @safe_widget_call
     def on_mouse_move_over_plot(self, event, origin_click=None):
         """
         Callback for the mouse motion event over the plot.
@@ -6091,6 +6142,7 @@ class App(QtCore.QObject):
                 self.ui.update_location_labels(0.0, 0.0, 0.0, 0.0)
                 self.mouse_pos = [None, None]
 
+    @safe_widget_call
     def on_mouse_click_release_over_plot(self, event):
         """
         Callback for the mouse click release over plot. This event is generated by the Matplotlib backend
@@ -6246,6 +6298,7 @@ class App(QtCore.QObject):
                 self.clipboard.setText(str(old_clipb))
             self.inform.emit('[success] %s' % _("Copied to clipboard."))
 
+    @safe_widget_call
     def on_mouse_context_menu(self):
         """
         Display a context menu when mouse right-clicking on canvas.
@@ -6519,6 +6572,7 @@ class App(QtCore.QObject):
                     tx=_("selected"))
                 )
 
+    @safe_widget_call
     def on_plugin_mouse_click_release(self, pos):
         """
         Handle specific tasks in the Plugins for the mouse click release
@@ -6546,6 +6600,7 @@ class App(QtCore.QObject):
             except AttributeError:
                 pass
 
+    @safe_widget_call
     def on_plugin_mouse_move(self, pos):
         """
         Handle specific tasks in the Plugins for the mouse move
@@ -6729,6 +6784,7 @@ class App(QtCore.QObject):
         if self.use_3d_engine is False:
             self.sel_shapes.redraw()
 
+    @safe_widget_call
     def obj_properties(self):
         """
         Will launch the object Properties Tool
@@ -6839,6 +6895,7 @@ class App(QtCore.QObject):
         # Switch plot_area to CNCJob tab
         self.ui.plot_tab_area.setCurrentWidget(self.text_editor_tab)
 
+    @safe_widget_call
     def on_view_source(self):
         """
         Called when the user wants to see the source file of the selected object
@@ -6929,6 +6986,7 @@ class App(QtCore.QObject):
         self.proc_container.view.set_idle()
         # self.ui.show()
 
+    @safe_widget_call
     def on_toggle_code_editor(self):
         self.defaults.report_usage("on_toggle_code_editor()")
 
@@ -6949,6 +7007,7 @@ class App(QtCore.QObject):
     def on_code_editor_close(self):
         self.toggle_codeeditor = False
 
+    @safe_widget_call
     def plot_all(self, fit_view=True, muted=False, use_thread=True):
         """
         Re-generates all plots from all objects.
@@ -7185,11 +7244,13 @@ class App(QtCore.QObject):
 
         self.log.debug("Recent items list has been populated.")
 
+    @safe_widget_call
     def on_properties_tab_click(self):
         tab_wdg = self.ui.properties_scroll_area.widget()
         if tab_wdg and tab_wdg.objectName() == 'default_properties':
             self.setup_default_properties_tab()
 
+    @safe_widget_call
     def on_notebook_tab_changed(self):
         """
         Slot for current tab changed in self.ui.notebook
@@ -7361,6 +7422,7 @@ class App(QtCore.QObject):
         )
         self.message.emit(title, msg, "info")
 
+    @safe_widget_call
     def on_plotcanvas_setup(self):
         """
         This is doing the setup for the plot area (canvas).
@@ -7513,6 +7575,64 @@ class App(QtCore.QObject):
         self.disable_plots(objects=object_list)
         self.inform.emit('[success] %s' % _("Selected plots disabled..."))
 
+    @staticmethod
+    def _apply_plot_checkbox(obj):
+        """
+        Push an object's stored 'plot' option into its Plot checkbox.
+
+        The checkbox is only a mirror of obj_options['plot']; the stored option is what actually
+        drives plotting. If the widget is missing or Qt has already destroyed it, there is simply
+        nothing to mirror.
+
+        :param obj:     the object whose Plot checkbox should be refreshed
+        :return:        True if the checkbox was updated, False if it was unavailable
+        :rtype:         bool
+        """
+        try:
+            plot_cb = obj.ui.plot_cb
+            try:
+                plot_cb.stateChanged.disconnect(obj.on_plot_cb_click)
+            except (TypeError, RuntimeError):
+                # not connected, or the widget is gone - the next line settles which
+                pass
+            # keep the checkbox disabled while disconnected, so a slow operation cannot be
+            # interrupted by the user toggling it
+            plot_cb.setDisabled(True)
+            obj.set_form_item("plot")
+            plot_cb.stateChanged.connect(obj.on_plot_cb_click)
+            plot_cb.setDisabled(False)
+            return True
+        except (AttributeError, TypeError, RuntimeError):
+            return False
+
+    def _refresh_plot_checkbox(self, obj):
+        """
+        Refresh an object's Plot checkbox, rebuilding its UI once if that is what it needs.
+
+        Replaces an older recovery that called build_ui() unguarded and then re-entered
+        enable_plots()/disable_plots() for the whole list. build_ui() touches the same widgets
+        that just failed, so on a destroyed UI it raised a second time and took the application
+        down; the re-entry was also pointless, since the object's 'plot' option has already been
+        flipped by then and the retry skips it.
+
+        :param obj:     the object whose Plot checkbox should be refreshed
+        :return:        None
+        """
+        if self._apply_plot_checkbox(obj):
+            return
+
+        # the UI may simply not have been built yet - build it once and retry
+        try:
+            obj.build_ui()
+        except (AttributeError, TypeError, RuntimeError):
+            # the UI is gone for good; the stored option is already correct, so plotting
+            # still does the right thing and there is nothing left to update
+            self.log.debug("App._refresh_plot_checkbox() - no usable UI for '%s'" %
+                           str(getattr(obj, 'obj_options', {}).get('name', obj)))
+            return
+
+        self._apply_plot_checkbox(obj)
+
     def enable_plots(self, objects, silent=False):
         """
         Enable plots
@@ -7530,34 +7650,10 @@ class App(QtCore.QObject):
                 obj.obj_options.set_change_callback(lambda x: None)
                 try:
                     obj.obj_options['plot'] = True
-                    try:
-                        # Safely disconnect signal from widget that may have been deleted
-                        obj.ui.plot_cb.stateChanged.disconnect(obj.on_plot_cb_click)
-                    except RuntimeError as e:
-                        # Widget already deleted, skip disconnect
-                        if "wrapped C/C++ object" not in str(e):
-                            raise
-                    # disable this cb while disconnected,
-                    # in case the operation takes time the user is not allowed to change it
-                    obj.ui.plot_cb.setDisabled(True)
-                except (AttributeError, TypeError, RuntimeError):
-                    # try to build the ui
-                    obj.build_ui()
-                    # and try again
-                    self.enable_plots(objects)
-                    return
-
-                obj.set_form_item("plot")
-                try:
-                    obj.ui.plot_cb.stateChanged.connect(obj.on_plot_cb_click)
-                    obj.ui.plot_cb.setDisabled(False)
-                except (AttributeError, TypeError, RuntimeError):
-                    # try to build the ui
-                    obj.build_ui()
-                    # and try again
-                    self.enable_plots(objects)
-                    return
-                obj.obj_options.set_change_callback(obj.on_options_change)
+                    self._refresh_plot_checkbox(obj)
+                finally:
+                    # always restore the callback, even if refreshing the checkbox failed
+                    obj.obj_options.set_change_callback(obj.on_options_change)
         self.collection.update_view()
 
         def worker_task(objs):
@@ -7587,31 +7683,10 @@ class App(QtCore.QObject):
                 obj.obj_options.set_change_callback(lambda x: None)
                 try:
                     obj.obj_options['plot'] = False
-                    try:
-                        # Safely disconnect signal from widget that may have been deleted
-                        obj.ui.plot_cb.stateChanged.disconnect(obj.on_plot_cb_click)
-                    except RuntimeError as e:
-                        # Widget already deleted, skip disconnect
-                        if "wrapped C/C++ object" not in str(e):
-                            raise
-                    obj.ui.plot_cb.setDisabled(True)
-                except (AttributeError, TypeError, RuntimeError):
-                    # try to build the ui
-                    obj.build_ui()
-                    # and try again
-                    self.disable_plots(objects)
-                    return
-
-                obj.set_form_item("plot")
-                try:
-                    obj.ui.plot_cb.stateChanged.connect(obj.on_plot_cb_click)
-                    obj.ui.plot_cb.setDisabled(False)
-                except (AttributeError, TypeError, RuntimeError):
-                    # try to build the ui
-                    obj.build_ui()
-                    # and try again
-                    self.disable_plots(objects)
-                obj.obj_options.set_change_callback(obj.on_options_change)
+                    self._refresh_plot_checkbox(obj)
+                finally:
+                    # always restore the callback, even if refreshing the checkbox failed
+                    obj.obj_options.set_change_callback(obj.on_options_change)
 
         try:
             self.delete_selection_shape()
@@ -7687,6 +7762,7 @@ class App(QtCore.QObject):
 
         self.worker_task.emit({'fcn': worker_task, 'params': [obj]})
 
+    @safe_widget_call
     def on_set_color_action_triggered(self):
         """
         This slot gets called by clicking on the menu entry in the Set Color submenu of the context menu in Project Tab
@@ -7976,6 +8052,7 @@ class App(QtCore.QObject):
             self.log.debug(
                 "shell_message() is called before Shell Class is instantiated. The message is: %s" % str(msg))
 
+    @safe_widget_call
     def script_processing(self, script_code):
         # trying to run a Tcl command without having the Shell open will create some warnings because the Tcl Shell
         # tries to print on a hidden widget, therefore show the dock if hidden

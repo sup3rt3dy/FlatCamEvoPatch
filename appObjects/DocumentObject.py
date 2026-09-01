@@ -19,6 +19,7 @@ from appGUI.ObjectUI import DocumentObjectUI
 import gettext
 import appTranslation as fcTranslate
 import builtins
+from appGUI.GUIElements import safe_widget_call
 
 fcTranslate.apply_language('strings')
 if '_' not in builtins.__dict__:
@@ -158,6 +159,7 @@ class DocumentObject(FlatCAMObj):
         else:
             self._read_only = False
 
+    @safe_widget_call
     def build_ui(self):
         FlatCAMObj.build_ui(self)
         tab_here = False
@@ -190,6 +192,7 @@ class DocumentObject(FlatCAMObj):
             self.ui.level.setChecked(False)
         self.on_level_changed(self.ui.level.isChecked())
 
+    @safe_widget_call
     def on_level_changed(self, checked):
         if not checked:
             self.ui.level.setText('%s' % _('Beginner'))
@@ -215,6 +218,7 @@ class DocumentObject(FlatCAMObj):
         else:
             self.document_editor_tab.code_editor.completer_enable = False
 
+    @safe_widget_call
     def on_tab_size_change(self, val=None):
         try:
             self.ui.tab_size_spinner.returnPressed.disconnect(self.on_tab_size_change)
@@ -234,16 +238,19 @@ class DocumentObject(FlatCAMObj):
         self.source_file = self.document_editor_tab.code_editor.toHtml()
         # print(self.source_file)
 
+    @safe_widget_call
     def font_family(self, font):
         # self.document_editor_tab.code_editor.selectAll()
         font.setPointSize(float(self.ui.font_size_cb.get_value()))
         self.document_editor_tab.code_editor.setCurrentFont(font)
         self.font_name = self.ui.font_type_cb.currentFont().family()
 
+    @safe_widget_call
     def font_size(self):
         # self.document_editor_tab.code_editor.selectAll()
         self.document_editor_tab.code_editor.setFontPointSize(float(self.ui.font_size_cb.get_value()))
 
+    @safe_widget_call
     def on_bold_button(self):
         if self.ui.font_bold_tb.isChecked():
             self.document_editor_tab.code_editor.setFontWeight(QtGui.QFont.Weight.Bold)
@@ -252,6 +259,7 @@ class DocumentObject(FlatCAMObj):
             self.document_editor_tab.code_editor.setFontWeight(QtGui.QFont.Weight.Normal)
             self.font_bold = False
 
+    @safe_widget_call
     def on_italic_button(self):
         if self.ui.font_italic_tb.isChecked():
             self.document_editor_tab.code_editor.setFontItalic(True)
@@ -260,6 +268,7 @@ class DocumentObject(FlatCAMObj):
             self.document_editor_tab.code_editor.setFontItalic(False)
             self.font_italic = False
 
+    @safe_widget_call
     def on_underline_button(self):
         if self.ui.font_under_tb.isChecked():
             self.document_editor_tab.code_editor.setFontUnderline(True)

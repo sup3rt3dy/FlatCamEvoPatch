@@ -27,6 +27,7 @@ import builtins
 
 from appParsers.ParseExcellon import Excellon
 from camlib import grace, is_mpl_key_event
+from appGUI.GUIElements import safe_widget_call
 
 fcTranslate.apply_language('strings')
 if '_' not in builtins.__dict__:
@@ -168,6 +169,7 @@ class ToolMilling(Excellon, AppTool):
     def install(self, icon=None, separator=None, **kwargs):
         AppTool.install(self, icon, separator, shortcut='Alt+M', **kwargs)
 
+    @safe_widget_call
     def run(self, toggle=True):
         self.app.defaults.report_usage("ToolMilling()")
 
@@ -440,6 +442,7 @@ class ToolMilling(Excellon, AppTool):
     def init_ui(self):
         self.ui = MillingUI(layout=self.layout, app=self.app, name=self.pluginName)
 
+    @safe_widget_call
     def set_tool_ui(self):
         self.units = self.app.app_units.upper()
         self.old_tool_dia = self.app.options["tools_iso_newdia"]
@@ -706,6 +709,7 @@ class ToolMilling(Excellon, AppTool):
             self.ui.level.setChecked(False)
         self.on_level_changed(self.ui.level.isChecked())
 
+    @safe_widget_call
     def on_level_changed(self, checked):
 
         self.target_obj = self.app.collection.get_by_name(self.ui.object_combo.get_value())
@@ -840,6 +844,7 @@ class ToolMilling(Excellon, AppTool):
         # pp combobox
         self.on_pp_changed()
 
+    @safe_widget_call
     def on_exc_rebuild_ui(self):
         # read the table tools uid
         current_uid_list = []
@@ -860,6 +865,7 @@ class ToolMilling(Excellon, AppTool):
         # the tools table changed therefore we need to rebuild it
         QtCore.QTimer.singleShot(20, self.build_ui)
 
+    @safe_widget_call
     def on_geo_rebuild_ui(self):
         # read the table tools uid
         current_uid_list = []
@@ -884,6 +890,7 @@ class ToolMilling(Excellon, AppTool):
         self.ui_disconnect()
         self.ui_connect()
 
+    @safe_widget_call
     def build_ui(self):
         self.ui_disconnect()
 
@@ -993,6 +1000,7 @@ class ToolMilling(Excellon, AppTool):
                 "<b>%s: <font color='#0000FF'>%s</font></b>" % (_('Parameters for'), _("Multiple Tools"))
             )
 
+    @safe_widget_call
     def build_ui_mill(self):
         self.units = self.app.app_units
 
@@ -1115,6 +1123,7 @@ class ToolMilling(Excellon, AppTool):
                 "<b>%s: <font color='#0000FF'>%s</font></b>" % (_('Parameters for'), _("Multiple Tools"))
             )
 
+    @safe_widget_call
     def build_ui_exc(self):
         # updated units
         self.units = self.app.app_units.upper()
@@ -1283,6 +1292,7 @@ class ToolMilling(Excellon, AppTool):
         # all the tools are selected by default
         self.ui.tools_table_mill_exc.selectAll()
 
+    @safe_widget_call
     def on_target_changed(self, val):
         # handle the Plot checkbox
         self.plot_cb_handler()
@@ -1368,6 +1378,7 @@ class ToolMilling(Excellon, AppTool):
 
         self.on_level_changed(self.ui.level.isChecked())
 
+    @safe_widget_call
     def on_object_changed(self):
         # print(self.app.ui.notebook.currentWidget().objectName() != 'plugin_tab')
         if not self.app.ui.notebook.tabText(2) != _("Milling Tool"):
@@ -1408,6 +1419,7 @@ class ToolMilling(Excellon, AppTool):
                 self.ui.param_frame.setDisabled(True)
                 self.ui.generate_cnc_button.setDisabled(True)
 
+    @safe_widget_call
     def on_object_selection_changed(self, current, previous):
         found_idx = None
         for tab_idx in range(self.app.ui.notebook.count()):
@@ -1430,6 +1442,7 @@ class ToolMilling(Excellon, AppTool):
             except Exception:
                 pass
 
+    @safe_widget_call
     def on_job_changed(self, idx):
         if self.ui.target_radio.get_value() == 'geo':
             if idx == 3:    # 'Polish'
@@ -1459,6 +1472,7 @@ class ToolMilling(Excellon, AppTool):
                       "below the copper surface.")
                 )
 
+    @safe_widget_call
     def on_offset_type_changed(self, idx):
         if idx == 3:    # 'Custom'
             self.ui.offset_label.show()
@@ -1649,6 +1663,7 @@ class ToolMilling(Excellon, AppTool):
         except (TypeError, AttributeError, RuntimeError):
             pass
 
+    @safe_widget_call
     def on_toggle_all_rows(self):
         """
         will toggle the selection of all rows in Tools table
@@ -1699,6 +1714,7 @@ class ToolMilling(Excellon, AppTool):
 
         self.ui_connect()
 
+    @safe_widget_call
     def on_row_selection_change(self):
         if self.ui.target_radio.get_value() == 'exc':
             plugin_table = self.ui.tools_table_mill_exc
@@ -1718,6 +1734,7 @@ class ToolMilling(Excellon, AppTool):
             self.ui.param_frame.setDisabled(True)
             self.ui.generate_cnc_button.setDisabled(True)
 
+    @safe_widget_call
     def update_ui(self):
         self.ui_disconnect()
 
@@ -1876,6 +1893,7 @@ class ToolMilling(Excellon, AppTool):
                         (str(storage_key), str(dict_storage[storage_key]), str(e))
                     )
 
+    @safe_widget_call
     def form_to_storage(self):
         """
         Will update the 'storage' attribute which is the dict "self.tools" with data collected from GUI
@@ -1990,6 +2008,7 @@ class ToolMilling(Excellon, AppTool):
             self.ui.cutz_entry.setToolTip('')
             self.ui.job_type_combo.set_value(0)   # 'Roughing'
 
+    @safe_widget_call
     def on_update_cutz(self):
         vdia = float(self.ui.tipdia_entry.get_value())
         half_vangle = float(self.ui.tipangle_entry.get_value()) / 2
@@ -2030,6 +2049,7 @@ class ToolMilling(Excellon, AppTool):
 
         return [str(x.text()) for x in self.ui.tools_table_mill_exc.selectedItems()]
 
+    @safe_widget_call
     def on_apply_param_to_all_clicked(self):
         if self.ui.tools_table_mill_exc.rowCount() == 0:
             # there is no tool in tool table so, we can't save the GUI elements values to storage
@@ -2062,6 +2082,7 @@ class ToolMilling(Excellon, AppTool):
         if order != 0:  # "default" choice
             self.build_ui()
 
+    @safe_widget_call
     def on_tool_add(self, dia=None, new_geo=None):
         self.app.log.debug("GeometryObject.on_add_tool()")
 
@@ -2195,6 +2216,7 @@ class ToolMilling(Excellon, AppTool):
 
         self.app.inform.emit('[success] %s' % _("New tool added to Tool Table from Tools Database."))
 
+    @safe_widget_call
     def on_tool_default_add(self, dia=None, new_geo=None, muted=None):
         self.ui_disconnect()
 
@@ -2261,6 +2283,7 @@ class ToolMilling(Excellon, AppTool):
         if self.ui.tools_table_mill_geo.rowCount() != 0:
             self.ui.param_frame.setDisabled(False)
 
+    @safe_widget_call
     def on_tool_add_from_db_clicked(self):
         """
         Called when the user wants to add a new tool from Tools Database. It will create the Tools Database object
@@ -2281,6 +2304,7 @@ class ToolMilling(Excellon, AppTool):
         self.app.tools_db_tab.ui.add_tool_from_db.show()
         self.app.tools_db_tab.ui.cancel_tool_from_db.show()
 
+    @safe_widget_call
     def on_tool_from_db_inserted(self, tool):
         """
         Called from the Tools DB object through an App method when adding a tool from Tools Database
@@ -2332,6 +2356,7 @@ class ToolMilling(Excellon, AppTool):
         if self.ui.tools_table_mill_geo.rowCount() != 0:
             self.ui.param_frame.setDisabled(False)
 
+    @safe_widget_call
     def on_tool_edit(self, current_item):
         self.ui_disconnect()
 
@@ -2371,6 +2396,7 @@ class ToolMilling(Excellon, AppTool):
         self.build_ui_sig.emit()
         self.target_obj.build_ui()
 
+    @safe_widget_call
     def on_tool_copy(self, all_tools=None):
         self.ui_disconnect()
 
@@ -2430,6 +2456,7 @@ class ToolMilling(Excellon, AppTool):
         self.build_ui_sig.emit()
         self.app.inform.emit('[success] %s' % _("Tool was copied in Tool Table."))
 
+    @safe_widget_call
     def on_tool_delete(self, all_tools=None):
         self.ui_disconnect()
 
@@ -2735,6 +2762,7 @@ class ToolMilling(Excellon, AppTool):
 
         return True, ""
 
+    @safe_widget_call
     def on_generate_cncjob_click(self):
         self.app.delete_selection_shape()
 
@@ -2756,6 +2784,7 @@ class ToolMilling(Excellon, AppTool):
         elif self.target_obj.kind == 'excellon':
             self.on_generate_cnc_from_exc()
 
+    @safe_widget_call
     def on_generate_cnc_from_exc(self):
         self.app.log.debug("Generating CNCJob from milling Excellon ...")
 
@@ -2930,6 +2959,7 @@ class ToolMilling(Excellon, AppTool):
 
         self.generate_cnc_job_handler(geo_obj=new_obj, tools_dict=new_obj.tools, disable_offset=True)
 
+    @safe_widget_call
     def on_generate_cnc_from_geo(self):
         self.app.log.debug("Generating CNCJob from Geometry ...")
 
@@ -2994,6 +3024,7 @@ class ToolMilling(Excellon, AppTool):
         #         float(self.sel_tools[tooluid_key]['data']['tools_mill_tooldia']), self.decimals)
         #     print(tooldia_val)
 
+    @safe_widget_call
     def generate_cnc_job_handler(self, geo_obj=None, outname=None, tools_dict=None, tools_in_use=None,
                                  seg_x=None, seg_y=None, toolchange=None, plot=True, use_thread=True,
                                  disable_offset=False, from_tcl=False):
@@ -3567,6 +3598,7 @@ class ToolMilling(Excellon, AppTool):
                 self.app.ui.notebook.setCurrentWidget(self.app.ui.properties_tab)
                 self.app.inform.emit('[success] %s: %s' % (_("CNCjob created"), outname))
 
+    @safe_widget_call
     def on_pp_changed(self):
         current_pp = self.ui.pp_geo_name_cb.get_value()
 
@@ -3680,6 +3712,7 @@ class ToolMilling(Excellon, AppTool):
                 self.ui.dwell_cb.show()
                 self.ui.dwelltime_entry.show()
 
+    @safe_widget_call
     def on_plot_cb_click(self):
         self.target_obj.plot()
 
@@ -3693,6 +3726,7 @@ class ToolMilling(Excellon, AppTool):
                 table_cb.setChecked(False)
         self.ui_connect()
 
+    @safe_widget_call
     def on_plot_cb_click_table(self):
         # self.ui.cnc_tools_table.cellWidget(row, 2).widget().setCheckState(QtCore.Qt.Unchecked)
         self.ui_disconnect()
@@ -3780,6 +3814,7 @@ class ToolMilling(Excellon, AppTool):
             self.delete_moving_selection_shape()
             self.delete_tool_selection_shape()
 
+    @safe_widget_call
     def on_add_area_click(self):
         shape_button = self.ui.area_shape_radio
         overz_button = self.ui.over_z_entry
@@ -3800,6 +3835,7 @@ class ToolMilling(Excellon, AppTool):
         self.app.exc_areas.on_clear_area_click()
         self.app.exc_areas.e_shape_modified.emit()
 
+    @safe_widget_call
     def on_delete_sel_areas(self):
         sel_model = self.ui.exclusion_table.selectionModel()
         sel_indexes = sel_model.selectedIndexes()
@@ -3817,6 +3853,7 @@ class ToolMilling(Excellon, AppTool):
         self.app.exc_areas.delete_sel_shapes(idxs=list(sel_rows))
         self.app.exc_areas.e_shape_modified.emit()
 
+    @safe_widget_call
     def on_copy_exclusion_area_coords(self):
         sel_model = self.ui.exclusion_table.selectionModel()
         sel_indexes = sel_model.selectedIndexes()
@@ -3838,6 +3875,7 @@ class ToolMilling(Excellon, AppTool):
         self.app.clipboard.setText(str(poly_coords))
         self.app.inform.emit('[success] %s' % _("Copied to clipboard."))
 
+    @safe_widget_call
     def draw_sel_shape(self):
         sel_model = self.ui.exclusion_table.selectionModel()
         sel_indexes = sel_model.selectedIndexes()
@@ -3869,12 +3907,14 @@ class ToolMilling(Excellon, AppTool):
     def delete_sel_shape(self):
         self.app.delete_selection_shape()
 
+    @safe_widget_call
     def update_exclusion_table(self):
         self.exclusion_area_cb_is_checked = True if self.ui.exclusion_cb.isChecked() else False
 
         self.build_ui()
         self.ui.exclusion_cb.set_value(self.exclusion_area_cb_is_checked)
 
+    @safe_widget_call
     def on_strategy(self, val):
         if val == 'around':
             self.ui.over_z_label.setDisabled(True)
@@ -3883,6 +3923,7 @@ class ToolMilling(Excellon, AppTool):
             self.ui.over_z_label.setDisabled(False)
             self.ui.over_z_entry.setDisabled(False)
 
+    @safe_widget_call
     def exclusion_table_toggle_all(self):
         """
         will toggle the selection of all rows in Exclusion Areas table
@@ -3904,6 +3945,7 @@ class ToolMilling(Excellon, AppTool):
             self.ui.exclusion_table.selectAll()
             self.draw_sel_shape()
 
+    @safe_widget_call
     def on_exclusion_table_overz(self, current_item):
         self.ui_disconnect()
 
@@ -3932,6 +3974,7 @@ class ToolMilling(Excellon, AppTool):
         self.ui_connect()
         self.build_ui_sig.emit()
 
+    @safe_widget_call
     def on_exclusion_table_strategy(self):
         cw = self.sender()
         cw_index = self.ui.exclusion_table.indexAt(cw.pos())

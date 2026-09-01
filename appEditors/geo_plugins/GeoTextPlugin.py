@@ -9,6 +9,7 @@ import sys
 import gettext
 import appTranslation as fcTranslate
 import builtins
+from appGUI.GUIElements import safe_widget_call
 
 fcTranslate.apply_language('strings')
 if '_' not in builtins.__dict__:
@@ -39,6 +40,7 @@ class TextInputTool(AppToolEditor):
         self.connect_signals_at_init()
         self.set_tool_ui()
 
+    @safe_widget_call
     def run(self):
         self.app.defaults.report_usage("Geo Editor TextInputTool()")
         super().run()
@@ -81,6 +83,7 @@ class TextInputTool(AppToolEditor):
         self.ui.font_bold_tb.clicked.connect(self.on_bold_button)
         self.ui.font_italic_tb.clicked.connect(self.on_italic_button)
 
+    @safe_widget_call
     def set_tool_ui(self):
         # Font type
         if sys.platform == "win32":
@@ -137,10 +140,12 @@ class TextInputTool(AppToolEditor):
         #     except WindowsError:
         #         pass
 
+    @safe_widget_call
     def on_tab_close(self):
         self.draw_app.select_tool("select")
         self.app.ui.notebook.callback_on_close = lambda: None
 
+    @safe_widget_call
     def on_apply_button(self):
         font_to_geo_type = ""
 
@@ -161,16 +166,19 @@ class TextInputTool(AppToolEditor):
                                                        font_type=font_to_geo_type,
                                                        units=self.app.app_units.upper())
 
+    @safe_widget_call
     def font_family(self, font):
         self.ui.text_input_entry.selectAll()
         font.setPointSize(int(self.ui.font_size_cb.get_value()))
         self.ui.text_input_entry.setCurrentFont(font)
         self.font_name = self.ui.font_type_cb.currentFont().family()
 
+    @safe_widget_call
     def font_size(self):
         self.ui.text_input_entry.selectAll()
         self.ui.text_input_entry.setFontPointSize(float(self.ui.font_size_cb.get_value()))
 
+    @safe_widget_call
     def on_bold_button(self):
         if self.ui.font_bold_tb.isChecked():
             self.ui.text_input_entry.selectAll()
@@ -181,6 +189,7 @@ class TextInputTool(AppToolEditor):
             self.ui.text_input_entry.setFontWeight(QtGui.QFont.Weight.Normal)
             self.font_bold = False
 
+    @safe_widget_call
     def on_italic_button(self):
         if self.ui.font_italic_tb.isChecked():
             self.ui.text_input_entry.selectAll()

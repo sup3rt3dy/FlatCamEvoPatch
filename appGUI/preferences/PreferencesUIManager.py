@@ -10,6 +10,7 @@ from appGUI.GUIElements import FCMessageBox
 import gettext
 import appTranslation as fcTranslate
 import builtins
+from appGUI.GUIElements import safe_widget_call
 
 fcTranslate.apply_language('strings')
 if '_' not in builtins.__dict__:
@@ -927,6 +928,7 @@ class PreferencesUIManager(QtCore.QObject):
         # except Exception:
         #     self.ui.app.log.debug("Nothing to remove")
 
+    @safe_widget_call
     def on_tab_clicked(self, idx):
         if idx == 0 and self.general_displayed is False:
             self.general_displayed = True
@@ -1113,6 +1115,7 @@ class PreferencesUIManager(QtCore.QObject):
         self.ui.plugin2_pref_form.tools2_qrcode_group.back_color_entry.set_value(
             self.defaults['tools_qrcode_back_color'])
 
+    @safe_widget_call
     def on_save_button(self, save_to_file=True):
         self.ui.app.log.debug("on_save_button() --> Applying preferences to file.")
 
@@ -1240,6 +1243,7 @@ class PreferencesUIManager(QtCore.QObject):
         if should_restart is True:
             self.ui.app.on_app_restart()
 
+    @safe_widget_call
     def on_restore_defaults_preferences(self):
         """
         Loads the application's factory default settings into ``self.defaults``.
@@ -1289,6 +1293,7 @@ class PreferencesUIManager(QtCore.QObject):
         # update the autosave timer
         self.ui.app.save_project_auto_update()
 
+    @safe_widget_call
     def on_preferences_edited(self):
         """
         Executed when a preference was changed in the Edit -> Preferences tab.
@@ -1311,6 +1316,7 @@ class PreferencesUIManager(QtCore.QObject):
 
             self.preferences_changed_flag = True
 
+    @safe_widget_call
     def on_close_preferences_tab(self, parent):
         self.ui.app.log.debug("Preferences GUI was closed.")
         if self.ignore_tab_close_event:
@@ -1376,6 +1382,7 @@ class PreferencesUIManager(QtCore.QObject):
                 self.inform.emit('')
                 return
 
+    @safe_widget_call
     def on_pref_close_button(self):
         # Preferences saved, update flag
         self.preferences_changed_flag = False

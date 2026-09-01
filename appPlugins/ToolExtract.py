@@ -18,6 +18,7 @@ from shapely import Polygon, MultiPolygon, Point, box
 import gettext
 import appTranslation as fcTranslate
 import builtins
+from appGUI.GUIElements import safe_widget_call
 
 fcTranslate.apply_language('strings')
 if '_' not in builtins.__dict__:
@@ -44,6 +45,7 @@ class ToolExtract(AppTool):
         self.pluginName = self.ui.pluginName
         self.connect_signals_at_init()
 
+    @safe_widget_call
     def on_object_combo_changed(self):
         extract_plugin_found = False
         for idx in range(self.app.ui.notebook.count()):
@@ -84,6 +86,7 @@ class ToolExtract(AppTool):
     def install(self, icon=None, separator=None, **kwargs):
         AppTool.install(self, icon, separator, shortcut='Alt+I', **kwargs)
 
+    @safe_widget_call
     def run(self, toggle=True):
         self.app.defaults.report_usage("Extract Drills()")
 
@@ -184,6 +187,7 @@ class ToolExtract(AppTool):
 
         self.ui.gerber_object_combo.currentIndexChanged.connect(self.on_object_combo_changed)
 
+    @safe_widget_call
     def set_tool_ui(self):
         self.clear_ui(self.layout)
         self.ui = ExtractUI(layout=self.layout, app=self.app)
@@ -234,6 +238,7 @@ class ToolExtract(AppTool):
 
         self.app.ui.notebook.setTabText(2, _("Extract"))
 
+    @safe_widget_call
     def build_tool_ui(self):
         self.ui_disconnect()
 
@@ -397,6 +402,7 @@ class ToolExtract(AppTool):
             except (TypeError, AttributeError, RuntimeError):
                 pass
 
+    @safe_widget_call
     def on_select_all(self, state):
         self.ui_disconnect()
         if state:
@@ -412,6 +418,7 @@ class ToolExtract(AppTool):
             self.ui.rectangular_cb.setChecked(False)
             self.ui.other_cb.setChecked(False)
 
+    @safe_widget_call
     def on_extract_drills_click(self):
         selection_index = self.ui.gerber_object_combo.currentIndex()
         model_index = self.app.collection.index(selection_index, 0, self.ui.gerber_object_combo.rootModelIndex())
@@ -708,6 +715,7 @@ class ToolExtract(AppTool):
             return
         return tools
 
+    @safe_widget_call
     def on_extract_soldermask_click(self):
         clearance = self.ui.clearance_entry.get_value()
 
@@ -825,6 +833,7 @@ class ToolExtract(AppTool):
                 self.app.log.error("Error on Extracted Soldermask Gerber object creation: %s" % str(e))
                 return
 
+    @safe_widget_call
     def on_extract_cutout_click(self):
         margin = self.ui.margin_cut_entry.get_value()
         thickness = self.ui.thick_cut_entry.get_value()
@@ -900,6 +909,7 @@ class ToolExtract(AppTool):
                 self.app.log.error("Error on Extracted Cutout Gerber object creation: %s" % str(e))
                 return
 
+    @safe_widget_call
     def on_extract_drills_method_changed(self, val):
         if val == "fixed":
             self.ui.fixed_label.show()
@@ -934,6 +944,7 @@ class ToolExtract(AppTool):
             self.ui.prop_label.show()
             self.ui.prop_frame.show()
 
+    @safe_widget_call
     def on_mark_cb_click_table(self):
         """
         Will mark aperture geometries on canvas or delete the markings depending on the checkbox state

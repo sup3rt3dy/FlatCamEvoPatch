@@ -23,6 +23,7 @@ import builtins
 
 from appParsers.ParseGerber import Gerber
 from camlib import Geometry, is_mpl_key_event
+from appGUI.GUIElements import safe_widget_call
 
 fcTranslate.apply_language('strings')
 if '_' not in builtins.__dict__:
@@ -73,6 +74,7 @@ class ToolPunchGerber(Gerber, AppTool):
         self.pluginName = self.ui.pluginName
         self.connect_signals_at_init()
 
+    @safe_widget_call
     def on_object_combo_changed(self):
         punch_plugin_found = False
         for idx in range(self.app.ui.notebook.count()):
@@ -110,6 +112,7 @@ class ToolPunchGerber(Gerber, AppTool):
 
         self.build_tool_ui()
 
+    @safe_widget_call
     def run(self, toggle=True):
         self.app.defaults.report_usage("ToolPunchGerber()")
 
@@ -216,6 +219,7 @@ class ToolPunchGerber(Gerber, AppTool):
         self.ui.sel_all_btn.clicked.connect(self.on_manual_sel_all)
         self.ui.clear_all_btn.clicked.connect(self.on_manual_clear_all)
 
+    @safe_widget_call
     def set_tool_ui(self):
         self.clear_ui(self.layout)
         self.ui = PunchUI(layout=self.layout, app=self.app)
@@ -270,6 +274,7 @@ class ToolPunchGerber(Gerber, AppTool):
 
         self.app.ui.notebook.setTabText(2, _("Punch Gerber"))
 
+    @safe_widget_call
     def build_tool_ui(self):
         self.ui_disconnect()
 
@@ -416,6 +421,7 @@ class ToolPunchGerber(Gerber, AppTool):
             self.ui.level.setChecked(False)
         self.on_level_changed(self.ui.level.isChecked())
 
+    @safe_widget_call
     def on_level_changed(self, checked):
         if not checked:
             self.ui.level.setText('%s' % _('Beginner'))
@@ -442,6 +448,7 @@ class ToolPunchGerber(Gerber, AppTool):
             self.ui.sel_label.show()
             self.ui.s_frame.show()
 
+    @safe_widget_call
     def on_select_all(self, state):
         self.ui_disconnect()
         if state:
@@ -470,6 +477,7 @@ class ToolPunchGerber(Gerber, AppTool):
 
         self.ui_connect()
 
+    @safe_widget_call
     def on_method(self, val):
         self.ui.exc_label.hide()
         self.ui.exc_combo.hide()
@@ -495,6 +503,7 @@ class ToolPunchGerber(Gerber, AppTool):
             self.ui.factor_label.show()
             self.ui.factor_entry.show()
 
+    @safe_widget_call
     def on_punch_type(self, val):
         if val == 'm':
             self.ui.sel_all_btn.show()
@@ -534,6 +543,7 @@ class ToolPunchGerber(Gerber, AppTool):
             except (TypeError, AttributeError, RuntimeError):
                 pass
 
+    @safe_widget_call
     def on_punch_object_click(self):
         punch_type = self.ui.punch_type_radio.get_value()
         punch_method = self.ui.method_punch.get_value()
@@ -606,6 +616,7 @@ class ToolPunchGerber(Gerber, AppTool):
             self.old_selection_status = deepcopy(self.app.options['global_selection_shape'])
             self.app.options['global_selection_shape'] = False
 
+    @safe_widget_call
     def on_excellon_method(self, grb_obj, outname):
         # get the Excellon file whose geometry will create the punch holes
         selection_index = self.ui.exc_combo.currentIndex()
@@ -711,6 +722,7 @@ class ToolPunchGerber(Gerber, AppTool):
 
         self.app.app_obj.new_object('gerber', outname, init_func, autoselected=False)
 
+    @safe_widget_call
     def on_excellon_manual_method(self, outname):
         # get the Excellon file whose geometry will create the punch holes
         selection_index = self.ui.exc_combo.currentIndex()
@@ -832,6 +844,7 @@ class ToolPunchGerber(Gerber, AppTool):
 
         self.app.app_obj.new_object('gerber', outname, init_func, autoselected=False)
 
+    @safe_widget_call
     def on_fixed_method(self, grb_obj, outname):
         punch_size = float(self.ui.dia_entry.get_value())
         if punch_size == 0.0:
@@ -965,6 +978,7 @@ class ToolPunchGerber(Gerber, AppTool):
 
         self.app.app_obj.new_object('gerber', outname, init_func, autoselected=False)
 
+    @safe_widget_call
     def on_fixed_manual_method(self, outname):
         punch_size = float(self.ui.dia_entry.get_value())
         if punch_size == 0.0:
@@ -1060,6 +1074,7 @@ class ToolPunchGerber(Gerber, AppTool):
 
         self.app.app_obj.new_object('gerber', outname, init_func, autoselected=False)
 
+    @safe_widget_call
     def on_ring_method(self, grb_obj, outname):
         circ_r_val = self.ui.circular_ring_entry.get_value()
         oblong_r_val = self.ui.oblong_ring_entry.get_value()
@@ -1209,6 +1224,7 @@ class ToolPunchGerber(Gerber, AppTool):
 
         self.app.app_obj.new_object('gerber', outname, init_func, autoselected=False)
 
+    @safe_widget_call
     def on_ring_manual_method(self, outname):
         circ_r_val = self.ui.circular_ring_entry.get_value()
         oblong_r_val = self.ui.oblong_ring_entry.get_value()
@@ -1349,6 +1365,7 @@ class ToolPunchGerber(Gerber, AppTool):
 
         self.app.app_obj.new_object('gerber', outname, init_func, autoselected=False)
 
+    @safe_widget_call
     def on_proportional_method(self, grb_obj, outname):
         prop_factor = self.ui.factor_entry.get_value() / 100.0
         dia = None
@@ -1493,6 +1510,7 @@ class ToolPunchGerber(Gerber, AppTool):
 
         self.app.app_obj.new_object('gerber', outname, init_func, autoselected=False)
 
+    @safe_widget_call
     def on_proportional_manual_method(self, outname):
         prop_factor = self.ui.factor_entry.get_value() / 100.0
         dia = None
@@ -1654,6 +1672,7 @@ class ToolPunchGerber(Gerber, AppTool):
                             results.append(deepcopy(new_elem))
         return results
 
+    @safe_widget_call
     def on_manual_punch(self):
         """
 
@@ -1693,6 +1712,7 @@ class ToolPunchGerber(Gerber, AppTool):
             self.on_proportional_manual_method(outname)
 
     # To be called after clicking on the plot.
+    @safe_widget_call
     def on_single_poly_mouse_release(self, event):
         if self.app.use_3d_engine:
             event_pos = event.pos
@@ -1801,6 +1821,7 @@ class ToolPunchGerber(Gerber, AppTool):
             else:
                 self.app.inform.emit('[ERROR_NOTCL] %s' % _("List of single polygons is empty. Aborting."))
 
+    @safe_widget_call
     def on_key_press(self, event):
         # modifiers = QtWidgets.QApplication.keyboardModifiers()
         # matplotlib_key_flag = False
@@ -1871,6 +1892,7 @@ class ToolPunchGerber(Gerber, AppTool):
             self.delete_moving_selection_shape()
             self.delete_tool_selection_shape()
 
+    @safe_widget_call
     def on_mark_cb_click_table(self):
         """
         Will mark aperture geometries on canvas or delete the markings depending on the checkbox state
@@ -1911,6 +1933,7 @@ class ToolPunchGerber(Gerber, AppTool):
         else:
             grb_obj.clear_plot_apertures(aperture=aperture)
 
+    @safe_widget_call
     def on_manual_sel_all(self):
         if self.ui.punch_type_radio.get_value() != 'm':
             return
@@ -1953,6 +1976,7 @@ class ToolPunchGerber(Gerber, AppTool):
         self.app.tool_shapes.redraw()
         self.app.inform.emit(_("All selectable pads are selected."))
 
+    @safe_widget_call
     def on_manual_clear_all(self):
         if self.ui.punch_type_radio.get_value() != 'm':
             return

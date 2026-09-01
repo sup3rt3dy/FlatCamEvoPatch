@@ -23,6 +23,7 @@ from shapely.strtree import STRtree
 import gettext
 import appTranslation as fcTranslate
 import builtins
+from appGUI.GUIElements import safe_widget_call
 
 fcTranslate.apply_language('strings')
 if '_' not in builtins.__dict__:
@@ -94,6 +95,7 @@ class Distance(AppTool):
         self.ui.multipoint_cb.stateChanged.connect(self.on_multipoint_measurement_changed)
         self.ui.big_cursor_cb.stateChanged.connect(self.on_cursor_change)
 
+    @safe_widget_call
     def run(self, toggle=False):
 
         if self.app.plugin_tab_locked is True:
@@ -169,6 +171,7 @@ class Distance(AppTool):
     def install(self, icon=None, separator=None, **kwargs):
         AppTool.install(self, icon, separator, shortcut='Ctrl+M', **kwargs)
 
+    @safe_widget_call
     def set_tool_ui(self):
         # if the Tool Tab is hidden display it, else hide it but only if the objectName is the same
         found_idx = None
@@ -255,6 +258,7 @@ class Distance(AppTool):
         self.ui.distance_y_entry.set_value('%.*f' % (self.decimals, 0.0))
         self.ui.total_distance_entry.set_value('%.*f' % (self.decimals, 0.0))
 
+    @safe_widget_call
     def on_snap_toggled(self, state):
         self.app.options['tools_dist_snap_center'] = state
         if state:
@@ -262,6 +266,7 @@ class Distance(AppTool):
             if self.app.ui.grid_snap_btn.isChecked():
                 self.app.ui.grid_snap_btn.trigger()
 
+    @safe_widget_call
     def on_start_measuring(self):
         # ENABLE the Measuring TOOL
         self.active = True
@@ -356,6 +361,7 @@ class Distance(AppTool):
             self.canvas.graph_event_disconnect(self.mm)
             self.canvas.graph_event_disconnect(self.mr)
 
+    @safe_widget_call
     def on_exit(self):
         # DISABLE the Measuring TOOL
         self.active = False
@@ -541,6 +547,7 @@ class Distance(AppTool):
                                      size=self.app.options["global_cursor_size"])
         return pos
 
+    @safe_widget_call
     def on_multipoint_measurement_changed(self, val):
         if val:
             self.ui.distance_x_label.setDisabled(True)
@@ -598,6 +605,7 @@ class Distance(AppTool):
 
         return pos
 
+    @safe_widget_call
     def on_mouse_click_release(self, event):
         # mouse click releases will be accepted only if the left button is clicked
         # this is necessary because right mouse click or middle mouse click
@@ -648,6 +656,7 @@ class Distance(AppTool):
                 self.app.inform.emit("[success] %s" % _("Done."))
             self.on_exit()
 
+    @safe_widget_call
     def on_mouse_move(self, event):
         multipoint = self.ui.multipoint_cb.get_value()
 

@@ -17,6 +17,7 @@ from shapely.affinity import scale
 import gettext
 import appTranslation as fcTranslate
 import builtins
+from appGUI.GUIElements import safe_widget_call
 
 fcTranslate.apply_language('strings')
 if '_' not in builtins.__dict__:
@@ -56,6 +57,7 @@ class DblSidedTool(AppTool):
     def install(self, icon=None, separator=None, **kwargs):
         AppTool.install(self, icon, separator, shortcut='Alt+D', **kwargs)
 
+    @safe_widget_call
     def run(self, toggle=True):
         self.app.defaults.report_usage("Tool2Sided()")
 
@@ -145,6 +147,7 @@ class DblSidedTool(AppTool):
 
         self.ui.reset_button.clicked.connect(self.set_tool_ui)
 
+    @safe_widget_call
     def set_tool_ui(self):
         self.clear_ui(self.layout)
         self.ui = DsidedUI(layout=self.layout, app=self.app)
@@ -221,6 +224,7 @@ class DblSidedTool(AppTool):
             self.ui.level.setChecked(False)
         self.on_level_changed(self.ui.level.isChecked())
 
+    @safe_widget_call
     def on_level_changed(self, checked):
         if not checked:
             self.ui.level.setText('%s' % _('Beginner'))
@@ -251,6 +255,7 @@ class DblSidedTool(AppTool):
             self.ui.center_btn.show()
             self.ui.calculate_bb_button.show()
 
+    @safe_widget_call
     def on_object_type(self, val):
         """
         Will select the actual type of objects: Gerber, Excellon, Geometry
@@ -265,6 +270,7 @@ class DblSidedTool(AppTool):
         self.ui.object_combo.obj_type = {
             0: "Gerber", 1: "Excellon", 2: "Geometry"}[val]
 
+    @safe_widget_call
     def on_combo_box_type(self, val):
         obj_type = {'grb': 0, 'exc': 1, 'geo': 2}[val]
         self.ui.box_combo.setRootModelIndex(self.app.collection.index(obj_type, 0, QtCore.QModelIndex()))
@@ -272,6 +278,7 @@ class DblSidedTool(AppTool):
         self.ui.box_combo.obj_type = {
             "grb": "Gerber", "exc": "Excellon", "geo": "Geometry"}[val]
 
+    @safe_widget_call
     def on_object_selection_changed(self, current, previous):
         found_idx = None
         for tab_idx in range(self.app.ui.notebook.count()):
@@ -295,6 +302,7 @@ class DblSidedTool(AppTool):
             except Exception as err:
                 self.app.log.error("DblSidedTool.on_object_selection_changed() --> %s" % str(err))
 
+    @safe_widget_call
     def on_create_alignment_holes(self):
         align_type = self.ui.align_type_radio.get_value()
         mode = self.ui.axis_location.get_value()
@@ -377,6 +385,7 @@ class DblSidedTool(AppTool):
         if not ret_val == 'fail':
             self.app.inform.emit('[success] %s' % _("Excellon object with alignment drills created..."))
 
+    @safe_widget_call
     def on_pick_hole(self):
 
         # get the Excellon file whose geometry will contain the desired drill hole
@@ -410,6 +419,7 @@ class DblSidedTool(AppTool):
         else:
             self.canvas.graph_event_disconnect(self.app.mr)
 
+    @safe_widget_call
     def on_mouse_click_release(self, event):
         if self.app.use_3d_engine:
             event_pos = event.pos
@@ -452,6 +462,7 @@ class DblSidedTool(AppTool):
         elif event.button == right_button and self.app.event_is_dragging is False:
             self.on_exit(cancelled=True)
 
+    @safe_widget_call
     def on_plugin_mouse_click_release(self, pos):
         modifiers = QtWidgets.QApplication.keyboardModifiers()
         # if modifiers == QtCore.Qt.KeyboardModifier.ShiftModifier:
@@ -487,6 +498,7 @@ class DblSidedTool(AppTool):
             self.ui.alignment_holes.set_value(clip_val)
             self.drill_values = clip_val
 
+    @safe_widget_call
     def on_exit(self, cancelled=None):
         self.app.call_source = "app"
         self.app.ui.notebook.setDisabled(False)
@@ -506,6 +518,7 @@ class DblSidedTool(AppTool):
 
         self.local_connected = False
 
+    @safe_widget_call
     def on_mirror(self):
         selection_index = self.ui.object_combo.currentIndex()
         model_index = self.app.collection.index(selection_index, 0, self.ui.object_combo.rootModelIndex())
@@ -547,11 +560,13 @@ class DblSidedTool(AppTool):
         fcobj.plot()
         self.app.inform.emit('[success] %s: %s' % (_("Object was mirrored"), str(fcobj.obj_options['name'])))
 
+    @safe_widget_call
     def on_point_add(self):
         val = self.app.options["global_point_clipboard_format"] % \
               (self.decimals, self.app.mouse_click_pos[0], self.decimals, self.app.mouse_click_pos[1])
         self.ui.point_entry.set_value(val)
 
+    @safe_widget_call
     def on_drill_delete_last(self):
         drill_values_without_last_tupple = self.drill_values.rpartition('(')[0]
         self.drill_values = drill_values_without_last_tupple
@@ -571,6 +586,7 @@ class DblSidedTool(AppTool):
             clip_text = ''
         self.app.clipboard.setText(clip_text)
 
+    @safe_widget_call
     def on_toggle_pointbox(self, val):
         if val == "point":
             self.ui.pr_frame.show()
@@ -587,6 +603,7 @@ class DblSidedTool(AppTool):
             self.ui.br_frame.hide()
             self.ui.sr_frame.show()
 
+    @safe_widget_call
     def on_bbox_coordinates(self):
         xmin = Inf
         ymin = Inf
@@ -629,6 +646,7 @@ class DblSidedTool(AppTool):
         self.ui.point_entry.set_value(val_txt)
         self.app.delete_selection_shape()
 
+    @safe_widget_call
     def on_xmin_clicked(self):
         xmin = self.ui.xmin_entry.get_value()
         self.ui.axis_location.set_value('point')
@@ -640,6 +658,7 @@ class DblSidedTool(AppTool):
             val = self.app.options["global_point_clipboard_format"] % (self.decimals, xmin, self.decimals, 0.0)
         self.ui.point_entry.set_value(val)
 
+    @safe_widget_call
     def on_ymin_clicked(self):
         ymin = self.ui.ymin_entry.get_value()
         self.ui.axis_location.set_value('point')
@@ -651,6 +670,7 @@ class DblSidedTool(AppTool):
             val = self.app.options["global_point_clipboard_format"] % (self.decimals, 0.0, self.decimals, ymin)
         self.ui.point_entry.set_value(val)
 
+    @safe_widget_call
     def on_xmax_clicked(self):
         xmax = self.ui.xmax_entry.get_value()
         self.ui.axis_location.set_value('point')
@@ -662,6 +682,7 @@ class DblSidedTool(AppTool):
             val = self.app.options["global_point_clipboard_format"] % (self.decimals, xmax, self.decimals, 0.0)
         self.ui.point_entry.set_value(val)
 
+    @safe_widget_call
     def on_ymax_clicked(self):
         ymax = self.ui.ymax_entry.get_value()
         self.ui.axis_location.set_value('point')

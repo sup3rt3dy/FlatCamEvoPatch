@@ -6,6 +6,7 @@ from vispy.scene.visuals import Rectangle, Text
 from vispy.color import Color
 
 import sys
+from appGUI.GUIElements import safe_widget_call
 
 
 class VisPyCanvas(scene.SceneCanvas):
@@ -174,6 +175,7 @@ class MyApp(QtCore.QObject):
         
         self.plot.event_connect(event="mouse_move", callback=self.on_mouse_move)
     
+    @safe_widget_call
     def on_mouse_move(self, event):
         cursor_pos = event.pos
         

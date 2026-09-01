@@ -36,6 +36,7 @@ from copy import deepcopy
 import gettext
 import appTranslation as fcTranslate
 import builtins
+from appGUI.GUIElements import safe_widget_call
 
 fcTranslate.apply_language('strings')
 if '_' not in builtins.__dict__:
@@ -427,6 +428,7 @@ class DrillAdd(FCShapeTool):
             if self.draw_app.app.plotcanvas.text_cursor.parent is None:
                 self.draw_app.app.plotcanvas.text_cursor.parent = self.draw_app.app.plotcanvas.view.scene
 
+    @safe_widget_call
     def on_key(self, key):
         # Jump to coords
         if key == QtCore.Qt.Key.Key_J or key == 'J':
@@ -490,6 +492,7 @@ class DrillAdd(FCShapeTool):
         self.drill_point = curr_pos
         self.draw_app.clicked_pos = curr_pos
 
+    @safe_widget_call
     def on_add_drill(self):
         x = self.ui.x_entry.get_value()
         y = self.ui.y_entry.get_value()
@@ -900,6 +903,7 @@ class DrillArray(FCShapeTool):
             if self.draw_app.app.plotcanvas.text_cursor.parent is None:
                 self.draw_app.app.plotcanvas.text_cursor.parent = self.draw_app.app.plotcanvas.view.scene
 
+    @safe_widget_call
     def on_key(self, key):
         key_modifier = QtWidgets.QApplication.keyboardModifiers()
 
@@ -955,6 +959,7 @@ class DrillArray(FCShapeTool):
 
         self.draw_app.clicked_pos = curr_pos
 
+    @safe_widget_call
     def on_add_drill_array(self):
         x = self.ui.x_entry.get_value()
         y = self.ui.y_entry.get_value()
@@ -1248,6 +1253,7 @@ class SlotAdd(FCShapeTool):
             if self.draw_app.app.plotcanvas.text_cursor.parent is None:
                 self.draw_app.app.plotcanvas.text_cursor.parent = self.draw_app.app.plotcanvas.view.scene
 
+    @safe_widget_call
     def on_key(self, key):
         # Jump to coords
         if key == QtCore.Qt.Key.Key_J or key == 'J':
@@ -1323,6 +1329,7 @@ class SlotAdd(FCShapeTool):
         self.slot_point = curr_pos
         self.draw_app.clicked_pos = curr_pos
 
+    @safe_widget_call
     def on_add_slot(self):
         x = self.ui.x_entry.get_value()
         y = self.ui.y_entry.get_value()
@@ -1839,6 +1846,7 @@ class SlotArray(FCShapeTool):
             if self.draw_app.app.plotcanvas.text_cursor.parent is None:
                 self.draw_app.app.plotcanvas.text_cursor.parent = self.draw_app.app.plotcanvas.view.scene
 
+    @safe_widget_call
     def on_key(self, key):
         key_modifier = QtWidgets.QApplication.keyboardModifiers()
 
@@ -1914,6 +1922,7 @@ class SlotArray(FCShapeTool):
 
         self.draw_app.clicked_pos = curr_pos
 
+    @safe_widget_call
     def on_add_slot_array(self):
         x = self.ui.x_entry.get_value()
         y = self.ui.y_entry.get_value()
@@ -3251,6 +3260,7 @@ class AppExcEditor(QtCore.QObject):
         app_mode = self.app.options["global_app_level"]
         self.change_level(app_mode)
 
+    @safe_widget_call
     def build_ui(self, first_run=None):
 
         try:
@@ -3481,6 +3491,7 @@ class AppExcEditor(QtCore.QObject):
             self.ui.level.setChecked(False)
         self.on_level_changed(self.ui.level.isChecked())
 
+    @safe_widget_call
     def on_level_changed(self, checked):
         if not checked:
             self.ui.level.setText('%s' % _('Beginner'))
@@ -3505,6 +3516,7 @@ class AppExcEditor(QtCore.QObject):
             # Context Menu section
             # self.ui.tools_table_exc.setupContextMenu()
 
+    @safe_widget_call
     def on_tool_add(self, tooldia=None):
         self.is_modified = True
         if tooldia:
@@ -3552,6 +3564,7 @@ class AppExcEditor(QtCore.QObject):
         except TypeError as e:
             self.app.log.debug("AppExcEditor.on_tool_add() --> %s" % str(e))
 
+    @safe_widget_call
     def on_tool_delete(self, dia=None):
         self.is_modified = True
         deleted_tool_dia_list = []
@@ -3607,6 +3620,7 @@ class AppExcEditor(QtCore.QObject):
 
         self.build_ui()
 
+    @safe_widget_call
     def on_tool_edit(self, item_changed):
         # if connected, disconnect the signal from the slot on item_changed as it creates issues
         try:
@@ -3751,6 +3765,7 @@ class AppExcEditor(QtCore.QObject):
 
         # self.ui.tools_table_exc.selectionModel().currentChanged.connect(self.on_row_selected)
 
+    @safe_widget_call
     def on_name_activate(self):
         self.edited_obj_name = self.ui.name_entry.get_value()
 
@@ -4458,6 +4473,7 @@ class AppExcEditor(QtCore.QObject):
 
         self.replot()
 
+    @safe_widget_call
     def on_table_selection(self):
         selected_rows = self.ui.tools_table_exc.selectionModel().selectedRows(0)
 
@@ -4496,6 +4512,7 @@ class AppExcEditor(QtCore.QObject):
 
             self.on_canvas_click_left_handler()
 
+    @safe_widget_call
     def on_canvas_click_left_handler(self, custom_pos=None):
         self.app.ui.rel_position_label.setText("<b>Dx</b>: %.4f&nbsp;&nbsp;  <b>Dy</b>: "
                                                "%.4f&nbsp;&nbsp;&nbsp;&nbsp;" % (0, 0))
@@ -4536,6 +4553,7 @@ class AppExcEditor(QtCore.QObject):
         else:
             self.app.log.debug("No active tool to respond to click!")
 
+    @safe_widget_call
     def on_exc_click_release(self, event):
         """
         Handler of the "mouse_release" event.
@@ -4619,6 +4637,7 @@ class AppExcEditor(QtCore.QObject):
                 except AttributeError:
                     pass
 
+    @safe_widget_call
     def on_canvas_move(self, event):
         """
         Called on 'mouse_move' event.
@@ -5161,6 +5180,7 @@ class AppExcEditor(QtCore.QObject):
         self.select_tool('drill_move')
         return
 
+    @safe_widget_call
     def on_slots_conversion(self):
         # selected rows
         selected_rows = set()

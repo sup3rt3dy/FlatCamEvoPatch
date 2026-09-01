@@ -30,6 +30,7 @@ from copy import deepcopy
 import gettext
 import appTranslation as fcTranslate
 import builtins
+from appGUI.GUIElements import safe_widget_call
 
 fcTranslate.apply_language('strings')
 if '_' not in builtins.__dict__:
@@ -210,6 +211,7 @@ class CNCJobObject(FlatCAMObj, CNCjob):
         # this is used, so we don't recreate the GCode for loaded objects in set_ui(), it is already there
         self.is_loaded_from_project = False
 
+    @safe_widget_call
     def build_ui(self):
         self.ui_disconnect()
 
@@ -604,6 +606,7 @@ class CNCJobObject(FlatCAMObj, CNCjob):
             self.ui.level.setChecked(False)
         self.on_level_changed(self.ui.level.isChecked())
 
+    @safe_widget_call
     def on_level_changed(self, checked):
         if not checked:
             self.ui.level.setText('%s' % _('Beginner'))
@@ -658,6 +661,7 @@ class CNCJobObject(FlatCAMObj, CNCjob):
         except (TypeError, AttributeError, RuntimeError):
             pass
 
+    @safe_widget_call
     def on_properties(self, state):
         if state:
             self.ui.info_frame.show()
@@ -673,10 +677,12 @@ class CNCJobObject(FlatCAMObj, CNCjob):
         # make sure that the FCTree widget columns are resized to content
         self.ui.treeWidget.resize_sig.emit()
 
+    @safe_widget_call
     def on_properties_expanded(self):
         for col in range(self.treeWidget.columnCount()):
             self.ui.treeWidget.resizeColumnToContents(col)
 
+    @safe_widget_call
     def on_updateplot_button_click(self, *args):
         """
         Callback for the "Updata Plot" button. Reads the form for updates
@@ -685,6 +691,7 @@ class CNCJobObject(FlatCAMObj, CNCjob):
         self.read_form()
         self.on_plot_kind_change(dia=self.ui.tooldia_entry.get_value())
 
+    @safe_widget_call
     def on_plot_kind_change(self, dia=None):
         kind = self.ui.cncplot_method_combo.get_value()
 
@@ -776,6 +783,7 @@ class CNCJobObject(FlatCAMObj, CNCjob):
         self.app.file_saved.emit("gcode", filename)
         self.app.inform.emit('[success] %s: %s' % (_("File saved to"), filename))
 
+    @safe_widget_call
     def on_review_code_click(self):
         """
         Handler activated by a button clicked when reviewing GCode.
@@ -837,6 +845,7 @@ class CNCJobObject(FlatCAMObj, CNCjob):
 
         self.app.inform.emit('[success] %s...' % _('Loaded Machine Code into Code Editor'))
 
+    @safe_widget_call
     def on_update_source_file(self):
         preamble = ''
         postamble = ''
@@ -1216,6 +1225,7 @@ class CNCJobObject(FlatCAMObj, CNCjob):
         # we need this to be able get_svg separately for shell command export_svg
         pass
 
+    @safe_widget_call
     def on_plot_cb_click(self, *args):
         """
         Handler for clicking on the Plot checkbox.
@@ -1247,6 +1257,7 @@ class CNCJobObject(FlatCAMObj, CNCjob):
 
         self.plot(kind=kind)
 
+    @safe_widget_call
     def on_plot_cb_click_table(self):
         """
         Handler for clicking the plot checkboxes added into a Table on each row. Purpose: toggle visibility for the
@@ -1382,6 +1393,7 @@ class CNCJobObject(FlatCAMObj, CNCjob):
             if self.app.use_3d_engine:
                 self.annotation.clear(update=True)
 
+    @safe_widget_call
     def on_annotation_change(self, val):
         """
         Handler for toggling the annotation display by clicking a checkbox.

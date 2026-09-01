@@ -6,6 +6,7 @@ from appGUI.GUIElements import VerticalScrollArea, FCLabel, FCButton, FCFrame, G
 import gettext
 import appTranslation as fcTranslate
 import builtins
+from appGUI.GUIElements import safe_widget_call
 
 fcTranslate.apply_language('strings')
 if '_' not in builtins.__dict__:
@@ -35,6 +36,7 @@ class GrbPadArrayEditorTool(AppToolEditor):
         # Signals
         pass
 
+    @safe_widget_call
     def run(self):
         self.app.defaults.report_usage("Exc Editor ArrayTool()")
         super().run()
@@ -70,6 +72,7 @@ class GrbPadArrayEditorTool(AppToolEditor):
 
         self.app.ui.notebook.setTabText(2, self.plugin_name)
 
+    @safe_widget_call
     def set_tool_ui(self):
         # Init appGUI
         self.ui.array_type_radio.set_value('linear')

@@ -8,6 +8,7 @@ from appGUI.GUIElements import VerticalScrollArea, FCLabel, FCButton, NumericalE
 import gettext
 import appTranslation as fcTranslate
 import builtins
+from appGUI.GUIElements import safe_widget_call
 
 fcTranslate.apply_language('strings')
 if '_' not in builtins.__dict__:
@@ -42,6 +43,7 @@ class ExcCopyEditorTool(AppToolEditor):
         except (TypeError, AttributeError, RuntimeError):
             pass
 
+    @safe_widget_call
     def run(self):
         self.app.defaults.report_usage("Geo Editor CopyTool()")
         super().run()
@@ -77,6 +79,7 @@ class ExcCopyEditorTool(AppToolEditor):
 
         self.app.ui.notebook.setTabText(2, self.plugin_name)
 
+    @safe_widget_call
     def set_tool_ui(self):
         # Init appGUI
         self.length = 0.0

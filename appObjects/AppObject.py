@@ -24,6 +24,7 @@ from copy import deepcopy
 import gettext
 import appTranslation as fcTranslate
 import builtins
+from appGUI.GUIElements import safe_widget_call
 
 fcTranslate.apply_language('strings')
 if '_' not in builtins.__dict__:
@@ -232,6 +233,7 @@ class AppObject(QtCore.QObject):
 
         return obj
 
+    @safe_widget_call
     def on_object_created(self, obj, plot, auto_select, callback, callback_params):
         """
         Event callback for object creation.

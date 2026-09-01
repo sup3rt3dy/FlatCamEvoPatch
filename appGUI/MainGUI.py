@@ -41,6 +41,7 @@ import builtins
 import traceback
 
 import darkdetect
+from appGUI.GUIElements import safe_widget_call
 
 fcTranslate.apply_language('strings')
 if '_' not in builtins.__dict__:
@@ -2819,6 +2820,7 @@ class MainGUI(QtWidgets.QMainWindow):
     #         self.showNormal()
     #         self.toggle_f_screen = False
 
+    @safe_widget_call
     def on_full_screen_toggled(self, disable=False):
         """
         Toggles the full screen mode of the window.
@@ -2940,6 +2942,7 @@ class MainGUI(QtWidgets.QMainWindow):
             #                       no_km)
             # QtCore.QCoreApplication.instance().sendEvent(self.shell._edit, f)
 
+    @safe_widget_call
     def keyPressEvent(self, event):
         """
         Key event handler for the entire app.

@@ -39,6 +39,7 @@ from shapely.affinity import translate, scale, skew, rotate
 import gettext
 import appTranslation as fcTranslate
 import builtins
+from appGUI.GUIElements import safe_widget_call
 
 fcTranslate.apply_language('strings')
 if '_' not in builtins.__dict__:
@@ -147,6 +148,7 @@ class PadEditorGrb(ShapeToolEditorGrb):
         self.make()
         return "Done."
 
+    @safe_widget_call
     def on_add_pad(self):
         self.draw_app.last_length = self.pad_tool.length
         self.points = self.ui.x_entry.get_value(), self.ui.y_entry.get_value()
@@ -341,6 +343,7 @@ class PadEditorGrb(ShapeToolEditorGrb):
             if self.draw_app.app.plotcanvas.text_cursor.parent is None:
                 self.draw_app.app.plotcanvas.text_cursor.parent = self.draw_app.app.plotcanvas.view.scene
 
+    @safe_widget_call
     def on_key(self, key):
         # Jump to coords
         if key in [QtCore.Qt.Key.Key_J, 'J']:
@@ -941,6 +944,7 @@ class PadArrayEditorGrb(ShapeToolEditorGrb):
             if self.draw_app.app.plotcanvas.text_cursor.parent is None:
                 self.draw_app.app.plotcanvas.text_cursor.parent = self.draw_app.app.plotcanvas.view.scene
 
+    @safe_widget_call
     def on_key(self, key):
         key_modifier = QtWidgets.QApplication.keyboardModifiers()
 
@@ -994,6 +998,7 @@ class PadArrayEditorGrb(ShapeToolEditorGrb):
 
         self.draw_app.clicked_pos = curr_pos
 
+    @safe_widget_call
     def on_add_pad_array(self):
         x = self.ui.x_entry.get_value()
         y = self.ui.y_entry.get_value()
@@ -1476,6 +1481,7 @@ class RegionEditorGrb(ShapeToolEditorGrb):
             if self.draw_app.app.plotcanvas.text_cursor.parent is None:
                 self.draw_app.app.plotcanvas.text_cursor.parent = self.draw_app.app.plotcanvas.view.scene
 
+    @safe_widget_call
     def on_key(self, key):
         if key == 'C' or key == QtCore.Qt.Key.Key_C:
             self.cursor_data_control = not self.cursor_data_control
@@ -1894,6 +1900,7 @@ class TrackEditorGrb(ShapeToolEditorGrb):
             if self.draw_app.app.plotcanvas.text_cursor.parent is None:
                 self.draw_app.app.plotcanvas.text_cursor.parent = self.draw_app.app.plotcanvas.view.scene
 
+    @safe_widget_call
     def on_key(self, key):
         if key == 'Backspace' or key == QtCore.Qt.Key.Key_Backspace:
             if len(self.points) > 0:
@@ -2043,6 +2050,7 @@ class TrackEditorGrb(ShapeToolEditorGrb):
         self.ui.y_entry.set_value(track_pos[1])
         self.draw_app.clicked_pos = track_pos
 
+    @safe_widget_call
     def on_add_track(self):
         x = self.ui.x_entry.get_value()
         y = self.ui.y_entry.get_value()
@@ -2632,6 +2640,7 @@ class SimplifyEditorGrb(ShapeToolEditorGrb):
         self.draw_app.plot_all()
         self.simp_tool.calculate_coords_vertex()
 
+    @safe_widget_call
     def on_simplification_click(self):
         self.app.log.debug("SimplifyEditorGrb.on_simplification_click()")
 
@@ -3326,6 +3335,7 @@ class SelectEditorGrb(QtCore.QObject, DrawTool):
                 if Point(point).intersects(geometric_data):
                     return ap_key, chunk, idx
 
+    @safe_widget_call
     def after_selection(self):
         # ######################################################################################################
         # select the aperture in the Apertures Table that is associated with the selected shape
@@ -3489,6 +3499,7 @@ class ImportEditorGrb(QtCore.QObject, DrawTool):
             self.canvas.graph_event_disconnect(self.mm)
             self.canvas.graph_event_disconnect(self.mr)
 
+    @safe_widget_call
     def on_mouse_click(self, event):
         if self.app.use_3d_engine:
             event_pos = event.pos
@@ -3506,6 +3517,7 @@ class ImportEditorGrb(QtCore.QObject, DrawTool):
             self.app.ui.rel_position_label.setText("<b>Dx</b>: %.4f&nbsp;&nbsp;  <b>Dy</b>: "
                                                    "%.4f&nbsp;&nbsp;&nbsp;&nbsp;" % (0, 0))
 
+    @safe_widget_call
     def on_mouse_move(self, event):
         if not self.app.plotcanvas.native.hasFocus():
             self.app.plotcanvas.native.setFocus()
@@ -3581,6 +3593,7 @@ class ImportEditorGrb(QtCore.QObject, DrawTool):
         else:
             self.app.selection_type = None
 
+    @safe_widget_call
     def on_mouse_click_release(self, event):
         left_button = 1
         right_button = 2 if self.app.use_3d_engine else 3
@@ -4196,6 +4209,7 @@ class AppGerberEditor(QtCore.QObject):
         app_mode = self.app.options["global_app_level"]
         self.change_level(app_mode)
 
+    @safe_widget_call
     def build_ui(self, first_run=None):
         try:
             # if connected, disconnect the signal from the slot on item_changed as it creates issues
@@ -4355,6 +4369,7 @@ class AppGerberEditor(QtCore.QObject):
             # this means that the edited object has no apertures, so we start with 10 (Gerber specifications)
             self.ui.apcode_entry.set_value(self.app.options["gerber_editor_newcode"])
 
+    @safe_widget_call
     def on_aperture_add(self, apcode=None):
         self.is_modified = True
         if apcode is not None:
@@ -4449,6 +4464,7 @@ class AppGerberEditor(QtCore.QObject):
             row_to_be_selected = 0
         self.ui.apertures_table.selectRow(row_to_be_selected)
 
+    @safe_widget_call
     def on_aperture_delete(self, ap_code: str = None):
         """
         Called for aperture deletion.
@@ -4510,6 +4526,7 @@ class AppGerberEditor(QtCore.QObject):
             else:
                 self.last_aperture_selected = int(self.ui.apertures_table.item(0, 1).text())
 
+    @safe_widget_call
     def on_tool_edit(self):
         if self.ui.apertures_table.currentItem() is None:
             return
@@ -4691,6 +4708,7 @@ class AppGerberEditor(QtCore.QObject):
         self.ui.apertures_table.itemChanged.connect(self.on_tool_edit)
         # self.ui.apertures_table.cellPressed.connect(self.on_row_selected)
 
+    @safe_widget_call
     def update_ui(self):
         is_zoom_selected = self.ui.geo_zoom.get_value()
 
@@ -4780,6 +4798,7 @@ class AppGerberEditor(QtCore.QObject):
             self.ui.level.setChecked(False)
         self.on_level_changed(self.ui.level.isChecked())
 
+    @safe_widget_call
     def on_level_changed(self, checked):
         if not checked:
             self.ui.level.setText('%s' % _('Beginner'))
@@ -4808,9 +4827,11 @@ class AppGerberEditor(QtCore.QObject):
             # Context Menu section
             # self.ui.apertures_table.setupContextMenu()
 
+    @safe_widget_call
     def on_name_activate(self):
         self.edited_obj_name = self.ui.name_entry.get_value()
 
+    @safe_widget_call
     def on_aptype_changed(self, current_index):
         # 'O' is letter O not zero.
         # print(current_index)
@@ -5577,6 +5598,7 @@ class AppGerberEditor(QtCore.QObject):
                 self.select_tool('select')
                 self.active_tool = SelectEditorGrb(self)
 
+    @safe_widget_call
     def on_row_selected(self, row, col):
         # log.debug("AppGerberEditor.on_row_selected() --> %s" % str(inspect.stack()[1][3]))
         key_modifier = QtWidgets.QApplication.keyboardModifiers()
@@ -5633,6 +5655,7 @@ class AppGerberEditor(QtCore.QObject):
 
         self.plot_all()
 
+    @safe_widget_call
     def on_table_selection(self):
         # log.debug("AppGerberEditor.on_table_selection() -> %s" % str(inspect.stack()[1][3]))
         selected_rows = self.ui.apertures_table.selectionModel().selectedRows(0)
@@ -5747,6 +5770,7 @@ class AppGerberEditor(QtCore.QObject):
         else:
             storage.append(shape_element)
 
+    @safe_widget_call
     def on_canvas_click(self, event):
         """
         event.x and .y have canvas coordinates
@@ -5814,6 +5838,7 @@ class AppGerberEditor(QtCore.QObject):
             else:
                 self.app.log.debug("No active tool to respond to click!")
 
+    @safe_widget_call
     def on_canvas_click_release(self, event):
         self.modifiers = QtWidgets.QApplication.keyboardModifiers()
         if self.app.use_3d_engine:
@@ -5987,6 +6012,7 @@ class AppGerberEditor(QtCore.QObject):
         self.ui.apertures_table.cellPressed.connect(self.on_row_selected)
         self.plot_all()
 
+    @safe_widget_call
     def on_canvas_move(self, event):
         """
         Called on 'mouse_move' event
@@ -6431,6 +6457,7 @@ class AppGerberEditor(QtCore.QObject):
     def on_simplification(self):
         self.select_tool('simplify')
 
+    @safe_widget_call
     def on_scale(self):
         scale_factor = 1.0
         self.app.log.debug("AppGerberEditor.on_scale()")
@@ -6493,6 +6520,7 @@ class AppGerberEditor(QtCore.QObject):
         self.plot_all()
         self.app.inform.emit('[success] %s' % _("Done."))
 
+    @safe_widget_call
     def on_markarea(self):
         # clear previous marking
         self.ma_annotation.clear(update=True)
@@ -7372,6 +7400,7 @@ class TransformEditorTool(AppTool):
 
         self.set_tool_ui()
 
+    @safe_widget_call
     def run(self, toggle=True):
         self.app.defaults.report_usage("Gerber Editor Transform Tool()")
 
@@ -7460,6 +7489,7 @@ class TransformEditorTool(AppTool):
 
         self.app.ui.splitter.setSizes([0, 1])
 
+    @safe_widget_call
     def on_tab_close(self):
         self.draw_app.select_tool("select")
         self.app.ui.notebook.callback_on_close = lambda: None
@@ -7880,6 +7910,7 @@ class TransformEditorTool(AppTool):
                 self.app.inform.emit('[ERROR_NOTCL] %s: %s.' % (_("Action was not executed"), str(e)))
                 return
 
+    @safe_widget_call
     def on_rotate_key(self):
         val_box = FCInputDoubleSpinner(title=_("Rotate ..."),
                                        text='%s:' % _('Enter an Angle Value (degrees)'),
@@ -7896,6 +7927,7 @@ class TransformEditorTool(AppTool):
         else:
             self.app.inform.emit('[WARNING_NOTCL] %s...' % _("Rotate cancelled"))
 
+    @safe_widget_call
     def on_offx_key(self):
         units = self.app.app_units.lower()
 
@@ -7914,6 +7946,7 @@ class TransformEditorTool(AppTool):
         else:
             self.app.inform.emit('[WARNING_NOTCL] %s...' % _("Offset X cancelled"))
 
+    @safe_widget_call
     def on_offy_key(self):
         units = self.app.app_units.lower()
 
@@ -7932,6 +7965,7 @@ class TransformEditorTool(AppTool):
         else:
             self.app.inform.emit('[WARNING_NOTCL] %s...' % _("Offset Y cancelled"))
 
+    @safe_widget_call
     def on_skewx_key(self):
         val_box = FCInputDoubleSpinner(title=_("Skew on X axis ..."),
                                        text='%s:' % _('Enter an Angle Value (degrees)'),
@@ -7948,6 +7982,7 @@ class TransformEditorTool(AppTool):
         else:
             self.app.inform.emit('[WARNING_NOTCL] %s...' % _("Skew X cancelled"))
 
+    @safe_widget_call
     def on_skewy_key(self):
         val_box = FCInputDoubleSpinner(title=_("Skew on Y axis ..."),
                                        text='%s:' % _('Enter an Angle Value (degrees)'),

@@ -32,6 +32,7 @@ from pyppeteer.chromium_downloader import check_chromium
 from lxml import etree as ET
 
 from appParsers.ParseSVG import svgparselength, svgparse_viewbox, getsvggeo, getsvgtext
+from appGUI.GUIElements import safe_widget_call
 
 fcTranslate.apply_language('strings')
 if '_' not in builtins.__dict__:
@@ -53,6 +54,7 @@ class ToolImage(AppTool):
         self.pluginName = self.ui.pluginName
         self.connect_signals_at_init()
 
+    @safe_widget_call
     def run(self, toggle=True):
         self.app.defaults.report_usage("ToolImage()")
 
@@ -116,6 +118,7 @@ class ToolImage(AppTool):
         self.ui.import_button.clicked.connect(lambda: self.on_file_importimage())
         self.ui.image_type.activated_custom.connect(self.ui.on_image_type)
 
+    @safe_widget_call
     def set_tool_ui(self):
         self.clear_ui(self.layout)
         self.ui = ImageUI(layout=self.layout, app=self.app)
@@ -154,6 +157,7 @@ class ToolImage(AppTool):
         self.ui.blur_radius_entry.set_value(1)
         self.ui.blur_delta_entry.set_value(20)
 
+    @safe_widget_call
     def on_file_importimage(self, threaded=True):
         """
         Callback for menu item File->Import IMAGE.

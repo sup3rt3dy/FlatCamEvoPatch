@@ -20,6 +20,7 @@ import appTranslation as fcTranslate
 import builtins
 
 from camlib import flatten_shapely_geometry
+from appGUI.GUIElements import safe_widget_call
 
 fcTranslate.apply_language('strings')
 if '_' not in builtins.__dict__:
@@ -46,6 +47,7 @@ class ToolInvertGerber(AppTool):
     def install(self, icon=None, separator=None, **kwargs):
         AppTool.install(self, icon, separator, shortcut='ALT+G', **kwargs)
 
+    @safe_widget_call
     def run(self, toggle=True):
         self.app.defaults.report_usage("ToolInvertGerber()")
         self.app.log.debug("ToolInvertGerber() is running ...")
@@ -107,6 +109,7 @@ class ToolInvertGerber(AppTool):
         self.ui.invert_btn.clicked.connect(self.on_grb_invert)
         self.ui.reset_button.clicked.connect(self.set_tool_ui)
 
+    @safe_widget_call
     def set_tool_ui(self):
         self.clear_ui(self.layout)
         self.ui = InvertUI(layout=self.layout, app=self.app)
@@ -122,6 +125,7 @@ class ToolInvertGerber(AppTool):
             obj_name = obj.obj_options['name']
             self.ui.gerber_combo.set_value(obj_name)
 
+    @safe_widget_call
     def on_grb_invert(self):
         margin = self.ui.margin_entry.get_value()
         if round(margin, self.decimals) == 0.0:

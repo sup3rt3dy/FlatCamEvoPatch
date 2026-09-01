@@ -54,6 +54,7 @@ from typing import Union
 import gettext
 import appTranslation as fcTranslate
 import builtins
+from appGUI.GUIElements import safe_widget_call
 
 fcTranslate.apply_language('strings')
 if '_' not in builtins.__dict__:
@@ -328,6 +329,7 @@ class AppGeoEditor(QtCore.QObject):
         if self.app.ui.grid_gap_link_cb.isChecked():
             self.app.ui.grid_gap_y_entry.set_value(val, decimals=self.decimals)
 
+    @safe_widget_call
     def on_gridx_val_changed(self):
         self.grid_changed("global_gridx", self.app.ui.grid_gap_x_entry)
         # try:
@@ -335,6 +337,7 @@ class AppGeoEditor(QtCore.QObject):
         # except ValueError:
         #     return
 
+    @safe_widget_call
     def on_gridy_val_changed(self):
         self.entry2option("global_gridy", self.app.ui.grid_gap_y_entry)
 
@@ -365,6 +368,7 @@ class AppGeoEditor(QtCore.QObject):
         app_mode = self.app.options["global_app_level"]
         self.ui.change_level(app_mode)
 
+    @safe_widget_call
     def build_ui(self):
         """
         Build the appGUI in the Properties Tab for this editor
@@ -410,6 +414,7 @@ class AppGeoEditor(QtCore.QObject):
     def on_geo_elem_selected(self):
         pass
 
+    @safe_widget_call
     def update_ui(self, current_item: QtWidgets.QTreeWidgetItem = None):
         self.selected = []
         last_obj_shape = None
@@ -548,6 +553,7 @@ class AppGeoEditor(QtCore.QObject):
         except Exception as e:
             self.app.log.error("APpGeoEditor.on_tree_selection_change() -> %s" % str(e))
 
+    @safe_widget_call
     def on_tree_selection(self):
         selected_items = self.ui.tw.selectedItems()
 
@@ -584,6 +590,7 @@ class AppGeoEditor(QtCore.QObject):
                     pass
             self.ui.geo_all_vertex_entry.set_value(str(total_vtx))
 
+    @safe_widget_call
     def on_change_orientation(self):
         self.app.log.debug("AppGeoEditor.on_change_orientation()")
 
@@ -622,6 +629,7 @@ class AppGeoEditor(QtCore.QObject):
 
         self.app.worker_task.emit({'fcn': task_job, 'params': []})
 
+    @safe_widget_call
     def on_menu_request(self, pos):
         menu = QtWidgets.QMenu()
 
@@ -986,6 +994,7 @@ class AppGeoEditor(QtCore.QObject):
         except (TypeError, AttributeError):
             pass
 
+    @safe_widget_call
     def on_clear_tree(self):
         self.ui.tw.clearSelection()
         self.ui.tw.clear()
@@ -1135,6 +1144,7 @@ class AppGeoEditor(QtCore.QObject):
             self.app.inform[str, bool].emit(_("Grid Snap disabled."), False)
             self.app.app_cursor.enabled = False
 
+    @safe_widget_call
     def on_canvas_click(self, event):
         """
         event.x and .y have canvas coordinates
@@ -1192,6 +1202,7 @@ class AppGeoEditor(QtCore.QObject):
             else:
                 self.app.log.debug("No active tool to respond to click!")
 
+    @safe_widget_call
     def on_canvas_click_release(self, event):
         if self.app.use_3d_engine:
             event_pos = event.pos
@@ -1257,6 +1268,7 @@ class AppGeoEditor(QtCore.QObject):
             self.app.log.error("FLatCAMGeoEditor.on_canvas_click_release() --> Error: %s" % str(e))
             return
 
+    @safe_widget_call
     def on_canvas_move(self, event):
         """
         Called on 'mouse_move' event.
@@ -1551,6 +1563,7 @@ class AppGeoEditor(QtCore.QObject):
             # remove from Storage
             self.storage.remove(shape)
 
+    @safe_widget_call
     def on_move(self):
         # if not self.selected:
         #     self.app.inform.emit(_("[WARNING_NOTCL] Move cancelled. No shape selected."))
@@ -1566,6 +1579,7 @@ class AppGeoEditor(QtCore.QObject):
         self.on_move()
         self.active_tool.set_origin((x, y))
 
+    @safe_widget_call
     def on_copy_click(self):
         if not self.selected:
             self.app.inform.emit('[WARNING_NOTCL] %s %s' % (_("Cancelled."), _("No shape selected.")))
@@ -1577,6 +1591,7 @@ class AppGeoEditor(QtCore.QObject):
             self.app.geo_editor.x, self.app.geo_editor.y))
         self.app.inform.emit(_("Click on target point."))
 
+    @safe_widget_call
     def on_corner_snap(self):
         self.app.ui.corner_snap_btn.trigger()
 
@@ -3169,6 +3184,7 @@ class FCCircle(FCShapeTool):
             if self.draw_app.app.plotcanvas.text_cursor.parent is None:
                 self.draw_app.app.plotcanvas.text_cursor.parent = self.draw_app.app.plotcanvas.view.scene
 
+    @safe_widget_call
     def on_key(self, key):
         # Jump to coords
         if key == QtCore.Qt.Key.Key_J or key == 'J':
@@ -5480,6 +5496,7 @@ class FCBuffer(FCShapeTool):
             self.draw_app.app.ui.splitter.setSizes([1, 1])
         self.activate()
 
+    @safe_widget_call
     def on_buffer(self):
         if not self.draw_app.selected:
             self.draw_app.app.inform.emit('[WARNING_NOTCL] %s %s' % (_("Cancelled."), _("No shape selected.")))
@@ -5506,6 +5523,7 @@ class FCBuffer(FCShapeTool):
             return
         self.draw_app.app.inform.emit('[success] %s' % _("Done."))
 
+    @safe_widget_call
     def on_buffer_int(self):
         if not self.draw_app.selected:
             self.draw_app.app.inform.emit('[WARNING_NOTCL] %s %s' % (_("Cancelled."), _("No shape selected.")))
@@ -5532,6 +5550,7 @@ class FCBuffer(FCShapeTool):
             return
         self.draw_app.app.inform.emit('[success] %s' % _("Done."))
 
+    @safe_widget_call
     def on_buffer_ext(self):
         if not self.draw_app.selected:
             self.draw_app.app.inform.emit('[WARNING_NOTCL] %s %s' % (_("Cancelled."), _("No shape selected.")))

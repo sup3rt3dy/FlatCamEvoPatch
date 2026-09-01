@@ -10,6 +10,7 @@ from copy import deepcopy
 import gettext
 import appTranslation as fcTranslate
 import builtins
+from appGUI.GUIElements import safe_widget_call
 
 fcTranslate.apply_language('strings')
 if '_' not in builtins.__dict__:
@@ -41,6 +42,7 @@ class SimplificationTool(AppToolEditor):
         self.ui.simplification_btn.clicked.connect(self.on_simplification_click)
         self.update_ui.connect(self.on_update_ui)
 
+    @safe_widget_call
     def run(self):
         self.app.defaults.report_usage("Geo Editor SimplificationTool()")
         super().run()
@@ -76,6 +78,7 @@ class SimplificationTool(AppToolEditor):
 
         self.app.ui.notebook.setTabText(2,  self.plugin_name)
 
+    @safe_widget_call
     def set_tool_ui(self):
         # Init appGUI
         self.ui.geo_tol_entry.set_value(0.01 if self.geo_editor.units == 'MM' else 0.0004)
@@ -93,10 +96,12 @@ class SimplificationTool(AppToolEditor):
             # those are displayed by triggering the signal self.update_ui
             self.calculate_coordinates_vertex(selected_shapes_geos)
 
+    @safe_widget_call
     def on_tab_close(self):
         self.geo_editor.select_tool("select")
         self.app.ui.notebook.callback_on_close = lambda: None
 
+    @safe_widget_call
     def on_simplification_click(self):
         self.app.log.debug("FCSimplification.on_simplification_click()")
 
@@ -213,6 +218,7 @@ class SimplificationTool(AppToolEditor):
 
             self.update_ui.emit(coordinates, vertex_nr)
 
+    @safe_widget_call
     def on_update_ui(self, coords, vertex_nr):
         self.ui.geo_coords_entry.set_value(str(coords))
         self.ui.geo_vertex_entry.set_value(vertex_nr)
