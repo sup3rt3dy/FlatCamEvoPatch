@@ -3882,6 +3882,30 @@ class TransformEditorGrb(ShapeToolEditorGrb):
 
 
 class AppGerberEditor(QtCore.QObject):
+
+    @property
+    def pool(self):
+        """
+        The application's process pool, resolved on use rather than at construction.
+
+        The editor is built at application start-up, so holding a reference to the pool here used
+        to spawn worker processes every launch, even for sessions that never open the editor.
+        Reading it from the app on demand keeps the pool lazy while still giving worker_job() and
+        the aperture loader a real pool when they run.
+
+        :return:    the application process pool
+        :rtype:     multiprocessing.pool.Pool
+        """
+        if self._pool_override is not None:
+            return self._pool_override
+        return self.app.pool
+
+    @pool.setter
+    def pool(self, value):
+        # pool_recreated() assigns here; remembering it keeps that path working, and None simply
+        # falls back to resolving from the app again.
+        self._pool_override = value
+
     draw_shape_idx = -1
     # plot_finished = QtCore.pyqtSignal()
     mp_finished = QtCore.pyqtSignal(list)
@@ -4032,9 +4056,9 @@ class AppGerberEditor(QtCore.QObject):
         self.edited_obj_name = ""
         self.tool_row = 0
 
-        # Multiprocessing pool
-        # set by the pool_recreated slot; resolved from the app when actually needed
-        self.pool = None
+        # Multiprocessing pool - see the 'pool' property below. Not stored here, so that merely
+        # constructing the editor does not spawn worker processes at application start-up.
+        self._pool_override = None
 
         # Multiprocessing results
         self.results = []

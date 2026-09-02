@@ -30,6 +30,20 @@ log = logging.getLogger('base')
 
 class ToolSub(AppTool):
 
+    @property
+    def pool(self):
+        """
+        The application's process pool, resolved on use rather than at construction.
+
+        This plugin is instantiated at start-up like every other one, but only the aperture
+        intersection work needs workers - so the pool is only created if that actually runs.
+        worker_job() is handed this plugin instance and reads app_obj.pool, which lands here.
+
+        :return:    the application process pool
+        :rtype:     multiprocessing.pool.Pool
+        """
+        return self.app.pool
+
     job_finished = QtCore.pyqtSignal(bool)
 
     # the string param is the outname and the list is a list of tuples each being formed from the new_aperture_geometry
